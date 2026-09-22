@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\ReportController;
@@ -41,10 +42,17 @@ Route::match(['get', 'post'], 'billing/callback', PaymentCallbackController::cla
     ->withoutMiddleware([ValidateCsrfToken::class])
     ->name('billing.callback');
 
+/*
+| Onboarding sits outside the subscription gate: at this point the user has no
+| workspace at all, so there is nothing for the gate to look up.
+*/
+
 Route::middleware('auth')->group(function () {
     Route::get('onboarding', [OnboardingController::class, 'show'])->name('onboarding');
     Route::post('onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+});
 
+Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::post('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
@@ -62,6 +70,9 @@ Route::middleware('auth')->group(function () {
     Route::post('billing', [BillingController::class, 'store'])->name('billing.store');
     Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
     Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('reports/weekly', [WeeklyReportController::class, 'index'])->name('reports.weekly.index');

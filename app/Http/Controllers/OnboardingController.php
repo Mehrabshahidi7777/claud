@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\WorkspaceRole;
 use App\Models\Workspace;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\DB;
  */
 class OnboardingController extends Controller
 {
+    public function __construct(private readonly BillingService $billing) {}
+
     public function show(Request $request)
     {
         if ($request->user()->name !== '' && $request->user()->workspaces()->exists()) {
@@ -39,6 +42,11 @@ class OnboardingController extends Controller
             // Whoever creates the workspace owns it, which also makes them the
             // default destination for an escalation that has nowhere else to go.
             $workspace->members()->attach($user, ['role' => WorkspaceRole::Owner->value]);
+
+            // The trial starts here rather than at the first payment. Without
+            // it a brand new customer meets the paywall before they have seen
+            // the product work once.
+            $this->billing->startTrial($workspace);
         });
 
         return redirect()->route('tasks.index');

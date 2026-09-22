@@ -89,6 +89,14 @@ class SendGate
             return $this->skip('workspace_out_of_sms_credit');
         }
 
+        // 8. The subscription is live. Every message costs us real money at
+        //    the provider, so an expired workspace must not keep spending it.
+        //    Grace still counts — a week of goodwill is cheaper than the churn
+        //    that cutting someone off mid-week causes.
+        if (! app(BillingService::class)->currentSubscription($workspace)?->grantsAccess()) {
+            return $this->skip('subscription_expired');
+        }
+
         return ['verdict' => self::SEND, 'reason' => null, 'retry_at' => null];
     }
 

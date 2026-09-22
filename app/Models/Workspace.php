@@ -38,6 +38,11 @@ class Workspace extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
     /**
      * Read a follow-up setting, falling back to config/followup.php. Every
      * timing in the engine goes through here so a workspace can tune its own

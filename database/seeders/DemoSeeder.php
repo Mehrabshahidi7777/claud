@@ -14,6 +14,8 @@ use App\Models\TaskFollowUp;
 use App\Models\User;
 use App\Models\WeeklyReport;
 use App\Models\Workspace;
+use App\Notifications\TaskReminder;
+use App\Services\BillingService;
 use App\Services\FollowUpScheduler;
 use Illuminate\Database\Seeder;
 
@@ -69,6 +71,10 @@ class DemoSeeder extends Seeder
                 'manager_id' => $opsManager->id,
             ]);
         }
+
+        // A real workspace gets its trial at onboarding; the demo needs one
+        // too, or the paywall blocks the demo itself.
+        app(BillingService::class)->startTrial($workspace);
 
         $this->seedHolidays();
 
@@ -129,6 +135,14 @@ class DemoSeeder extends Seeder
             $scheduler->scheduleFor($task);
         }
 
+        // A task whose gentle reminder has already fired, so the notification
+        // page is alive in the demo. An empty page there reads as a feature
+        // that does not work.
+        // Assigned to the owner, who is who the demo signs in as. A manager
+        // with no work of their own sees an empty notification page and reads
+        // the feature as broken.
+        $this->seedNudgedTask($workspace, $owner, $opsManager);
+
         $this->seedChasedTask($workspace, $technicians->first(), $opsManager);
         $this->seedEscalatedTask($workspace, $technicians->get(1), $opsManager);
         $this->seedDeferredTask($workspace, $technicians->get(2), $opsManager);
@@ -137,6 +151,36 @@ class DemoSeeder extends Seeder
 
         $this->command->info('Demo workspace ready.');
         $this->command->info('Sign in with 09121110001 — the code is in storage/logs/laravel.log on the log driver.');
+    }
+
+    /**
+     * The first rung, already fired. It costs nothing and arrives before
+     * anything has gone wrong — which is exactly why the SMS rungs stay rare
+     * enough to still be taken seriously.
+     */
+    private function seedNudgedTask(Workspace $workspace, User $assignee, User $manager): void
+    {
+        $task = Task::create([
+            'workspace_id' => $workspace->id,
+            'title' => 'بررسی و تأیید پیش‌فاکتور پروژه جردن',
+            'assignee_id' => $assignee->id,
+            'creator_id' => $manager->id,
+            'due_at' => now()->addHours(20)->setTime(17, 0),
+            'priority' => TaskPriority::Normal,
+            'status' => TaskStatus::Nudged,
+        ]);
+
+        TaskFollowUp::create([
+            'task_id' => $task->id,
+            'step' => FollowUpStep::Nudge->value,
+            'channel' => 'notification',
+            'recipient_id' => $assignee->id,
+            'scheduled_at' => now()->subHours(4),
+            'sent_at' => now()->subHours(4),
+            'status' => FollowUpStatus::Sent,
+        ]);
+
+        $assignee->notify(new TaskReminder($task, FollowUpStep::Nudge));
     }
 
     /**

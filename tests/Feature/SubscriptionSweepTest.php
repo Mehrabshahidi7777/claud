@@ -31,7 +31,9 @@ class SubscriptionSweepTest extends TestCase
 
         CarbonImmutable::setTestNow('2026-09-22 09:00:00');
 
-        $this->workspace = Workspace::factory()->create();
+        // Without a subscription of its own: each test sets up the exact
+        // state it is about, and the factory's trial would collide with it.
+        $this->workspace = Workspace::factory()->withoutSubscription()->create();
         $this->workspace->members()->attach(User::factory()->create(), ['role' => 'owner']);
     }
 

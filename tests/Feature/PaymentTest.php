@@ -282,11 +282,13 @@ class PaymentTest extends TestCase
 
     public function test_an_early_renewal_adds_to_the_term_rather_than_truncating_it(): void
     {
-        $existing = Subscription::factory()->for($this->workspace)->create([
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+
+        $existing = Subscription::factory()->for($workspace)->create([
             'ends_at' => now()->addDays(20),
         ]);
 
-        $invoice = Invoice::factory()->for($this->workspace)->create();
+        $invoice = Invoice::factory()->for($workspace)->create();
         app(BillingService::class)->applyPaidInvoice($invoice);
 
         // Twenty days remaining plus a fresh month, not a month from today.
@@ -298,16 +300,18 @@ class PaymentTest extends TestCase
 
     public function test_a_lapsed_subscription_restarts_from_today(): void
     {
-        Subscription::factory()->for($this->workspace)->create([
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+
+        Subscription::factory()->for($workspace)->create([
             'ends_at' => now()->subDays(30),
         ]);
 
-        $invoice = Invoice::factory()->for($this->workspace)->create();
+        $invoice = Invoice::factory()->for($workspace)->create();
         app(BillingService::class)->applyPaidInvoice($invoice);
 
         $this->assertSame(
             now()->addMonth()->toDateString(),
-            Subscription::first()->fresh()->ends_at->toDateString(),
+            Subscription::where('workspace_id', $workspace->id)->first()->fresh()->ends_at->toDateString(),
         );
     }
 
@@ -326,7 +330,9 @@ class PaymentTest extends TestCase
 
     public function test_a_trial_grants_access_without_a_card(): void
     {
-        $subscription = app(BillingService::class)->startTrial($this->workspace);
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+
+        $subscription = app(BillingService::class)->startTrial($workspace);
 
         $this->assertSame(SubscriptionStatus::Trialing, $subscription->status);
         $this->assertTrue($subscription->grantsAccess());
@@ -337,14 +343,16 @@ class PaymentTest extends TestCase
     {
         // Locking someone out the hour their term lapsed loses a paying
         // customer over a forgotten renewal.
-        $subscription = Subscription::factory()->for($this->workspace)->inGrace()->create();
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+        $subscription = Subscription::factory()->for($workspace)->inGrace()->create();
 
         $this->assertTrue($subscription->grantsAccess());
     }
 
     public function test_an_expired_subscription_does_not(): void
     {
-        $subscription = Subscription::factory()->for($this->workspace)->create([
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+        $subscription = Subscription::factory()->for($workspace)->create([
             'status' => SubscriptionStatus::Expired,
             'ends_at' => now()->subDays(10),
         ]);

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Workspace;
+use App\Services\BillingService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,6 +21,31 @@ class WorkspaceFactory extends Factory
             'sms_used' => 0,
             'sms_period_started_at' => now()->startOfMonth(),
         ];
+    }
+
+    /**
+     * Every workspace created through onboarding starts a trial, so one is
+     * created here too. Without it the follow-up engine would refuse to send
+     * for a factory-made workspace and every engine test would be testing the
+     * paywall instead of the ladder.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Workspace $workspace) {
+            app(BillingService::class)->startTrial($workspace);
+        });
+    }
+
+    /**
+     * A workspace with no subscription — what a billing test needs so it can
+     * set up its own. The trial is removed rather than skipped because
+     * afterCreating callbacks stack rather than replace one another.
+     */
+    public function withoutSubscription(): static
+    {
+        return $this->afterCreating(function (Workspace $workspace) {
+            $workspace->subscriptions()->delete();
+        });
     }
 
     public function withoutSmsCredit(): static

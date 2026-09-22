@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -12,9 +14,20 @@ class Holiday extends Model
 
     protected $fillable = ['date', 'title', 'jalali_year'];
 
-    protected function casts(): array
+    /**
+     * Stored as a bare date and read back as one.
+     *
+     * A plain `date` cast writes `2026-03-21 00:00:00`, which a later lookup
+     * for `2026-03-21` then fails to match — so `holidays:seed` run twice
+     * would insert duplicates and hit the unique index instead of being the
+     * no-op it is meant to be.
+     */
+    protected function date(): Attribute
     {
-        return ['date' => 'date'];
+        return Attribute::make(
+            get: fn (string $value) => CarbonImmutable::parse($value)->startOfDay(),
+            set: fn ($value) => CarbonImmutable::parse($value)->toDateString(),
+        );
     }
 
     /**

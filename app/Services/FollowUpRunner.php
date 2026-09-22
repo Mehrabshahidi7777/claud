@@ -8,6 +8,7 @@ use App\Enums\TaskStatus;
 use App\Models\Activity;
 use App\Models\SmsOutbound;
 use App\Models\TaskFollowUp;
+use App\Notifications\TaskReminder;
 use App\Sms\PatternMessage;
 use App\Support\PersianText;
 use Carbon\CarbonImmutable;
@@ -45,9 +46,12 @@ class FollowUpRunner
     {
         $patternKey = $followUp->step->patternKey();
 
-        // Notification-only rungs still advance the task's state; they simply
-        // cost nothing and have no pattern behind them.
+        // The free rungs. They reach the assignee before anything has gone
+        // wrong, which is what keeps the SMS rungs rare enough to still be
+        // taken seriously when they do fire.
         if ($patternKey === null) {
+            $followUp->recipient?->notify(new TaskReminder($followUp->task, $followUp->step));
+
             $this->advanceStatus($followUp);
             $followUp->markSent();
 

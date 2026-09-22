@@ -65,6 +65,27 @@
                    class="rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     اعضا
                 </a>
+
+                @php
+                    // The count the ladder's free rungs produce. Cached for a
+                    // minute so a header rendered on every page does not cost
+                    // a query on every page.
+                    $unread = cache()->remember(
+                        'unread-notifications:'.auth()->id(),
+                        now()->addMinute(),
+                        fn () => auth()->user()->unreadNotifications()->count(),
+                    );
+                @endphp
+
+                <a href="{{ route('notifications.index') }}"
+                   class="relative rounded-lg px-3 py-2 {{ $current === 'notifications.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    اعلان‌ها
+                    @if ($unread > 0)
+                        <span class="tabular absolute -top-1 -start-1 rounded-full bg-red-600 px-1.5 text-[11px] text-white">
+                            {{ $unread > 9 ? '۹+' : $unread }}
+                        </span>
+                    @endif
+                </a>
             </nav>
 
             <form method="POST" action="{{ route('logout') }}" class="ms-auto">
@@ -74,6 +95,25 @@
         </div>
     </header>
 @endauth
+
+@if (! empty($subscriptionLapsed))
+    {{-- Not a one-shot flash. Someone bounced from a save needs to know why on
+         whichever page they land on next, and the state persists until they
+         pay — so the banner does too. --}}
+    <div class="border-b border-amber-200 bg-amber-50 px-4 py-3">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm text-amber-900">
+            <span>
+                اشتراک شما تمام شده است. همه‌چیز قابل مشاهده است، ولی تا تمدید
+                امکان ثبت تغییر جدید وجود ندارد.
+            </span>
+
+            <a href="{{ route('billing.index') }}"
+               class="ms-auto rounded-lg bg-amber-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800">
+                تمدید اشتراک
+            </a>
+        </div>
+    </div>
+@endif
 
 @auth
     {{-- Hidden until the browser says the app is installable, and dismissed
