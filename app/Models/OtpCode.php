@@ -10,7 +10,13 @@ class OtpCode extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['phone', 'code_hash', 'expires_at', 'request_ip'];
+    /**
+     * Never built from request input — the service constructs every row — so
+     * guarding the columns only risks dropping one silently. It dropped
+     * `consumed_at` when this was a $fillable list, which left a used login
+     * code replayable for the rest of its two minutes.
+     */
+    protected $guarded = [];
 
     protected $hidden = ['code_hash'];
 

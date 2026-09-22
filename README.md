@@ -1,58 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# سامانه پیگیری و پاسخگویی سازمانی
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+نرم‌افزاری که به‌جای مدیر، کارها را پیگیری می‌کند.
 
-## About Laravel
+این یک تسک‌منیجر نیست. تفاوتش با ترلو و کلیک‌آپ در فیچر نیست، در رفتار است:
+ابزارهای موجود **منفعل**‌اند و منتظر می‌مانند آدم‌ها سراغشان بیایند؛ این سامانه
+**فعال** است و خودش سراغ آدم‌ها می‌رود — با پیامک دوطرفه، تشدید پله‌ای، و
+گزارشی که خودش می‌نویسد.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## راه‌اندازی
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### پیش‌نیازها
 
-## Learning Laravel
+PHP 8.4، Composer، MySQL 8، Node 20 به بالا.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### گام‌ها
 
 ```bash
-composer require laravel/boost --dev
+composer install
+npm install && npm run build
 
-php artisan boost:install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+دیتابیس را **قبل از مایگریت** دستی بسازید. `utf8mb4` الزامی است، وگرنه فارسی
+و اموجی خراب ذخیره می‌شوند:
 
-## Contributing
+```sql
+CREATE DATABASE sazmat CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+بعد در `.env`:
 
-## Code of Conduct
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sazmat
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+و سپس:
 
-## Security Vulnerabilities
+```bash
+php artisan migrate
+php artisan db:seed --class=DemoSeeder   # اختیاری: دیتای نمونه برای دمو
+php artisan serve
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+ورود با شماره `09121110001`. روی درایور `log`، کد ورود در
+`storage/logs/laravel.log` نوشته می‌شود.
 
-## License
+### موتور باید بچرخد
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+بدون این دو، هیچ پیگیری‌ای انجام نمی‌شود:
+
+```bash
+# کرون سرور
+* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
+
+# اجراکننده‌ی صف
+php artisan queue:work
+```
+
+---
+
+## پیامک
+
+خط اختصاصی فقط ارسال مبتنی بر **پترن** را می‌پذیرد؛ متن آزاد رد می‌شود. پس هر
+قالب باید در پنل آموت ثبت و تأیید شده باشد و ما فقط کد پترن و مقادیرش را
+می‌فرستیم.
+
+۸ پترن لازم است. متن تأییدشده‌ی هرکدام در `config/sms.php` آمده:
+`chase` · `defer_ask` · `escalate` · `confirm_done` · `confirm_defer` ·
+`unknown` · `otp` · `welcome`
+
+هر متن زیر **۷۰ کاراکتر** نوشته شده، چون پیامک فارسی با UCS-2 می‌رود: ۷۰
+کاراکتر در یک پیامک و ۶۷ کاراکتر در هر بخش پیامک چندبخشی. یک کاراکتر اضافه،
+هزینه را دو برابر می‌کند.
+
+### وب‌هوک پیامک ورودی
+
+```
+POST /api/webhooks/sms/amoot/{هر-رشته-تصادفی}
+هدر: X-Webhook-Secret: <AMOOT_INBOUND_SECRET>
+```
+
+مسیر غیرقابل‌حدس است، ولی لو رفتن مسیر نباید برای تزریق پاسخ به تسک‌های دیگران
+کافی باشد — برای همین رمز مشترک هم چک می‌شود.
+
+> **قبل از اولین ارسال واقعی:** نام دقیق پارامترهای `SendWithPattern` و شکل
+> پاسخ آن بین نسخه‌های پنل فرق می‌کند. از مستندات پنل خودتان بررسی کنید و در
+> صورت نیاز فقط `payloadFor()` و `interpret()` در
+> `app/Sms/Drivers/AmootSmsDriver.php` را تنظیم کنید. بقیه‌ی موتور از این
+> فرمت جدا نگه داشته شده است.
+
+### درایورها
+
+| درایور | کاربرد |
+| --- | --- |
+| `log` | توسعه‌ی محلی. پیامک در لاگ نوشته می‌شود، اعتباری خرج نمی‌شود. |
+| `fake` | تست‌ها. در حافظه ثبت می‌شود. |
+| `amoot` | تولید. تا وقتی پترن تأیید نشده روی این نروید. |
+
+---
+
+## موتور پیگیری
+
+پنج پله، از آرام تا جدی. مدیر فقط در پله‌ی چهارم وارد می‌شود.
+
+| پله | چه وقت | کانال | گیرنده |
+| --- | --- | --- | --- |
+| ۱ یادآوری آرام | ۲۴ ساعت قبل از ددلاین | اعلان | مجری |
+| ۲ یادآوری صبح | ۸:۳۰ روز سررسید | اعلان | مجری |
+| ۳ **پیامک پیگیری** | ۲ ساعت بعد از ددلاین | پیامک | مجری |
+| ۴ تشدید | ۴ ساعت بعد، بدون پاسخ | پیامک | مدیر مستقیم |
+| ۵ گزارش | شنبه ۸:۰۰ | ایمیل | مدیرعامل |
+
+تسک بحرانی نردبان را فشرده می‌کند: پله‌ی ۳ در خود ساعت ددلاین و پله‌ی ۴ بعد از
+۹۰ دقیقه.
+
+**نردبان بعد از پله‌ی ۴ متوقف می‌شود.** پیامک مکرر بعد از تشدید، هم آزاردهنده
+است هم بی‌دلیل هزینه بالا می‌برد.
+
+### قوانین مهار
+
+بدون این‌ها موتور پیگیری یک دستگاه اسپم است و مشتری ماه دوم لغو می‌کند:
+
+- **ساعت سکوت** ۲۱:۰۰ تا ۸:۰۰ — پیامک **به تعویق می‌افتد، حذف نمی‌شود**
+- **تعطیلات** جمعه و تعطیلات رسمی (جدول `holidays`)
+- **سقف** ۳ پیامک در روز و ۱۰ در هفته برای هر نفر، با حداقل ۹۰ دقیقه فاصله
+- **دو کلید خاموشی**: یکی برای هر فضای کاری، یکی سراسری در `config/sms.php`
+
+تسک بحرانی می‌تواند ساعت سکوت را بشکند — ولی فقط اگر مدیر هنگام ثبت صریحاً
+اجازه داده باشد. اولویت به‌تنهایی رضایت نیست.
+
+### یکتایی
+
+ایندکس یکتا روی `(task_id, step)` در جدول `task_follow_ups`. صف‌ها دوباره
+اجرا می‌شوند و زمان‌بندها هم‌پوشانی دارند؛ هیچ دقتی در PHP جلوی ارسال دوباره
+را نمی‌گیرد، فقط دیتابیس می‌گیرد.
+
+---
+
+## هوش مصنوعی (اختیاری)
+
+مدل روی سرور خودتان با اولاما اجرا می‌شود — همان چیزی که اجازه می‌دهد به بانک
+و پیمانکار دولتی بگویید «دیتای شما از سرور شما خارج نمی‌شود».
+
+```
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:7b
+```
+
+فقط یک کاربرد پیاده شده: **متن آزاد ← تسک**. خروجی مدل هرگز مستقیم پذیرفته
+نمی‌شود — با JSON Schema محدود، با اعتبارسنج لاراول بررسی، نام‌ها با اعضای
+واقعی تطبیق، و تاریخ‌ها در یک بازه‌ی منطقی محدود می‌شوند. نتیجه همیشه
+**پیش‌نویس** است و مدیر تأییدش می‌کند.
+
+اگر مدل در دسترس نباشد، فرم دستی سر جایش است. هوش مصنوعی میانبر است، نه
+دروازه.
+
+---
+
+## پرداخت
+
+پیاده‌سازی نشده. پنج مشتری اول دستی فاکتور می‌شوند. `config/payment.php` و
+متغیرهای SEP آماده‌اند تا فاز ۲ فقط نوشتن درایور باشد، نه سیم‌کشی دوباره.
+
+---
+
+## توسعه
+
+```bash
+php artisan test        # ۱۲۹ تست
+./vendor/bin/pint       # قالب‌بندی کد
+php artisan followups:run --dry   # چه پیگیری‌هایی سررسید شده‌اند
+```
+
+تست‌ها روی SQLite در حافظه اجرا می‌شوند، مستقل از MySQL تولید.
+
+---
+
+## تصمیم‌های معماری
+
+- **چندمستأجری** با `workspace_id` روی همه‌چیز و `CurrentWorkspace` به‌عنوان
+  تنها راه دسترسی. تسک فضای کاری دیگر ۴۰۴ می‌دهد نه ۴۰۳ — گفتن اینکه رکوردی
+  وجود دارد ولی مال شما نیست، خودش نشت است.
+- **شماره موبایل هویت است.** عضوی که مدیرش ثبت کرده، از همان لحظه قابل اساین
+  شدن است، حتی اگر هرگز وارد سامانه نشود.
+- **تاریخ شمسی فقط در لایه‌ی نمایش.** دیتابیس میلادی و UTC است.
+- **اعتبار پیامک** فقط بعد از پذیرش سرویس مصرف می‌شود، و بر حسب بخش پیامک
+  شمرده می‌شود چون همان چیزی است که فاکتور می‌شود.
+- **پیامک ورودی اول خام ذخیره می‌شود، بعد تفسیر.** قواعد تطبیق در ماه‌های اول
+  غلط از آب درمی‌آیند و این تنها راه بازپخش آن‌ها روی ترافیک واقعی است.
