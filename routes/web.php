@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
@@ -70,6 +72,19 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::post('billing', [BillingController::class, 'store'])->name('billing.store');
     Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
     Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
+
+    Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('meetings/create', [MeetingController::class, 'create'])->name('meetings.create');
+    Route::post('meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::post('meetings/{meeting}/actions', [MeetingController::class, 'confirmAction'])->name('meetings.actions.confirm');
+    Route::post('meetings/{meeting}/reparse', [MeetingController::class, 'reparse'])->name('meetings.reparse');
+
+    Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+    Route::get('approvals/create', [ApprovalController::class, 'create'])->name('approvals.create');
+    Route::post('approvals', [ApprovalController::class, 'store'])->name('approvals.store');
+    Route::post('approvals/{approval}/decide', [ApprovalController::class, 'decide'])->name('approvals.decide');
+    Route::post('approvals/{approval}/cancel', [ApprovalController::class, 'cancel'])->name('approvals.cancel');
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');

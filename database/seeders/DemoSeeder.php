@@ -2,12 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ApprovalStatus;
+use App\Enums\ApprovalType;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\WorkspaceRole;
+use App\Models\ApprovalRequest;
 use App\Models\Holiday;
+use App\Models\Meeting;
 use App\Models\SmsOutbound;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
@@ -18,6 +22,7 @@ use App\Notifications\TaskReminder;
 use App\Services\BillingService;
 use App\Services\FollowUpScheduler;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 
 /**
  * A demo workspace with the shape of a real customer: a service company with
@@ -146,6 +151,9 @@ class DemoSeeder extends Seeder
         $this->seedChasedTask($workspace, $technicians->first(), $opsManager);
         $this->seedEscalatedTask($workspace, $technicians->get(1), $opsManager);
         $this->seedDeferredTask($workspace, $technicians->get(2), $opsManager);
+
+        $this->seedMeeting($workspace, $owner, $opsManager, $technicians);
+        $this->seedApprovals($workspace, $owner, $opsManager, $technicians->first());
 
         $this->seedPastWeeklyReports($workspace);
 
@@ -293,6 +301,123 @@ class DemoSeeder extends Seeder
             'status' => TaskStatus::Deferred,
             'defer_count' => 2,
             'defer_reason' => 'منتظر مدارک از حسابداری',
+        ]);
+    }
+
+    /**
+     * A meeting whose notes have already been read, with two of its action
+     * items confirmed into tasks.
+     *
+     * The line that sells this page is the one in the notes that did *not*
+     * become a task: "باید یک فکری برای قیمت‌گذاری بکنیم" is a discussion, not
+     * a commitment, and a manager who sees it left alone believes the rest.
+     *
+     * @param  Collection<int, User>  $technicians
+     */
+    private function seedMeeting(Workspace $workspace, User $owner, User $manager, $technicians): void
+    {
+        $meeting = Meeting::create([
+            'workspace_id' => $workspace->id,
+            'created_by' => $manager->id,
+            'title' => 'جلسه هفتگی عملیات',
+            'held_at' => now()->subDays(2)->setTime(10, 0),
+            'notes' => <<<'NOTES'
+            درباره پروژه جردن صحبت شد. کارفرما نقشه‌های اصلاحی را فرستاده و باید تا
+            هفته آینده بررسی شود. رضا قبول کرد تا پنجشنبه گزارش سرویس‌های شهریور را
+            آماده کند. حسین گفت فردا با کارفرمای میرداماد تماس می‌گیرد و نتیجه را
+            اعلام می‌کند. درباره قیمت‌گذاری پروژه‌های کوچک بحث شد، باید یک فکری
+            برایش بکنیم ولی فعلاً به نتیجه نرسیدیم. قرار شد خرید دستگاه جوش جدید
+            تا پایان ماه بررسی شود.
+            NOTES,
+            'summary' => 'نقشه‌های اصلاحی پروژه جردن رسیده و باید تا هفته آینده بررسی شود. '
+                .'گزارش سرویس‌های شهریور تا پنجشنبه آماده می‌شود و تماس با کارفرمای میرداماد فردا انجام می‌گیرد. '
+                .'قیمت‌گذاری پروژه‌های کوچک بدون نتیجه ماند.',
+            'decisions' => [
+                'بررسی نقشه‌های اصلاحی جردن تا هفته آینده',
+                'خرید دستگاه جوش جدید تا پایان ماه بررسی شود',
+            ],
+            'processed_by_ai' => true,
+        ]);
+
+        foreach ([
+            ['تهیه گزارش سرویس‌های شهریور', $technicians->first(), 3],
+            ['تماس با کارفرمای پروژه میرداماد', $technicians->get(1), 1],
+        ] as [$title, $assignee, $inDays]) {
+            $task = Task::create([
+                'workspace_id' => $workspace->id,
+                'meeting_id' => $meeting->id,
+                'title' => $title,
+                'assignee_id' => $assignee->id,
+                'creator_id' => $manager->id,
+                'due_at' => now()->addDays($inDays)->setTime(17, 0),
+                'priority' => TaskPriority::Normal,
+                'status' => TaskStatus::Open,
+            ]);
+
+            app(FollowUpScheduler::class)->scheduleFor($task);
+        }
+    }
+
+    /**
+     * One request waiting on the person the demo signs in as, and one already
+     * answered.
+     *
+     * The pending one is leave that overlaps an open task on purpose: the
+     * approval screen shows the clash before the decision, which is the whole
+     * argument for keeping leave in the same system as the work.
+     */
+    private function seedApprovals(Workspace $workspace, User $owner, User $manager, User $technician): void
+    {
+        ApprovalRequest::create([
+            'workspace_id' => $workspace->id,
+            'requester_id' => $manager->id,
+            'approver_id' => $owner->id,
+            'type' => ApprovalType::Leave,
+            'status' => ApprovalStatus::Pending,
+            'title' => 'مرخصی استحقاقی',
+            'reason' => 'سفر خانوادگی، از قبل هماهنگ شده بود.',
+            'starts_on' => now()->addDays(6)->toDateString(),
+            'ends_on' => now()->addDays(9)->toDateString(),
+        ]);
+
+        // The task that falls inside that window, so the clash box has
+        // something to show.
+        Task::create([
+            'workspace_id' => $workspace->id,
+            'title' => 'تحویل صورت‌وضعیت ماهانه به کارفرما',
+            'assignee_id' => $manager->id,
+            'creator_id' => $owner->id,
+            'due_at' => now()->addDays(7)->setTime(17, 0),
+            'priority' => TaskPriority::High,
+            'status' => TaskStatus::Open,
+        ]);
+
+        ApprovalRequest::create([
+            'workspace_id' => $workspace->id,
+            'requester_id' => $owner->id,
+            'approver_id' => null,
+            'type' => ApprovalType::Purchase,
+            'status' => ApprovalStatus::Approved,
+            'title' => 'خرید دستگاه جوش',
+            'amount' => 180_000_000,
+            'decided_by' => $manager->id,
+            'decided_at' => now()->subDay(),
+            'decision_note' => 'از بودجه تجهیزات سه‌ماهه.',
+            'created_at' => now()->subDays(3),
+        ]);
+
+        ApprovalRequest::create([
+            'workspace_id' => $workspace->id,
+            'requester_id' => $technician->id,
+            'approver_id' => $manager->id,
+            'type' => ApprovalType::Expense,
+            'status' => ApprovalStatus::Rejected,
+            'title' => 'هزینه ایاب و ذهاب پروژه کرج',
+            'amount' => 4_500_000,
+            'decided_by' => $manager->id,
+            'decided_at' => now()->subDays(4),
+            'decision_note' => 'با فاکتور رسمی دوباره ثبت شود.',
+            'created_at' => now()->subDays(5),
         ]);
     }
 

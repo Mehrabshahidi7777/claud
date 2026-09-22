@@ -17,7 +17,7 @@ class Task extends Model
 
     protected $fillable = [
         'workspace_id', 'title', 'description', 'assignee_id', 'creator_id',
-        'due_at', 'priority', 'status', 'may_break_quiet_hours',
+        'due_at', 'priority', 'status', 'may_break_quiet_hours', 'meeting_id',
         // Written when a reply comes in rather than by a form. Omitting them
         // makes an inbound "انجام شد" close the task without recording when,
         // and a deferral lose the reason it was given.
@@ -48,6 +48,14 @@ class Task extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creator_id');
+    }
+
+    /**
+     * The meeting this task was agreed in, when it came from one.
+     */
+    public function meeting(): BelongsTo
+    {
+        return $this->belongsTo(Meeting::class);
     }
 
     public function followUps(): HasMany

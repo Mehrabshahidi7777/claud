@@ -136,6 +136,23 @@ return [
         ],
 
         /*
+        | A request waiting on someone. The title is truncated by the caller to
+        | twenty characters, which is what keeps this inside one message at its
+        | longest realistic values.
+        */
+        'approval_request' => [
+            'code' => env('AMOOT_PATTERN_APPROVAL_REQUEST'),
+            'tokens' => ['type', 'name', 'title'],
+            'preview' => "درخواست {type} از {name}\n{title}\nمنتظر تأیید شماست",
+        ],
+
+        'approval_decision' => [
+            'code' => env('AMOOT_PATTERN_APPROVAL_DECISION'),
+            'tokens' => ['result', 'title'],
+            'preview' => "درخواست شما {result} شد\n{title}",
+        ],
+
+        /*
         | The Saturday headline. Email deliverability to Iranian inboxes is
         | unreliable enough that a report living only in an inbox is one half
         | the customers never read, so the number itself travels by SMS.

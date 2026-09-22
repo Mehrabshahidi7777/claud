@@ -49,6 +49,14 @@
                    class="rounded-lg px-3 py-2 {{ $current === 'tasks.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     تسک‌ها
                 </a>
+                <a href="{{ route('meetings.index') }}"
+                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    جلسات
+                </a>
+                <a href="{{ route('approvals.index') }}"
+                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'approvals') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    درخواست‌ها
+                </a>
                 <a href="{{ route('reports.index') }}"
                    class="rounded-lg px-3 py-2 {{ $current === 'reports.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     گزارش

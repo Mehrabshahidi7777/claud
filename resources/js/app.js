@@ -72,6 +72,31 @@ if (installBanner) {
 }
 
 /**
+ * Show only the fields the chosen request type actually uses.
+ *
+ * Progressive enhancement: with JavaScript off every field is visible and the
+ * form still submits correctly, because the server is what decides which ones
+ * it stores.
+ */
+const approvalType = document.querySelector('[data-approval-type]');
+
+if (approvalType) {
+    const dates = document.querySelector('[data-approval-dates]');
+    const amount = document.querySelector('[data-approval-amount]');
+
+    const sync = () => {
+        dates?.classList.toggle('hidden', approvalType.value !== 'leave');
+        amount?.classList.toggle(
+            'hidden',
+            !['purchase', 'expense'].includes(approvalType.value),
+        );
+    };
+
+    approvalType.addEventListener('change', sync);
+    sync();
+}
+
+/**
  * The free-text shortcut on the tasks page.
  *
  * Deliberately plain: it posts a paragraph, renders whatever drafts come back

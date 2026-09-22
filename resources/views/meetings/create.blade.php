@@ -1,0 +1,57 @@
+@extends('layouts.app')
+
+@section('title', 'ثبت جلسه')
+
+@section('content')
+
+<div class="mx-auto max-w-2xl">
+    <h1 class="mb-1 text-lg font-bold">ثبت صورتجلسه</h1>
+    <p class="mb-4 text-sm text-slate-500">
+        متن جلسه را همان‌طور که هست بچسبانید. اقدام‌ها استخراج می‌شوند و خودتان
+        تأییدشان می‌کنید.
+    </p>
+
+    <form method="POST" action="{{ route('meetings.store') }}"
+          class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5">
+        @csrf
+
+        <div>
+            <label for="title" class="block text-sm font-medium">عنوان جلسه</label>
+            <input id="title" name="title" value="{{ old('title') }}" required autofocus
+                   placeholder="جلسه هفتگی عملیات"
+                   class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+            @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+        </div>
+
+        <div>
+            <label for="held_date" class="block text-sm font-medium">تاریخ برگزاری</label>
+            <input id="held_date" name="held_date" value="{{ old('held_date') }}"
+                   dir="ltr" placeholder="1405/07/15"
+                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+            <p class="mt-1 text-xs text-slate-400">خالی بگذارید تا امروز ثبت شود.</p>
+            @error('held_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+        </div>
+
+        <div>
+            <label for="notes" class="block text-sm font-medium">متن جلسه</label>
+            <textarea id="notes" name="notes" rows="12" required
+                      placeholder="رضا تا پنجشنبه گزارش سرویس‌ها را آماده کند. درباره قیمت پروژه جردن بحث شد و قرار شد حسین فردا با کارفرما تماس بگیرد…"
+                      class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-7 focus:border-slate-900 focus:outline-none">{{ old('notes') }}</textarea>
+            @error('notes')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+        </div>
+
+        {{-- Said plainly rather than promised. The notes are kept either way,
+             which is most of the value on its own. --}}
+        <p class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
+            فقط چیزی «اقدام» می‌شود که کسی صریحاً قبولش کرده باشد. بحث بدون تعهد
+            اقدام نیست. هیچ تسکی بدون تأیید شما ساخته نمی‌شود.
+        </p>
+
+        <button type="submit"
+                class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800">
+            ثبت و استخراج اقدام‌ها
+        </button>
+    </form>
+</div>
+
+@endsection
