@@ -125,6 +125,17 @@ return [
             'preview' => '{name} عزیز، به {workspace} اضافه شدید',
         ],
 
+        /*
+        | The Saturday headline. Email deliverability to Iranian inboxes is
+        | unreliable enough that a report living only in an inbox is one half
+        | the customers never read, so the number itself travels by SMS.
+        */
+        'weekly_report' => [
+            'code' => env('AMOOT_PATTERN_WEEKLY_REPORT'),
+            'tokens' => ['rate', 'overdue'],
+            'preview' => "گزارش هفته آماده است\nتکمیل به‌موقع: {rate}٪\nعقب‌افتاده: {overdue}",
+        ],
+
     ],
 
     /*

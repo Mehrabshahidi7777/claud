@@ -12,8 +12,12 @@ use App\Contracts\AiProvider;
  */
 class NullAiProvider implements AiProvider
 {
-    public function structured(string $systemPrompt, string $userInput, array $schema): ?array
-    {
+    public function structured(
+        string $systemPrompt,
+        string $userInput,
+        array $schema,
+        string $purpose = 'extraction',
+    ): ?array {
         return null;
     }
 

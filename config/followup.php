@@ -84,6 +84,24 @@ return [
     'sweep_interval_minutes' => 5,
 
     /*
+    |--------------------------------------------------------------------------
+    | Weekly report
+    |--------------------------------------------------------------------------
+    |
+    | Saturday at 08:00, read in the workspace's own timezone — the first
+    | working hour of the Iranian week. A report that lands on Friday is read
+    | on Sunday, by which point two more days have gone wrong.
+    |
+    | `day_of_week` follows Carbon: 0 is Sunday, 6 is Saturday.
+    |
+    */
+
+    'report' => [
+        'day_of_week' => 6,
+        'hour' => 8,
+    ],
+
+    /*
     | How long a chase stays answerable. An inbound reply arriving after this
     | window is recorded but no longer changes the task.
     */

@@ -22,15 +22,24 @@ class OllamaProvider implements AiProvider
         private readonly array $config,
     ) {}
 
-    public function structured(string $systemPrompt, string $userInput, array $schema): ?array
-    {
+    public function structured(
+        string $systemPrompt,
+        string $userInput,
+        array $schema,
+        string $purpose = 'extraction',
+    ): ?array {
         try {
             $response = $this->http
                 ->timeout((int) ($this->config['timeout_seconds'] ?? 120))
                 ->acceptJson()
                 ->post(rtrim($this->config['base_url'], '/').'/api/chat', [
-                    'model' => $this->config['model'],
+                    'model' => $this->modelFor($purpose),
                     'stream' => false,
+
+                    // Ollama unloads an idle model and reloading a 7B from
+                    // disk costs seconds. That matters on the extraction path,
+                    // where someone is waiting for their tasks to appear.
+                    'keep_alive' => $this->config['keep_alive'] ?? '30m',
 
                     // Ollama constrains generation to the schema, which is what
                     // makes the output parseable often enough to be useful.
@@ -79,5 +88,17 @@ class OllamaProvider implements AiProvider
         } catch (Throwable) {
             return false;
         }
+    }
+
+    /**
+     * Extraction and writing want different models, and an unrecognised
+     * purpose falls back to the extraction one rather than sending a null
+     * model name that Ollama would reject.
+     */
+    private function modelFor(string $purpose): string
+    {
+        $models = $this->config['models'] ?? [];
+
+        return (string) ($models[$purpose] ?? $models['extraction'] ?? 'qwen2.5:7b-instruct');
     }
 }

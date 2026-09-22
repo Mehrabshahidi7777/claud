@@ -15,10 +15,19 @@ interface AiProvider
      * something that will not parse — in which case the caller falls back to
      * the manual form rather than failing.
      *
+     * `$purpose` picks which configured model answers. "extraction" wants
+     * schema obedience and speed; "writing" wants prose a person would accept.
+     * A provider with one model may ignore it.
+     *
      * @param  array<string, mixed>  $schema
      * @return array<string, mixed>|null
      */
-    public function structured(string $systemPrompt, string $userInput, array $schema): ?array;
+    public function structured(
+        string $systemPrompt,
+        string $userInput,
+        array $schema,
+        string $purpose = 'extraction',
+    ): ?array;
 
     public function isAvailable(): bool;
 }

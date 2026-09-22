@@ -201,8 +201,12 @@ class TaskParserTest extends TestCase
         {
             public function __construct(private readonly ?array $answer) {}
 
-            public function structured(string $systemPrompt, string $userInput, array $schema): ?array
-            {
+            public function structured(
+                string $systemPrompt,
+                string $userInput,
+                array $schema,
+                string $purpose = 'extraction',
+            ): ?array {
                 return $this->answer;
             }
 

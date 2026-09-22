@@ -12,6 +12,7 @@ use App\Models\SmsOutbound;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
 use App\Models\User;
+use App\Models\WeeklyReport;
 use App\Models\Workspace;
 use App\Services\FollowUpScheduler;
 use Illuminate\Database\Seeder;
@@ -132,6 +133,8 @@ class DemoSeeder extends Seeder
         $this->seedEscalatedTask($workspace, $technicians->get(1), $opsManager);
         $this->seedDeferredTask($workspace, $technicians->get(2), $opsManager);
 
+        $this->seedPastWeeklyReports($workspace);
+
         $this->command->info('Demo workspace ready.');
         $this->command->info('Sign in with 09121110001 — the code is in storage/logs/laravel.log on the log driver.');
     }
@@ -247,6 +250,61 @@ class DemoSeeder extends Seeder
             'defer_count' => 2,
             'defer_reason' => 'منتظر مدارک از حسابداری',
         ]);
+    }
+
+    /**
+     * Three earlier weeks, with the on-time rate climbing.
+     *
+     * One week's number means little. A manager deciding whether to renew is
+     * looking at the trend, and an archive with a single entry cannot show
+     * one — so the demo arrives with a story already in it.
+     */
+    private function seedPastWeeklyReports(Workspace $workspace): void
+    {
+        $weeks = [
+            ['weeks_ago' => 4, 'rate' => 52.0, 'change' => null, 'overdue' => 6],
+            ['weeks_ago' => 3, 'rate' => 58.3, 'change' => 6.3, 'overdue' => 5],
+            ['weeks_ago' => 2, 'rate' => 66.7, 'change' => 8.4, 'overdue' => 3],
+        ];
+
+        foreach ($weeks as $week) {
+            $start = now()->subWeeks($week['weeks_ago'])->startOfWeek();
+
+            WeeklyReport::create([
+                'workspace_id' => $workspace->id,
+                'period_start' => $start->toDateString(),
+                'period_end' => $start->copy()->addDays(7)->toDateString(),
+                'metrics' => [
+                    'headline' => [
+                        'on_time_rate' => $week['rate'],
+                        'chase_response_rate' => 62.0,
+                        'escalation_ratio' => 22.0,
+                    ],
+                    'change' => [
+                        'on_time_rate' => $week['change'],
+                        'chase_response_rate' => null,
+                        'escalation_ratio' => null,
+                    ],
+                    'counts' => [
+                        'created' => 11,
+                        'closed' => 8,
+                        'overdue_now' => $week['overdue'],
+                        'escalated' => 1,
+                    ],
+                    'overdue' => [],
+                    'at_risk' => [],
+                    'by_member' => [],
+                    'sms' => ['sent' => 14, 'used' => 46, 'remaining' => 454],
+                ],
+                'narrative' => sprintf(
+                    'نرخ تکمیل به‌موقع این هفته %s درصد بود. %s کار عقب‌افتاده باقی مانده است.',
+                    $week['rate'],
+                    $week['overdue'],
+                ),
+                'narrative_from_ai' => false,
+                'created_at' => $start->copy()->addDays(7),
+            ]);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
+use App\Http\Controllers\WeeklyReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/tasks');
@@ -44,4 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::post('members/{member}/resume-sms', [MemberController::class, 'resumeSms'])->name('members.resume-sms');
 
     Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/weekly', [WeeklyReportController::class, 'index'])->name('reports.weekly.index');
+    Route::get('reports/weekly/{token}', [WeeklyReportController::class, 'show'])
+        ->where('token', '[A-Za-z0-9]+')
+        ->name('reports.weekly.show');
 });

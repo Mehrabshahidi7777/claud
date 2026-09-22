@@ -16,3 +16,17 @@ Schedule::command('followups:run')
     ->everyFiveMinutes()
     ->withoutOverlapping()
     ->runInBackground();
+
+/*
+| The weekly report, checked hourly rather than sent weekly.
+|
+| "Saturday at 08:00" is a different instant for every workspace, and one cron
+| expression can only be right for one timezone. So the command runs every
+| hour and asks each workspace whether its own morning has arrived. The unique
+| index on (workspace_id, period_start) makes asking twice harmless.
+*/
+
+Schedule::command('reports:weekly')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground();

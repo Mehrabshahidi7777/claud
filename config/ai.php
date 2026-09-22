@@ -20,17 +20,43 @@ return [
     'ollama' => [
         'base_url' => env('OLLAMA_BASE_URL', 'http://127.0.0.1:11434'),
 
-        // Verify Persian quality against twenty real sentences before settling
-        // on a model. A model that handles English well may still mangle
-        // Persian names and dates.
-        'model' => env('OLLAMA_MODEL', 'qwen2.5:7b'),
+        /*
+        | Two models, because the two jobs want different things.
+        |
+        | `extraction` turns a manager's paragraph into structured tasks. It
+        | needs to follow a JSON schema exactly and little else, so a small
+        | model is both enough and fast.
+        |
+        | `writing` composes the weekly report's opening paragraph, which has
+        | to read like a person wrote it. That is worth a larger model, and it
+        | runs once a week per workspace rather than on every paste.
+        |
+        | Set both to the same name on a small VPS; nothing breaks.
+        |
+        | Pull whichever you choose before switching AI_PROVIDER to "ollama":
+        |     ollama pull qwen2.5:7b-instruct
+        |
+        | Judge a candidate on twenty real Persian sentences from your own
+        | customers before settling. A model that handles English cleanly can
+        | still mangle Persian names, half-spaces and Jalali dates — and the
+        | ones it mangles are exactly the ones this application feeds it.
+        */
+        'models' => [
+            'extraction' => env('OLLAMA_MODEL_EXTRACTION', env('OLLAMA_MODEL', 'qwen2.5:7b-instruct')),
+            'writing' => env('OLLAMA_MODEL_WRITING', env('OLLAMA_MODEL', 'qwen2.5:14b-instruct')),
+        ],
 
-        // A local model is slow. This is generous on purpose — the call runs on
-        // a queue, so nobody is watching a spinner.
+        // A local model is slow. This is generous on purpose — every call runs
+        // on a queue or a schedule, so nobody is watching a spinner.
         'timeout_seconds' => env('OLLAMA_TIMEOUT', 120),
 
         // Low but not zero: extraction wants consistency, not invention.
         'temperature' => env('OLLAMA_TEMPERATURE', 0.1),
+
+        // Ollama unloads an idle model, and loading a 7B from disk costs
+        // several seconds. Keeping it resident matters on the extraction path,
+        // where someone is waiting.
+        'keep_alive' => env('OLLAMA_KEEP_ALIVE', '30m'),
     ],
 
     /*

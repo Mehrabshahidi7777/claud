@@ -27,3 +27,6 @@ Homestead.yaml
 Thumbs.db
 /database/database.sqlite
 /database/*.sqlite-journal
+
+# Boost installs agent config that is machine-local
+/.claude/settings.local.json

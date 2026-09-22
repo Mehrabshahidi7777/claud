@@ -41,6 +41,10 @@
                    class="rounded-lg px-3 py-2 {{ $current === 'reports.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     گزارش
                 </a>
+                <a href="{{ route('reports.weekly.index') }}"
+                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'reports.weekly') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    هفتگی
+                </a>
                 <a href="{{ route('members.index') }}"
                    class="rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     اعضا
