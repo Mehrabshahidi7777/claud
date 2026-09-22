@@ -6,6 +6,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'سامانه پیگیری')</title>
 
+    {{-- Installable on a technician's phone. The field worker is the one who
+         needs it on a home screen — they open it in a plant room with one bar
+         of signal, not at a desk. --}}
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="پیگیری">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/icons/icon-192.png" type="image/png">
+
     {{-- Vazirmatn renders Persian correctly at small sizes, which the default
          system stack does not. Loaded from Google Fonts with a swap so the
          page is never blank while it arrives. --}}
@@ -45,6 +57,10 @@
                    class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'reports.weekly') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     هفتگی
                 </a>
+                <a href="{{ route('billing.index') }}"
+                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'billing') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    صورتحساب
+                </a>
                 <a href="{{ route('members.index') }}"
                    class="rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     اعضا
@@ -57,6 +73,25 @@
             </form>
         </div>
     </header>
+@endauth
+
+@auth
+    {{-- Hidden until the browser says the app is installable, and dismissed
+         for good once. A technician who never installs it is still reachable
+         by SMS, so this is an offer and never a wall. --}}
+    <div id="install-banner" class="hidden border-b border-slate-200 bg-slate-900 px-4 py-3 text-white">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm">
+            <span>این سامانه را روی گوشی نصب کنید تا سریع‌تر به کارهایتان برسید.</span>
+
+            <button data-install type="button"
+                    class="ms-auto rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-900">
+                نصب
+            </button>
+            <button data-dismiss type="button" class="text-sm text-slate-300 hover:text-white">
+                بعداً
+            </button>
+        </div>
+    </div>
 @endauth
 
 <main class="mx-auto max-w-6xl px-4 py-6">

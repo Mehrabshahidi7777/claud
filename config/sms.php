@@ -126,6 +126,16 @@ return [
         ],
 
         /*
+        | Every renewal is a person remembering to pay, so the reminder has to
+        | reach them where they actually are.
+        */
+        'subscription_expiring' => [
+            'code' => env('AMOOT_PATTERN_SUBSCRIPTION_EXPIRING'),
+            'tokens' => ['days', 'plan'],
+            'preview' => "اشتراک {plan} تا {days} روز دیگر تمام می‌شود\nبرای تمدید وارد پنل شوید",
+        ],
+
+        /*
         | The Saturday headline. Email deliverability to Iranian inboxes is
         | unreliable enough that a report living only in an inbox is one half
         | the customers never read, so the number itself travels by SMS.

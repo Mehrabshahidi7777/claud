@@ -1,4 +1,77 @@
 /**
+ * Install the app on the phone of whoever is holding it.
+ *
+ * Registered late so it never competes with the first paint, and silently:
+ * a technician who never installs the app is still a technician the follow-up
+ * engine reaches by SMS, which is the whole point of the design.
+ */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+            // An unregistered worker costs the offline page and nothing else.
+        });
+    });
+}
+
+/**
+ * The install prompt, offered once rather than nagged.
+ *
+ * Chrome fires this event when it judges the app installable; iOS never does,
+ * so Safari users get the hint in the banner markup instead.
+ */
+const installBanner = document.getElementById('install-banner');
+
+if (installBanner) {
+    let deferredPrompt = null;
+
+    const dismissedKey = 'install-prompt-dismissed';
+
+    const alreadyDismissed = () => {
+        try {
+            return localStorage.getItem(dismissedKey) === '1';
+        } catch {
+            // Private browsing throws on access. Not a reason to show the
+            // banner forever, but not a reason to crash either.
+            return false;
+        }
+    };
+
+    const remember = () => {
+        try {
+            localStorage.setItem(dismissedKey, '1');
+        } catch {
+            /* nothing to do */
+        }
+    };
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+
+        if (!alreadyDismissed()) {
+            installBanner.classList.remove('hidden');
+        }
+    });
+
+    installBanner.querySelector('[data-install]')?.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            return;
+        }
+
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBanner.classList.add('hidden');
+        remember();
+    });
+
+    installBanner.querySelector('[data-dismiss]')?.addEventListener('click', () => {
+        installBanner.classList.add('hidden');
+        remember();
+    });
+}
+
+/**
  * The free-text shortcut on the tasks page.
  *
  * Deliberately plain: it posts a paragraph, renders whatever drafts come back

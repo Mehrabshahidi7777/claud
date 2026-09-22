@@ -30,3 +30,14 @@ Schedule::command('reports:weekly')
     ->hourly()
     ->withoutOverlapping()
     ->runInBackground();
+
+/*
+| Subscriptions, swept daily. Iranian gateways have no recurring card payment,
+| so a renewal is always a person choosing to pay again — and a customer who
+| lapses because nobody reminded them is the most avoidable churn there is.
+*/
+
+Schedule::command('subscriptions:sweep')
+    ->dailyAt('09:00')
+    ->withoutOverlapping()
+    ->runInBackground();
