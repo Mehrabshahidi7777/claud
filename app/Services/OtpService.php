@@ -9,6 +9,7 @@ use App\Sms\PatternMessage;
 use App\Support\PersianText;
 use App\Support\PhoneNumber;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
@@ -64,7 +65,21 @@ class OtpService
             'request_ip' => $ip,
         ]);
 
-        $this->driver->send(PatternMessage::make($phone, 'otp', ['code' => $code]));
+        $result = $this->driver->send(PatternMessage::make($phone, 'otp', ['code' => $code]));
+
+        // Telling someone the code is on its way when the panel refused it
+        // strands them on the code screen with nothing to type. This is the
+        // very first thing a new line does wrong — an unapproved pattern, a
+        // wrong token, no credit — so it has to be said out loud.
+        if (! $result->successful) {
+            Log::error('OTP send failed.', ['phone' => $phone, 'error' => $result->error]);
+
+            // The minute-long throttle was for a code they never received, so
+            // it is released and they may try again at once.
+            RateLimiter::clear("otp:phone:$phone");
+
+            return $this->refuse('delivery_failed');
+        }
 
         return ['sent' => true, 'reason' => null, 'seconds_until_retry' => null];
     }

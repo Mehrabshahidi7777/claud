@@ -42,6 +42,26 @@ class PhoneLoginTest extends TestCase
         $this->assertDatabaseCount('otp_codes', 1);
     }
 
+    public function test_a_refused_send_is_reported_rather_than_leaving_someone_on_the_code_screen(): void
+    {
+        // What a brand-new dedicated line does on day one: the pattern is not
+        // approved yet, or the token is wrong, or there is no credit. Saying
+        // "کد فرستاده شد" then is the worst possible answer.
+        $this->sms->failEverything('pattern not approved');
+
+        $this->post(route('login.request'), ['phone' => '09121234567'])
+            ->assertSessionHasErrors('phone');
+
+        $this->assertSame(
+            'پیامک ارسال نشد. دوباره تلاش کنید و اگر تکرار شد با پشتیبانی تماس بگیرید.',
+            session('errors')->first('phone'),
+        );
+
+        // And the minute-long throttle is released, because it was spent on a
+        // code that never arrived.
+        $this->assertFalse(RateLimiter::tooManyAttempts('otp:phone:989121234567', 1));
+    }
+
     public function test_it_refuses_a_number_that_is_not_a_mobile(): void
     {
         $this->post(route('login.request'), ['phone' => '02188776655'])
