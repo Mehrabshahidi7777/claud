@@ -120,7 +120,7 @@ class PhoneLoginTest extends TestCase
 
         $this->withSession(['otp_phone' => '989121234567'])
             ->post(route('login.verify'), ['code' => $code])
-            ->assertRedirect(route('tasks.index'));
+            ->assertRedirect(route('dashboard'));
 
         $this->assertAuthenticatedAs($member->fresh());
         $this->assertSame(1, User::where('phone', '989121234567')->count());
@@ -228,8 +228,9 @@ class PhoneLoginTest extends TestCase
             ->post(route('onboarding.store'), [
                 'name' => 'مهراب شهیدی',
                 'workspace' => 'تأسیسات پارس',
+                'type' => 'corporate',
             ])
-            ->assertRedirect(route('tasks.index'));
+            ->assertRedirect(route('dashboard'));
 
         $workspace = Workspace::where('name', 'تأسیسات پارس')->first();
 

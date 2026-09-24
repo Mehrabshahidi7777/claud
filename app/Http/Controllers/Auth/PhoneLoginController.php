@@ -91,7 +91,10 @@ class PhoneLoginController extends Controller
             return redirect()->route('onboarding');
         }
 
-        return redirect()->route('tasks.index');
+        // Signing in lands on the dashboard rather than the task list: it
+        // is the one screen that answers "چه خبر؟" without a click, and it
+        // adapts to whichever of the three products this workspace is.
+        return redirect()->route('dashboard');
     }
 
     public function logout(Request $request)

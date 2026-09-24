@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Workspace;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -99,5 +100,25 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('گواهینامه صلاحیت پیمانکاری')
             ->assertSee('منقضی شده که رها کردنش گران است');
+    }
+
+    public function test_the_demo_carries_a_household_workspace_that_is_visibly_a_different_product(): void
+    {
+        // The hardest thing to explain in words: the same account, and a
+        // different product. The switcher in the header shows it in a click.
+        $household = Workspace::where('type', 'family')->sole();
+
+        $this->actingAs($this->owner)
+            ->post(route('workspaces.switch', $household->id))
+            ->assertRedirect(route('dashboard'));
+
+        $this->actingAs($this->owner)
+            ->get(route('dashboard'))
+            ->assertOk()
+            ->assertSee('خانوادگی')
+            ->assertDontSee(route('finance.index'))
+            ->assertDontSee(route('contracts.index'));
+
+        $this->actingAs($this->owner)->get(route('contracts.index'))->assertNotFound();
     }
 }

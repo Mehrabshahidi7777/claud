@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\WorkspaceType;
 use App\Models\Workspace;
 use App\Services\BillingService;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -41,6 +42,12 @@ class WorkspaceFactory extends Factory
      * set up its own. The trial is removed rather than skipped because
      * afterCreating callbacks stack rather than replace one another.
      */
+    /** A family or friends workspace, which gets a different set of modules. */
+    public function type(WorkspaceType $type): static
+    {
+        return $this->state(['type' => $type]);
+    }
+
     public function withoutSubscription(): static
     {
         return $this->afterCreating(function (Workspace $workspace) {

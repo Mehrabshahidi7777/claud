@@ -54,7 +54,8 @@ class SubscriptionEnforcementTest extends TestCase
         $this->actingAs($user)->post(route('onboarding.store'), [
             'name' => 'مهراب شهیدی',
             'workspace' => 'تأسیسات پارس',
-        ])->assertRedirect(route('tasks.index'));
+            'type' => 'corporate',
+        ])->assertRedirect(route('dashboard'));
 
         $subscription = Workspace::where('name', 'تأسیسات پارس')->first()->subscriptions()->first();
 
@@ -92,7 +93,7 @@ class SubscriptionEnforcementTest extends TestCase
         // solvent. They ring to complain instead of to pay.
         [$workspace, $owner] = $this->workspaceWith(SubscriptionStatus::Expired);
 
-        $this->actingAs($owner)->get(route('tasks.index'))->assertOk();
+        $this->actingAs($owner)->get(route('dashboard'))->assertOk();
         $this->actingAs($owner)->get(route('reports.index'))->assertOk();
     }
 
@@ -126,7 +127,7 @@ class SubscriptionEnforcementTest extends TestCase
         [$workspace, $owner] = $this->workspaceWith(SubscriptionStatus::Expired);
 
         $this->actingAs($owner)
-            ->get(route('tasks.index'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertSee('اشتراک شما تمام شده است');
     }
@@ -136,7 +137,7 @@ class SubscriptionEnforcementTest extends TestCase
         [$workspace, $owner] = $this->workspaceWith(SubscriptionStatus::Active);
 
         $this->actingAs($owner)
-            ->get(route('tasks.index'))
+            ->get(route('dashboard'))
             ->assertOk()
             ->assertDontSee('اشتراک شما تمام شده است');
     }

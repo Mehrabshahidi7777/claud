@@ -71,6 +71,13 @@ class FollowUpScheduler
             return;
         }
 
+        // A household has no reporting line. Texting someone's spouse because
+        // the bins are still out has misunderstood the home it was invited
+        // into, and that is the message that gets the product uninstalled.
+        if (! $task->workspace->type->hasEscalation()) {
+            return;
+        }
+
         $delay = $task->priority->isCritical()
             ? (float) config('followup.critical.escalate_hours_after_chase', 1.5)
             : (float) $task->workspace->setting('ladder.escalate_hours_after_chase', 4);

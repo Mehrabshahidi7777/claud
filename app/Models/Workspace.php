@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\WorkspaceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,11 +13,12 @@ class Workspace extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'timezone', 'settings', 'sms_enabled', 'sms_quota', 'sms_used'];
+    protected $fillable = ['name', 'type', 'timezone', 'settings', 'sms_enabled', 'sms_quota', 'sms_used'];
 
     protected function casts(): array
     {
         return [
+            'type' => WorkspaceType::class,
             'settings' => 'array',
             'sms_enabled' => 'boolean',
             'sms_period_started_at' => 'datetime',
@@ -52,6 +54,16 @@ class Workspace extends Model
     {
         return data_get($this->settings ?? [], $key)
             ?? config("followup.$key", $default);
+    }
+
+    /**
+     * Whether this workspace gets a given module at all. Everything that
+     * checks visibility goes through here rather than testing the type
+     * directly, so adding a module means editing one enum.
+     */
+    public function has(string $module): bool
+    {
+        return $this->type->has($module);
     }
 
     public function timezone(): string

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureSubscriptionAllowsWrites;
+use App\Http\Middleware\EnsureWorkspaceHasModule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'subscribed' => EnsureSubscriptionAllowsWrites::class,
+            'module' => EnsureWorkspaceHasModule::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

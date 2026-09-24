@@ -15,6 +15,7 @@ use App\Enums\RecurrenceUnit;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\WorkspaceRole;
+use App\Enums\WorkspaceType;
 use App\Models\ApprovalRequest;
 use App\Models\Contract;
 use App\Models\Expense;
@@ -173,6 +174,8 @@ class DemoSeeder extends Seeder
         $this->seedContracts($workspace, $owner, $opsManager, $technicians);
 
         $this->seedPastWeeklyReports($workspace);
+
+        $this->seedHouseholdWorkspace($owner);
 
         $this->command->info('Demo workspace ready.');
         $this->command->info('Sign in with 09121110001 — the code is in storage/logs/laravel.log on the log driver.');
@@ -490,6 +493,70 @@ class DemoSeeder extends Seeder
         ]);
 
         app(RecurrenceSweeper::class)->sweepWorkspace($workspace);
+    }
+
+    /**
+     * A second workspace, on the family plan, owned by the same person.
+     *
+     * The switcher in the header then demonstrates the thing that is hardest
+     * to explain in words: the same account, and a visibly different product.
+     * No finance, no contracts, no meetings, and no escalation to anybody's
+     * manager — because there isn't one.
+     */
+    private function seedHouseholdWorkspace(User $owner): void
+    {
+        $household = Workspace::create([
+            'name' => 'خانه',
+            'type' => WorkspaceType::Family,
+            'timezone' => 'Asia/Tehran',
+            'sms_quota' => 100,
+            'sms_used' => 4,
+            'sms_period_started_at' => now()->startOfMonth(),
+        ]);
+
+        $household->members()->attach($owner, ['role' => WorkspaceRole::Owner->value]);
+
+        $partner = User::firstOrCreate(
+            ['phone' => '989121110006'],
+            ['name' => 'مریم شهیدی', 'phone_verified_at' => now()],
+        );
+
+        $household->members()->attach($partner, ['role' => WorkspaceRole::Admin->value]);
+
+        app(BillingService::class)->startTrial($household);
+
+        foreach ([
+            ['تمدید بیمه شخص ثالث', 1, RecurrenceUnit::Year, 34, RecurrenceAnchor::Scheduled],
+            ['تعویض روغن ماشین', 4, RecurrenceUnit::Month, -6, RecurrenceAnchor::Completion],
+            ['پرداخت قبض برق', 2, RecurrenceUnit::Month, 9, RecurrenceAnchor::Scheduled],
+            ['سرویس پکیج خانه', 1, RecurrenceUnit::Year, 120, RecurrenceAnchor::Completion],
+        ] as [$title, $count, $unit, $dueInDays, $anchor]) {
+            RecurringTask::create([
+                'workspace_id' => $household->id,
+                'created_by' => $owner->id,
+                'assignee_id' => $dueInDays < 30 ? $owner->id : $partner->id,
+                'title' => $title,
+                'interval_unit' => $unit,
+                'interval_count' => $count,
+                'anchor' => $anchor,
+                'lead_days' => 14,
+                'next_due_on' => now()->addDays($dueInDays)->toDateString(),
+                'priority' => TaskPriority::Normal,
+            ]);
+        }
+
+        $task = Task::create([
+            'workspace_id' => $household->id,
+            'title' => 'گرفتن نوبت دندانپزشکی برای آیدا',
+            'assignee_id' => $partner->id,
+            'creator_id' => $owner->id,
+            'due_at' => now()->addDays(2)->setTime(17, 0),
+            'priority' => TaskPriority::Normal,
+            'status' => TaskStatus::Open,
+        ]);
+
+        app(FollowUpScheduler::class)->scheduleFor($task);
+        app(RecurrenceSweeper::class)->sweepWorkspace($household);
     }
 
     /**

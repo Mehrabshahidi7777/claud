@@ -32,65 +32,108 @@
 @auth
     <header class="border-b border-slate-200 bg-white">
         <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-            <a href="{{ route('tasks.index') }}" class="shrink-0 text-lg font-bold text-slate-900">
+            <a href="{{ route('dashboard') }}" class="shrink-0 text-lg font-bold text-slate-900">
                 {{ config('brand.name') }}
             </a>
 
             @isset($workspace)
-                <span class="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 sm:inline">
-                    {{ $workspace->name }}
-                </span>
+                @php
+                    // Only worth a control when there is somewhere to go. Most
+                    // people belong to exactly one and should see a label.
+                    $otherWorkspaces = auth()->user()->workspaces()
+                        ->where('workspaces.id', '!=', $workspace->id)
+                        ->orderBy('name')
+                        ->get();
+                @endphp
+
+                @if ($otherWorkspaces->isEmpty())
+                    <span class="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 sm:inline">
+                        {{ $workspace->name }}
+                    </span>
+                @else
+                    <details class="relative hidden shrink-0 sm:block">
+                        <summary class="cursor-pointer list-none rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 hover:bg-slate-200">
+                            {{ $workspace->name }}
+                            <span class="text-xs text-slate-400">({{ $workspace->type->label() }})</span>
+                        </summary>
+
+                        <div class="absolute start-0 z-20 mt-1 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                            @foreach ($otherWorkspaces as $other)
+                                <form method="POST" action="{{ route('workspaces.switch', $other->id) }}">
+                                    @csrf
+                                    <button class="w-full rounded-lg px-3 py-2 text-start text-sm hover:bg-slate-100">
+                                        {{ $other->name }}
+                                        <span class="block text-xs text-slate-400">{{ $other->type->label() }}</span>
+                                    </button>
+                                </form>
+                            @endforeach
+                        </div>
+                    </details>
+                @endif
             @endisset
 
             {{-- Scrolls sideways instead of wrapping. Eight links stacked over
                  three rows push the page content off a phone screen, and the
                  field worker's phone is the device this has to survive. --}}
+            {{-- Scrolls sideways instead of wrapping: on a phone, ten links
+                 stacked three rows deep push the page itself off the screen,
+                 and the field worker's phone is the device this must survive.
+
+                 Which links exist at all comes from the workspace type, so a
+                 household is never shown the receivables page it does not
+                 have. The routes behind them answer 404 too — a hidden link
+                 is still a URL somebody eventually types. --}}
             <nav class="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 text-sm
                         [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                @php $current = request()->route()?->getName(); @endphp
+                @php
+                    $current = request()->route()?->getName();
 
-                <a href="{{ route('tasks.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'tasks.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    تسک‌ها
-                </a>
-                <a href="{{ route('contracts.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'contracts') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    قراردادها
-                </a>
-                <a href="{{ route('recurring.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'recurring') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    دوره‌ای
-                </a>
-                <a href="{{ route('meetings.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    جلسات
-                </a>
-                @if ($financeVisible ?? false)
-                    <a href="{{ route('finance.index') }}"
-                       class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'finance') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                        مالی
+                    $tab = fn (bool $on) => 'shrink-0 whitespace-nowrap rounded-lg px-3 py-2 '
+                        .($on ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100');
+
+                    $starts = fn (string $prefix) => str_starts_with((string) $current, $prefix);
+                @endphp
+
+                <a href="{{ route('dashboard') }}" class="{{ $tab($current === 'dashboard') }}">خانه</a>
+
+                <a href="{{ route('tasks.index') }}" class="{{ $tab($starts('tasks')) }}">تسک‌ها</a>
+
+                @if ($workspace->has('recurring'))
+                    <a href="{{ route('recurring.index') }}" class="{{ $tab($starts('recurring')) }}">دوره‌ای</a>
+                @endif
+
+                @if ($workspace->has('contracts'))
+                    <a href="{{ route('contracts.index') }}" class="{{ $tab($starts('contracts')) }}">قراردادها</a>
+                @endif
+
+                @if ($workspace->has('meetings'))
+                    <a href="{{ route('meetings.index') }}" class="{{ $tab($starts('meetings')) }}">جلسات</a>
+                @endif
+
+                @if ($workspace->has('approvals'))
+                    <a href="{{ route('approvals.index') }}" class="{{ $tab($starts('approvals')) }}">درخواست‌ها</a>
+                @endif
+
+                {{-- Finance also turns on the role: what the company spends is
+                     not something every member sees. --}}
+                @if ($workspace->has('finance') && ($financeVisible ?? false))
+                    <a href="{{ route('finance.index') }}" class="{{ $tab($starts('finance')) }}">مالی</a>
+                @endif
+
+                @if ($workspace->has('reports'))
+                    <a href="{{ route('reports.index') }}" class="{{ $tab($current === 'reports.index') }}">گزارش</a>
+                    <a href="{{ route('reports.weekly.index') }}" class="{{ $tab($starts('reports.weekly')) }}">هفتگی</a>
+                @endif
+
+                @if ($workspace->has('members'))
+                    <a href="{{ route('members.index') }}" class="{{ $tab($current === 'members.index') }}">
+                        {{ $workspace->type->memberWord() }}
                     </a>
                 @endif
-                <a href="{{ route('approvals.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'approvals') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    درخواست‌ها
-                </a>
-                <a href="{{ route('reports.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'reports.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    گزارش
-                </a>
-                <a href="{{ route('reports.weekly.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'reports.weekly') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    هفتگی
-                </a>
-                <a href="{{ route('billing.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'billing') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    صورتحساب
-                </a>
-                <a href="{{ route('members.index') }}"
-                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
-                    اعضا
-                </a>
+
+                @if ($workspace->has('billing'))
+                    <a href="{{ route('billing.index') }}" class="{{ $tab($starts('billing')) }}">صورتحساب</a>
+                @endif
 
                 @php
                     // The count the ladder's free rungs produce. Cached for a
@@ -104,7 +147,7 @@
                 @endphp
 
                 <a href="{{ route('notifications.index') }}"
-                   class="relative shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'notifications.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="relative {{ $tab($current === 'notifications.index') }}">
                     اعلان‌ها
                     @if ($unread > 0)
                         <span class="tabular absolute -top-1 -start-1 rounded-full bg-red-600 px-1.5 text-[11px] text-white">

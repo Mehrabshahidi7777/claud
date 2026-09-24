@@ -4,6 +4,7 @@ use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
@@ -16,10 +17,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
 use App\Http\Controllers\WeeklyReportController;
+use App\Http\Controllers\WorkspaceSwitchController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
-
-Route::redirect('/', '/tasks');
 
 /*
 | Sign-in. No password, no email: the phone number is the identity, which is
@@ -59,6 +59,12 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'subscribed'])->group(function () {
+    Route::get('/', DashboardController::class)->name('dashboard');
+
+    Route::post('workspaces/{workspace}/switch', WorkspaceSwitchController::class)
+        ->whereNumber('workspace')
+        ->name('workspaces.switch');
+
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
@@ -68,15 +74,19 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
 
     Route::post('tasks/parse', TaskParseController::class)->name('tasks.parse');
 
-    Route::get('contracts', [ContractController::class, 'index'])->name('contracts.index');
-    Route::post('contracts', [ContractController::class, 'store'])->name('contracts.store');
-    Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
-    Route::post('contracts/{contract}/renew', [ContractController::class, 'renew'])->name('contracts.renew');
-    Route::post('contracts/{contract}/end', [ContractController::class, 'end'])->name('contracts.end');
+    Route::middleware('module:contracts')->group(function () {
+        Route::get('contracts', [ContractController::class, 'index'])->name('contracts.index');
+        Route::post('contracts', [ContractController::class, 'store'])->name('contracts.store');
+        Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+        Route::post('contracts/{contract}/renew', [ContractController::class, 'renew'])->name('contracts.renew');
+        Route::post('contracts/{contract}/end', [ContractController::class, 'end'])->name('contracts.end');
+    });
 
-    Route::get('recurring', [RecurringTaskController::class, 'index'])->name('recurring.index');
-    Route::post('recurring', [RecurringTaskController::class, 'store'])->name('recurring.store');
-    Route::post('recurring/{recurring}/toggle', [RecurringTaskController::class, 'toggle'])->name('recurring.toggle');
+    Route::middleware('module:recurring')->group(function () {
+        Route::get('recurring', [RecurringTaskController::class, 'index'])->name('recurring.index');
+        Route::post('recurring', [RecurringTaskController::class, 'store'])->name('recurring.store');
+        Route::post('recurring/{recurring}/toggle', [RecurringTaskController::class, 'toggle'])->name('recurring.toggle');
+    });
 
     Route::get('members', [MemberController::class, 'index'])->name('members.index');
     Route::post('members', [MemberController::class, 'store'])->name('members.store');
@@ -88,12 +98,14 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
     Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
 
-    Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
-    Route::get('meetings/create', [MeetingController::class, 'create'])->name('meetings.create');
-    Route::post('meetings', [MeetingController::class, 'store'])->name('meetings.store');
-    Route::get('meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
-    Route::post('meetings/{meeting}/actions', [MeetingController::class, 'confirmAction'])->name('meetings.actions.confirm');
-    Route::post('meetings/{meeting}/reparse', [MeetingController::class, 'reparse'])->name('meetings.reparse');
+    Route::middleware('module:meetings')->group(function () {
+        Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
+        Route::get('meetings/create', [MeetingController::class, 'create'])->name('meetings.create');
+        Route::post('meetings', [MeetingController::class, 'store'])->name('meetings.store');
+        Route::get('meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
+        Route::post('meetings/{meeting}/actions', [MeetingController::class, 'confirmAction'])->name('meetings.actions.confirm');
+        Route::post('meetings/{meeting}/reparse', [MeetingController::class, 'reparse'])->name('meetings.reparse');
+    });
 
     /*
     | The money pages. Guarded inside the controller by role rather than by a
@@ -101,24 +113,28 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     | member sees.
     */
 
-    Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
-    Route::get('finance/expenses', [FinanceController::class, 'expenses'])->name('finance.expenses');
-    Route::post('finance/expenses', [FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
-    Route::post('finance/expenses/parse', [FinanceController::class, 'parseExpense'])->name('finance.expenses.parse');
-    Route::get('finance/receivables', [FinanceController::class, 'receivables'])->name('finance.receivables');
-    Route::post('finance/receivables', [FinanceController::class, 'storeReceivable'])->name('finance.receivables.store');
-    Route::post('finance/receivables/{receivable}/settle', [FinanceController::class, 'settleReceivable'])
-        ->name('finance.receivables.settle');
+    Route::middleware('module:finance')->group(function () {
+        Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
+        Route::get('finance/expenses', [FinanceController::class, 'expenses'])->name('finance.expenses');
+        Route::post('finance/expenses', [FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+        Route::post('finance/expenses/parse', [FinanceController::class, 'parseExpense'])->name('finance.expenses.parse');
+        Route::get('finance/receivables', [FinanceController::class, 'receivables'])->name('finance.receivables');
+        Route::post('finance/receivables', [FinanceController::class, 'storeReceivable'])->name('finance.receivables.store');
+        Route::post('finance/receivables/{receivable}/settle', [FinanceController::class, 'settleReceivable'])
+            ->name('finance.receivables.settle');
 
-    Route::get('finance/import', [ReceivableImportController::class, 'show'])->name('finance.import');
-    Route::post('finance/import', [ReceivableImportController::class, 'store'])->name('finance.import.store');
-    Route::get('finance/import/template', [ReceivableImportController::class, 'template'])->name('finance.import.template');
+        Route::get('finance/import', [ReceivableImportController::class, 'show'])->name('finance.import');
+        Route::post('finance/import', [ReceivableImportController::class, 'store'])->name('finance.import.store');
+        Route::get('finance/import/template', [ReceivableImportController::class, 'template'])->name('finance.import.template');
+    });
 
-    Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
-    Route::get('approvals/create', [ApprovalController::class, 'create'])->name('approvals.create');
-    Route::post('approvals', [ApprovalController::class, 'store'])->name('approvals.store');
-    Route::post('approvals/{approval}/decide', [ApprovalController::class, 'decide'])->name('approvals.decide');
-    Route::post('approvals/{approval}/cancel', [ApprovalController::class, 'cancel'])->name('approvals.cancel');
+    Route::middleware('module:approvals')->group(function () {
+        Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
+        Route::get('approvals/create', [ApprovalController::class, 'create'])->name('approvals.create');
+        Route::post('approvals', [ApprovalController::class, 'store'])->name('approvals.store');
+        Route::post('approvals/{approval}/decide', [ApprovalController::class, 'decide'])->name('approvals.decide');
+        Route::post('approvals/{approval}/cancel', [ApprovalController::class, 'cancel'])->name('approvals.cancel');
+    });
 
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');

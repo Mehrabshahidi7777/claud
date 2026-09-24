@@ -3,14 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Enums\WorkspaceRole;
+use App\Enums\WorkspaceType;
 use App\Models\Workspace;
 use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 /**
- * The third and last field of sign-up: who you are and what your company is
- * called. Reached only when a signed-in user has neither.
+ * The last screen of sign-up: who you are, what to call this place, and which
+ * of the three products it is.
+ *
+ * The type is asked here rather than inferred later because it cannot be
+ * guessed and changes everything downstream — a family that is set up as a
+ * company meets "صلاحیت پیمانکاری" and an escalation to their manager on day
+ * two, and does not come back.
  */
 class OnboardingController extends Controller
 {
@@ -19,10 +26,10 @@ class OnboardingController extends Controller
     public function show(Request $request)
     {
         if ($request->user()->name !== '' && $request->user()->workspaces()->exists()) {
-            return redirect()->route('tasks.index');
+            return redirect()->route('dashboard');
         }
 
-        return view('auth.onboarding');
+        return view('auth.onboarding', ['types' => WorkspaceType::cases()]);
     }
 
     public function store(Request $request)
@@ -30,6 +37,11 @@ class OnboardingController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'workspace' => ['required', 'string', 'max:100'],
+
+            // The single most consequential answer on this page: it decides
+            // which modules exist, whether an unanswered chase climbs to
+            // somebody else, and what the people here are called on screen.
+            'type' => ['required', Rule::enum(WorkspaceType::class)],
         ]);
 
         $user = $request->user();
@@ -37,7 +49,10 @@ class OnboardingController extends Controller
         DB::transaction(function () use ($user, $validated) {
             $user->update(['name' => $validated['name']]);
 
-            $workspace = Workspace::create(['name' => $validated['workspace']]);
+            $workspace = Workspace::create([
+                'name' => $validated['workspace'],
+                'type' => $validated['type'],
+            ]);
 
             // Whoever creates the workspace owns it, which also makes them the
             // default destination for an escalation that has nowhere else to go.
@@ -49,6 +64,6 @@ class OnboardingController extends Controller
             $this->billing->startTrial($workspace);
         });
 
-        return redirect()->route('tasks.index');
+        return redirect()->route('dashboard');
     }
 }
