@@ -35,7 +35,7 @@ enum WorkspaceType: string
         return match ($this) {
             self::Corporate => 'کارها، جلسه‌ها، تأییدیه‌ها، قراردادها و پول — یک‌جا',
             self::Family => 'قبض‌ها، سرویس‌ها و کارهای خانه، بدون اینکه کسی یادآوری کند',
-            self::Friends => 'قرارها و کارهای گروهی، بدون پیام‌های «یادت نره»',
+            self::Friends => 'خرج‌های مشترک و قرارهای گروهی — بدون اینکه کسی مجبور شود بپرسد',
         };
     }
 
@@ -64,8 +64,12 @@ enum WorkspaceType: string
                 'tasks', 'recurring', 'reports', 'members', 'notifications', 'billing',
             ],
 
+            // The one module that makes this plan a plan. A group's real
+            // pain is not chores — it is the question after every trip, and
+            // the fact that nobody wants to be the one who asks.
             self::Friends => [
-                'tasks', 'recurring', 'reports', 'members', 'notifications', 'billing',
+                'tasks', 'recurring', 'settlements', 'reports', 'members',
+                'notifications', 'billing',
             ],
         };
     }

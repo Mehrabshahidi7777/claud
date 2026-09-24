@@ -23,6 +23,8 @@ use App\Models\Holiday;
 use App\Models\Meeting;
 use App\Models\Receivable;
 use App\Models\RecurringTask;
+use App\Models\Settlement;
+use App\Models\SharedExpense;
 use App\Models\SmsOutbound;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
@@ -35,6 +37,7 @@ use App\Services\ContractWatcher;
 use App\Services\FollowUpScheduler;
 use App\Services\ReceivableChaser;
 use App\Services\RecurrenceSweeper;
+use App\Services\SplitCalculator;
 use App\Services\WeeklyReportDispatcher;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -182,6 +185,7 @@ class DemoSeeder extends Seeder
         app(WeeklyReportDispatcher::class)->dispatchFor($workspace);
 
         $this->seedHouseholdWorkspace($owner);
+        $this->seedFriendsWorkspace($owner);
 
         $this->command->info('Demo workspace ready.');
         $this->command->info('Sign in with 09121110001 — the code is in storage/logs/laravel.log on the log driver.');
@@ -563,6 +567,76 @@ class DemoSeeder extends Seeder
 
         app(FollowUpScheduler::class)->scheduleFor($task);
         app(RecurrenceSweeper::class)->sweepWorkspace($household);
+    }
+
+    /**
+     * A third workspace on the friends plan, so the demo can show all three
+     * products from one account.
+     *
+     * Seeded with an uneven split on purpose — 1,250,000 between three — so
+     * the balances on screen are the real thing rather than round numbers
+     * that would hide whether the remainder is handled.
+     */
+    private function seedFriendsWorkspace(User $owner): void
+    {
+        $group = Workspace::create([
+            'name' => 'سفر شمال',
+            'type' => WorkspaceType::Friends,
+            'timezone' => 'Asia/Tehran',
+            'sms_quota' => 100,
+            'sms_used' => 2,
+            'sms_period_started_at' => now()->startOfMonth(),
+        ]);
+
+        $group->members()->attach($owner, ['role' => WorkspaceRole::Owner->value]);
+
+        $friends = collect([
+            ['phone' => '989121110007', 'name' => 'پیمان رستگار'],
+            ['phone' => '989121110008', 'name' => 'نیما احمدی'],
+        ])->map(fn (array $data) => User::firstOrCreate(
+            ['phone' => $data['phone']],
+            ['name' => $data['name'], 'phone_verified_at' => now()],
+        ));
+
+        foreach ($friends as $friend) {
+            $group->members()->attach($friend, ['role' => WorkspaceRole::Member->value]);
+        }
+
+        $everyone = $friends->prepend($owner);
+        $splitter = app(SplitCalculator::class);
+
+        foreach ([
+            ['اجاره ویلا', 9_600_000, $owner, 5],
+            ['شام رستوران ساحلی', 1_250_000, $friends->get(0), 4],
+            ['بنزین و عوارضی', 820_000, $friends->get(1), 5],
+            ['خرید از هایپر', 2_340_000, $owner, 3],
+        ] as [$title, $amount, $payer, $daysAgo]) {
+            $expense = SharedExpense::create([
+                'workspace_id' => $group->id,
+                'created_by' => $owner->id,
+                'payer_id' => $payer->id,
+                'title' => $title,
+                'amount' => $amount,
+                'spent_on' => now()->subDays($daysAgo)->toDateString(),
+            ]);
+
+            foreach ($splitter->equally($amount, $everyone->pluck('id')->all()) as $userId => $share) {
+                $expense->shares()->create(['user_id' => $userId, 'amount' => $share]);
+            }
+        }
+
+        // One payment already made, so the page shows a group part-way
+        // through settling rather than one that has never started.
+        Settlement::create([
+            'workspace_id' => $group->id,
+            'recorded_by' => $owner->id,
+            'from_user_id' => $friends->get(1)->id,
+            'to_user_id' => $owner->id,
+            'amount' => 1_500_000,
+            'settled_on' => now()->subDay()->toDateString(),
+        ]);
+
+        app(BillingService::class)->startTrial($group);
     }
 
     /**

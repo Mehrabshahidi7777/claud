@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\WeeklyReport;
 use App\Models\Workspace;
+use App\Services\BalanceSheet;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -123,6 +124,27 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('پول')
             ->assertSee('قراردادها و مجوزها');
+    }
+
+    public function test_the_demo_carries_a_friends_workspace_that_is_part_way_settled(): void
+    {
+        $group = Workspace::where('type', 'friends')->sole();
+
+        $this->actingAs($this->owner)
+            ->post(route('workspaces.switch', $group->id))
+            ->assertRedirect(route('dashboard'));
+
+        $this->actingAs($this->owner)
+            ->get(route('settlements.index'))
+            ->assertOk()
+            ->assertSee('اجاره ویلا')
+            ->assertSee('کوتاه‌ترین راه تسویه');
+
+        // The invariant, on real seeded data rather than a contrived case.
+        $this->assertSame(
+            0,
+            app(BalanceSheet::class)->balances($group)->sum('net'),
+        );
     }
 
     public function test_the_demo_carries_a_household_workspace_that_is_visibly_a_different_product(): void

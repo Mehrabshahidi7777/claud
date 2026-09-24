@@ -14,6 +14,7 @@ use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\ReceivableImportController;
 use App\Http\Controllers\RecurringTaskController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SettlementController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
 use App\Http\Controllers\WeeklyReportController;
@@ -80,6 +81,13 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
         Route::post('contracts/{contract}/renew', [ContractController::class, 'renew'])->name('contracts.renew');
         Route::post('contracts/{contract}/end', [ContractController::class, 'end'])->name('contracts.end');
+    });
+
+    Route::middleware('module:settlements')->group(function () {
+        Route::get('settlements', [SettlementController::class, 'index'])->name('settlements.index');
+        Route::post('settlements/expenses', [SettlementController::class, 'storeExpense'])->name('settlements.expenses.store');
+        Route::post('settlements/settle', [SettlementController::class, 'storeSettlement'])->name('settlements.settle');
+        Route::post('settlements/remind', [SettlementController::class, 'remind'])->name('settlements.remind');
     });
 
     Route::middleware('module:recurring')->group(function () {

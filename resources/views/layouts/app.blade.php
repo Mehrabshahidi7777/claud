@@ -102,6 +102,10 @@
                     <a href="{{ route('recurring.index') }}" class="{{ $tab($starts('recurring')) }}">دوره‌ای</a>
                 @endif
 
+                @if ($workspace->has('settlements'))
+                    <a href="{{ route('settlements.index') }}" class="{{ $tab($starts('settlements')) }}">حساب‌وکتاب</a>
+                @endif
+
                 @if ($workspace->has('contracts'))
                     <a href="{{ route('contracts.index') }}" class="{{ $tab($starts('contracts')) }}">قراردادها</a>
                 @endif

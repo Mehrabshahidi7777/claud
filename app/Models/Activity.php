@@ -60,6 +60,7 @@ class Activity extends Model
             'recurrence.created' => 'کار دوره‌ای ثبت شد',
             'recurrence.occurrence_raised' => 'نوبت تازه‌اش تبدیل به تسک شد',
             'recurrence.cycle_completed' => 'یک نوبت انجام شد و نوبت بعدی زمان‌بندی شد',
+            'settlement.recorded' => 'پرداخت بین اعضا ثبت شد',
             'receivables.imported' => 'فاکتورها از حسابداری درون‌ریزی شد',
             'invoice.paid' => 'فاکتور پرداخت شد',
             'weekly_report.sent' => 'گزارش هفتگی فرستاده شد',

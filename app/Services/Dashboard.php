@@ -57,6 +57,10 @@ class Dashboard
             $cards['approvals'] = $this->approvals($workspace, $user);
         }
 
+        if ($workspace->has('settlements')) {
+            $cards['settlements'] = $this->settlements($workspace, $user);
+        }
+
         return $cards;
     }
 
@@ -207,6 +211,30 @@ class Dashboard
                 ->filter(fn (ApprovalRequest $r) => $r->requester_id !== $user->id)
                 ->count(),
             'mine' => $pending->where('requester_id', $user->id)->count(),
+        ];
+    }
+
+    /**
+     * Where this person stands with the group, and how far the whole group
+     * is from being square.
+     *
+     * The viewer's own figure first, because it is the only one most people
+     * read — and the transfer count second, because "two payments and it is
+     * over" is what actually makes somebody pay.
+     *
+     * @return array{net: int, transfers: int, owed_by_me: int}
+     */
+    private function settlements(Workspace $workspace, User $user): array
+    {
+        $sheet = app(BalanceSheet::class);
+
+        $net = collect($sheet->balances($workspace))
+            ->firstWhere('user.id', $user->id)['net'] ?? 0;
+
+        return [
+            'net' => $net,
+            'transfers' => count($sheet->transfers($workspace)),
+            'owed_by_me' => max(0, -$net),
         ];
     }
 

@@ -12,6 +12,8 @@ use App\Models\Contract;
 use App\Models\Expense;
 use App\Models\Receivable;
 use App\Models\RecurringTask;
+use App\Models\Settlement;
+use App\Models\SharedExpense;
 use App\Models\SmsInbound;
 use App\Models\SmsOutbound;
 use App\Models\Task;
@@ -247,6 +249,7 @@ class ReportBuilder
             'contracts' => $this->workspace->has('contracts') ? $this->contractsSection() : null,
             'money' => $this->workspace->has('finance') ? $this->moneySection($from) : null,
             'approvals' => $this->workspace->has('approvals') ? $this->approvalsSection() : null,
+            'settlements' => $this->workspace->has('settlements') ? $this->settlementsSection($from) : null,
         ];
     }
 
@@ -356,6 +359,41 @@ class ReportBuilder
                     'chased' => $r->task_id !== null,
                 ])
                 ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * The group's money, for the weekly note.
+     *
+     * "با دو پرداخت حساب همه صاف می‌شود" is the line that gets somebody to
+     * actually transfer the money, which is more than any list of who spent
+     * what ever achieves.
+     *
+     * @return array<string, mixed>
+     */
+    private function settlementsSection(CarbonImmutable $from): array
+    {
+        $sheet = app(BalanceSheet::class);
+
+        $transfers = $sheet->transfers($this->workspace);
+
+        return [
+            'transfers' => count($transfers),
+            'outstanding' => (int) array_sum(array_column($transfers, 'amount')),
+            'spent_this_period' => (int) SharedExpense::forWorkspace($this->workspace->id)
+                ->where('spent_on', '>=', $from->toDateString())
+                ->sum('amount'),
+            'settled_this_period' => (int) Settlement::forWorkspace($this->workspace->id)
+                ->where('settled_on', '>=', $from->toDateString())
+                ->sum('amount'),
+            'who' => collect($transfers)
+                ->take(5)
+                ->map(fn (array $t) => [
+                    'from' => $t['from']->name,
+                    'to' => $t['to']->name,
+                    'amount' => $t['amount'],
+                ])
                 ->all(),
         ];
     }

@@ -240,6 +240,35 @@
             </section>
         @endisset
 
+        @isset ($cards['settlements'])
+            <section class="rounded-2xl border bg-white p-5 {{ $cards['settlements']['owed_by_me'] > 0 ? 'border-amber-300' : 'border-slate-200' }}">
+                <div class="flex items-baseline gap-2">
+                    <h2 class="font-medium">حساب‌وکتاب</h2>
+                    <a href="{{ route('settlements.index') }}" class="ms-auto text-sm text-slate-500 hover:text-slate-900">همه</a>
+                </div>
+
+                @if ($cards['settlements']['net'] === 0)
+                    <p class="mt-2 text-sm text-emerald-700">حساب شما صاف است.</p>
+                @elseif ($cards['settlements']['net'] > 0)
+                    <p class="tabular mt-2 text-xl font-bold text-emerald-700">
+                        {{ number_format($cards['settlements']['net']) }}
+                        <span class="text-xs font-normal text-slate-400">ریال طلبکارید</span>
+                    </p>
+                @else
+                    <p class="tabular mt-2 text-xl font-bold text-amber-700">
+                        {{ number_format($cards['settlements']['owed_by_me']) }}
+                        <span class="text-xs font-normal text-slate-400">ریال بدهکارید</span>
+                    </p>
+                @endif
+
+                @if ($cards['settlements']['transfers'] > 0)
+                    <p class="tabular mt-2 text-xs text-slate-500">
+                        با {{ $cards['settlements']['transfers'] }} پرداخت، حساب همه صاف می‌شود.
+                    </p>
+                @endif
+            </section>
+        @endisset
+
         @isset ($cards['approvals'])
             @if ($cards['approvals']['waitingOnMe'] > 0 || $cards['approvals']['mine'] > 0)
                 <section class="rounded-2xl border border-slate-200 bg-white p-5">

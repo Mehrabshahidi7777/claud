@@ -156,6 +156,12 @@ class WeeklyReportComposer
             $facts['درخواست_بیش_از_یک_هفته_معطل'] = $approvals['stale'];
         }
 
+        if (($settlements = $snapshot['settlements'] ?? null) !== null) {
+            $facts['خرج_مشترک_این_هفته_ریال'] = $settlements['spent_this_period'];
+            $facts['تسویه_نشده_ریال'] = $settlements['outstanding'];
+            $facts['تعداد_پرداخت_لازم_برای_صاف_شدن'] = $settlements['transfers'];
+        }
+
         return $facts;
     }
 
@@ -265,6 +271,14 @@ class WeeklyReportComposer
                     $this->rial($recurring['value_at_risk']),
                 )
                 : sprintf('%s کار دوره‌ای از تاریخش گذشته.', $this->number($recurring['overdue']));
+        }
+
+        if (($settlements = $snapshot['settlements'] ?? null) !== null && $settlements['transfers'] > 0) {
+            $sentences[] = sprintf(
+                '%s ریال بین شما تسویه نشده — با %s پرداخت حساب همه صاف می‌شود.',
+                $this->rial($settlements['outstanding']),
+                $this->number($settlements['transfers']),
+            );
         }
 
         if (($approvals = $snapshot['approvals'] ?? null) !== null && $approvals['stale'] > 0) {
