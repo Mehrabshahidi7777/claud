@@ -43,6 +43,7 @@ class DemoSeederTest extends TestCase
             ['finance.receivables'],
             ['finance.import'],
             ['recurring.index'],
+            ['contracts.index'],
             ['members.index'],
             ['reports.index'],
             ['reports.weekly.index'],
@@ -90,5 +91,13 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('سرویس شش‌ماهه چیلرها')
             ->assertSee('درآمد در معرض از دست رفتن');
+
+        // A lapsed contractor qualification is not untidy — it loses tenders
+        // the company has already paid to bid for.
+        $this->actingAs($this->owner)
+            ->get(route('contracts.index'))
+            ->assertOk()
+            ->assertSee('گواهینامه صلاحیت پیمانکاری')
+            ->assertSee('منقضی شده که رها کردنش گران است');
     }
 }

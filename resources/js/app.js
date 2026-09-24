@@ -96,6 +96,32 @@ if (anchorSelect) {
 }
 
 /**
+ * Move the notice window to the default for the kind of contract chosen.
+ *
+ * Sixty days for a staff contract and thirty for a lease are not a
+ * preference, they are what each one needs — but only until somebody types
+ * their own number, which is never overwritten afterwards.
+ */
+const contractKind = document.querySelector('[data-contract-kind]');
+
+if (contractKind) {
+    const noticeDays = document.querySelector('[data-notice-days]');
+    let touched = false;
+
+    noticeDays?.addEventListener('input', () => {
+        touched = true;
+    });
+
+    contractKind.addEventListener('change', () => {
+        const option = contractKind.selectedOptions[0];
+
+        if (noticeDays && option && !touched) {
+            noticeDays.value = option.dataset.notice ?? noticeDays.value;
+        }
+    });
+}
+
+/**
  * A confirmation step on the destructive actions.
  *
  * Cancelling a task deletes its remaining follow-ups, which is not something

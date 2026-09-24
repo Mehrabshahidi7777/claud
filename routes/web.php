@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
@@ -66,6 +67,12 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::post('tasks/{task}/reschedule', [TaskController::class, 'reschedule'])->name('tasks.reschedule');
 
     Route::post('tasks/parse', TaskParseController::class)->name('tasks.parse');
+
+    Route::get('contracts', [ContractController::class, 'index'])->name('contracts.index');
+    Route::post('contracts', [ContractController::class, 'store'])->name('contracts.store');
+    Route::get('contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+    Route::post('contracts/{contract}/renew', [ContractController::class, 'renew'])->name('contracts.renew');
+    Route::post('contracts/{contract}/end', [ContractController::class, 'end'])->name('contracts.end');
 
     Route::get('recurring', [RecurringTaskController::class, 'index'])->name('recurring.index');
     Route::post('recurring', [RecurringTaskController::class, 'store'])->name('recurring.store');

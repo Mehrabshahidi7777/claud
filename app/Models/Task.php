@@ -20,7 +20,11 @@ class Task extends Model
 
     protected $fillable = [
         'workspace_id', 'title', 'description', 'assignee_id', 'creator_id',
-        'due_at', 'priority', 'status', 'may_break_quiet_hours', 'meeting_id', 'recurring_task_id',
+        'due_at', 'priority', 'status', 'may_break_quiet_hours',
+        // Where the task came from. Every one of these has been forgotten here
+        // once and cost an afternoon: the column exists, the engine sets it,
+        // and $fillable drops it in silence.
+        'meeting_id', 'recurring_task_id', 'contract_id',
         // Written when a reply comes in rather than by a form. Omitting them
         // makes an inbound "انجام شد" close the task without recording when,
         // and a deferral lose the reason it was given.

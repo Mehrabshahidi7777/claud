@@ -4,9 +4,11 @@ namespace Database\Seeders;
 
 use App\Enums\ApprovalStatus;
 use App\Enums\ApprovalType;
+use App\Enums\ContractKind;
 use App\Enums\ExpenseCategory;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
+use App\Enums\PartyType;
 use App\Enums\ReceivableStatus;
 use App\Enums\RecurrenceAnchor;
 use App\Enums\RecurrenceUnit;
@@ -14,6 +16,7 @@ use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\WorkspaceRole;
 use App\Models\ApprovalRequest;
+use App\Models\Contract;
 use App\Models\Expense;
 use App\Models\Holiday;
 use App\Models\Meeting;
@@ -27,6 +30,7 @@ use App\Models\WeeklyReport;
 use App\Models\Workspace;
 use App\Notifications\TaskReminder;
 use App\Services\BillingService;
+use App\Services\ContractWatcher;
 use App\Services\FollowUpScheduler;
 use App\Services\ReceivableChaser;
 use App\Services\RecurrenceSweeper;
@@ -166,6 +170,7 @@ class DemoSeeder extends Seeder
 
         $this->seedFinance($workspace, $owner, $opsManager);
         $this->seedRecurring($workspace, $owner, $opsManager, $technicians);
+        $this->seedContracts($workspace, $owner, $opsManager, $technicians);
 
         $this->seedPastWeeklyReports($workspace);
 
@@ -485,6 +490,71 @@ class DemoSeeder extends Seeder
         ]);
 
         app(RecurrenceSweeper::class)->sweepWorkspace($workspace);
+    }
+
+    /**
+     * Contracts and licences, two of them already lapsed.
+     *
+     * The expired contractor qualification is the row that lands in a demo:
+     * it is not untidy, it disqualifies the company from tenders it has
+     * already paid to bid for — and nobody finds out until the bid comes
+     * back rejected.
+     *
+     * @param  Collection<int, User>  $technicians
+     */
+    private function seedContracts(Workspace $workspace, User $owner, User $manager, $technicians): void
+    {
+        foreach ($technicians as $index => $technician) {
+            Contract::create([
+                'workspace_id' => $workspace->id,
+                'created_by' => $owner->id,
+                'owner_id' => $manager->id,
+                'kind' => ContractKind::Employment,
+                'party_type' => PartyType::Employee,
+                'party_name' => $technician->name,
+                'party_user_id' => $technician->id,
+                'title' => 'قرارداد یک‌ساله',
+                'reference' => 'HR-14'.(4 + $index).'-0'.($index + 3),
+                'starts_on' => now()->subMonths(11 - $index)->toDateString(),
+                'expires_on' => now()->addDays([18, 52, -26][$index])->toDateString(),
+                'value' => [1_450_000_000, 1_280_000_000, 1_180_000_000][$index],
+                'notice_days' => 60,
+                'renewals' => $index,
+            ]);
+        }
+
+        Contract::create([
+            'workspace_id' => $workspace->id,
+            'created_by' => $owner->id,
+            'owner_id' => $owner->id,
+            'kind' => ContractKind::Licence,
+            'party_type' => PartyType::Authority,
+            'party_name' => 'سازمان برنامه و بودجه',
+            'title' => 'گواهینامه صلاحیت پیمانکاری',
+            'reference' => 'GS-1404-7781',
+            'note' => 'بدون این گواهی، شرکت در مناقصات دولتی رد صلاحیت می‌شود.',
+            'starts_on' => now()->subYears(3)->toDateString(),
+            'expires_on' => now()->subDays(12)->toDateString(),
+            'notice_days' => 45,
+            'renewals' => 2,
+        ]);
+
+        Contract::create([
+            'workspace_id' => $workspace->id,
+            'created_by' => $owner->id,
+            'owner_id' => $owner->id,
+            'kind' => ContractKind::Lease,
+            'party_type' => PartyType::Supplier,
+            'party_name' => 'آقای موسوی',
+            'title' => 'اجاره‌نامه دفتر مرکزی',
+            'starts_on' => now()->subMonths(10)->toDateString(),
+            'expires_on' => now()->addMonths(2)->toDateString(),
+            'value' => 3_120_000_000,
+            'notice_days' => 30,
+            'auto_renews' => true,
+        ]);
+
+        app(ContractWatcher::class)->sweepWorkspace($workspace);
     }
 
     /**

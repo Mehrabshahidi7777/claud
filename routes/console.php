@@ -68,3 +68,16 @@ Schedule::command('recurrences:run')
     ->dailyAt('07:30')
     ->withoutOverlapping()
     ->runInBackground();
+
+/*
+| Contracts and licences nearing expiry, once a day.
+|
+| Alongside the recurring sweep rather than inside it: a recurrence repeats on
+| a cadence, a contract expires once and is renewed on terms nobody knows in
+| advance, and the two engines have no logic in common.
+*/
+
+Schedule::command('contracts:watch')
+    ->dailyAt('07:45')
+    ->withoutOverlapping()
+    ->runInBackground();
