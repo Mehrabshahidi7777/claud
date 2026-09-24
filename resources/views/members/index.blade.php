@@ -59,12 +59,24 @@
                                     @method('PATCH')
 
                                     <select name="role" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
-                                        @foreach (App\Enums\WorkspaceRole::cases() as $role)
+                                        @foreach ($roles as $role)
                                             <option value="{{ $role->value }}" @selected($pivot->role === $role->value)>
                                                 {{ $role->label() }}
                                             </option>
                                         @endforeach
                                     </select>
+
+                                    @if ($departments->isNotEmpty())
+                                        <select name="department_id" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
+                                            <option value="">— بدون بخش —</option>
+                                            @foreach ($departments as $department)
+                                                <option value="{{ $department->id }}"
+                                                        @selected((int) $pivot->department_id === $department->id)>
+                                                    {{ $department->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
 
                                     <select name="manager_id" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
                                         <option value="">— مالک فضای کاری —</option>
@@ -136,13 +148,38 @@
                     <label for="member-role" class="block text-sm">نقش</label>
                     <select id="member-role" name="role"
                             class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                        @foreach (App\Enums\WorkspaceRole::cases() as $role)
+                        @foreach ($roles as $role)
                             <option value="{{ $role->value }}" @selected(old('role', 'member') === $role->value)>
                                 {{ $role->label() }}
                             </option>
                         @endforeach
                     </select>
+                    @error('role')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+
+                    {{-- Spelled out beside the picker rather than left to a
+                         help page: choosing a role is choosing what somebody
+                         can see, and nobody reads the help page. --}}
+                    <p class="mt-1 text-xs leading-6 text-slate-400">
+                        @foreach ($roles as $role)
+                            <span class="block"><b class="text-slate-600">{{ $role->label() }}</b> — {{ $role->description() }}</span>
+                        @endforeach
+                    </p>
                 </div>
+
+                @if ($departments->isNotEmpty())
+                    <div>
+                        <label for="member-department" class="block text-sm">بخش</label>
+                        <select id="member-department" name="department_id"
+                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                            <option value="">— بدون بخش —</option>
+                            @foreach ($departments as $department)
+                                <option value="{{ $department->id }}" @selected(old('department_id') == $department->id)>
+                                    {{ $department->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
 
                 <div>
                     <label for="member-manager" class="block text-sm">مدیر مستقیم</label>

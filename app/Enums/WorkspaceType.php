@@ -51,7 +51,8 @@ enum WorkspaceType: string
         return match ($this) {
             self::Corporate => [
                 'tasks', 'meetings', 'approvals', 'finance', 'recurring',
-                'contracts', 'reports', 'members', 'notifications', 'billing',
+                'contracts', 'departments', 'reports', 'members', 'notifications',
+                'billing',
             ],
 
             // No invoices to chase, no minutes to take, no leave to approve.

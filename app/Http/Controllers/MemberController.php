@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Contracts\SmsDriver;
+use App\Enums\Permission;
 use App\Enums\WorkspaceRole;
 use App\Models\Activity;
+use App\Models\Department;
 use App\Models\User;
 use App\Services\CurrentWorkspace;
 use App\Sms\PatternMessage;
@@ -27,11 +29,15 @@ class MemberController extends Controller
     {
         $workspace = $this->workspace->get();
 
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageMembers), 403);
 
         return view('members.index', [
             'workspace' => $workspace,
             'members' => $workspace->members()->orderBy('name')->get(),
+            'roles' => WorkspaceRole::assignable(),
+            'departments' => $workspace->has('departments')
+                ? Department::forWorkspace($workspace->id)->active()->orderBy('name')->get()
+                : collect(),
         ]);
     }
 
@@ -39,17 +45,23 @@ class MemberController extends Controller
     {
         $workspace = $this->workspace->get();
 
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageMembers), 403);
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'phone' => ['required', 'string'],
             'role' => ['required', Rule::enum(WorkspaceRole::class)],
+            'department_id' => [
+                'nullable',
+                Rule::exists('departments', 'id')->where('workspace_id', $workspace->id),
+            ],
             'manager_id' => [
                 'nullable',
                 Rule::exists('workspace_user', 'user_id')->where('workspace_id', $workspace->id),
             ],
         ]);
+
+        $this->refuseOwnerRole($validated['role']);
 
         $phone = PhoneNumber::normalize($validated['phone']);
 
@@ -70,6 +82,7 @@ class MemberController extends Controller
 
         $workspace->members()->attach($user, [
             'role' => $validated['role'],
+            'department_id' => $validated['department_id'] ?? null,
             'manager_id' => $validated['manager_id'] ?? null,
         ]);
 
@@ -87,17 +100,23 @@ class MemberController extends Controller
     {
         $workspace = $this->workspace->get();
 
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageMembers), 403);
         abort_unless($workspace->members()->where('users.id', $member->id)->exists(), 404);
 
         $validated = $request->validate([
             'role' => ['required', Rule::enum(WorkspaceRole::class)],
+            'department_id' => [
+                'nullable',
+                Rule::exists('departments', 'id')->where('workspace_id', $workspace->id),
+            ],
             'manager_id' => [
                 'nullable',
                 Rule::exists('workspace_user', 'user_id')->where('workspace_id', $workspace->id),
             ],
             'away_until' => ['nullable', 'date'],
         ]);
+
+        $this->refuseOwnerRole($validated['role']);
 
         // Nobody is their own manager: an escalation that loops back to the
         // person who missed the deadline reaches nobody.
@@ -107,11 +126,29 @@ class MemberController extends Controller
 
         $workspace->members()->updateExistingPivot($member->id, [
             'role' => $validated['role'],
+            'department_id' => $validated['department_id'] ?? null,
             'manager_id' => $validated['manager_id'] ?? null,
             'away_until' => $validated['away_until'] ?? null,
         ]);
 
         return back()->with('status', 'تغییرات ثبت شد.');
+    }
+
+    /**
+     * Ownership is not a role to hand out from a dropdown.
+     *
+     * There is one owner, they are whoever created the workspace, and they
+     * hold the one permission that spends money. Letting an admin promote
+     * somebody — or themselves — to owner from this form would make the
+     * billing guard decorative.
+     */
+    private function refuseOwnerRole(string $role): void
+    {
+        if ($role === WorkspaceRole::Owner->value) {
+            throw ValidationException::withMessages([
+                'role' => 'مالک از این صفحه تعیین نمی‌شود.',
+            ]);
+        }
     }
 
     /**
@@ -122,7 +159,7 @@ class MemberController extends Controller
     {
         $workspace = $this->workspace->get();
 
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageMembers), 403);
         abort_unless($workspace->members()->where('users.id', $member->id)->exists(), 404);
 
         $member->update(['sms_opted_out_at' => null]);

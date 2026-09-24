@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Models\Activity;
@@ -63,7 +64,7 @@ class TaskController extends Controller
             'workspace' => $workspace,
             'task' => $task->load(['assignee', 'creator', 'meeting', 'followUps.recipient']),
             'members' => $workspace->members()->orderBy('name')->get(),
-            'canCancel' => $this->workspace->role()->canCancelTasks(),
+            'canCancel' => $this->workspace->can(Permission::CancelTasks),
 
             'activities' => Activity::where('workspace_id', $workspace->id)
                 ->where('subject_type', $task->getMorphClass())
@@ -145,7 +146,7 @@ class TaskController extends Controller
     {
         $this->workspace->authorize($task);
 
-        abort_unless($this->workspace->role()->canCancelTasks(), 403);
+        abort_unless($this->workspace->can(Permission::CancelTasks), 403);
 
         $task->update(['status' => TaskStatus::Cancelled]);
         $task->followUps()->where('status', 'pending')->delete();

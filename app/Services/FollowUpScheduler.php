@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
+use App\Models\Department;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
 use Carbon\CarbonImmutable;
@@ -137,9 +138,13 @@ class FollowUpScheduler
     }
 
     /**
-     * Where an escalation lands. Null when nobody is named, in which case the
-     * workspace owner picks it up — the right answer for a small company with
-     * no real hierarchy.
+     * Where an escalation lands, in order of who actually knows about the work.
+     *
+     * The named manager first. Then the head of the person's own department —
+     * in a company of forty, a chase about a purchase order means something
+     * to the head of commercial and nothing to the managing director. The
+     * owner is the last resort, which is the right answer only for a small
+     * company with no real hierarchy.
      */
     private function managerIdFor(Task $task): ?int
     {
@@ -149,8 +154,34 @@ class FollowUpScheduler
             ->first()
             ?->pivot;
 
-        return $membership?->manager_id
+        if ($membership?->manager_id !== null) {
+            return $membership->manager_id;
+        }
+
+        $lead = $this->departmentLeadFor($task, $membership?->department_id);
+
+        return $lead
             ?? $task->workspace->members()->wherePivot('role', 'owner')->first()?->id;
+    }
+
+    /**
+     * The head of the relevant department — the task's own where it has one,
+     * otherwise the one the assignee sits in. A lead is never escalated to
+     * about their own work, which would be a message to nobody.
+     */
+    private function departmentLeadFor(Task $task, ?int $memberDepartmentId): ?int
+    {
+        $departmentId = $task->department_id ?? $memberDepartmentId;
+
+        if ($departmentId === null) {
+            return null;
+        }
+
+        $leadId = Department::where('id', $departmentId)
+            ->where('workspace_id', $task->workspace_id)
+            ->value('lead_id');
+
+        return $leadId !== null && $leadId !== $task->responsible()?->id ? $leadId : null;
     }
 
     private function clearPending(Task $task): void

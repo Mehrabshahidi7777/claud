@@ -129,6 +129,10 @@
                     <a href="{{ route('reports.weekly.index') }}" class="{{ $tab($starts('reports.weekly')) }}">هفتگی</a>
                 @endif
 
+                @if ($workspace->has('departments'))
+                    <a href="{{ route('departments.index') }}" class="{{ $tab($starts('departments')) }}">بخش‌ها</a>
+                @endif
+
                 @if ($workspace->has('members'))
                     <a href="{{ route('members.index') }}" class="{{ $tab($current === 'members.index') }}">
                         {{ $workspace->type->memberWord() }}

@@ -42,6 +42,7 @@ class Activity extends Model
             'task.rescheduled' => 'ددلاین جابه‌جا شد',
             'task.repeatedly_deferred' => 'چند بار پشت سر هم تأخیر خورد',
             'meeting.recorded' => 'صورتجلسه ثبت شد',
+            'department.created' => 'بخش اضافه شد',
             'member.added' => 'عضو اضافه شد',
             'member.sms_resumed' => 'ارسال پیامک دوباره فعال شد',
             'user.sms_opted_out' => 'دریافت پیامک را قطع کرد',

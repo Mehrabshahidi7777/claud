@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
@@ -94,6 +95,13 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
         Route::get('recurring', [RecurringTaskController::class, 'index'])->name('recurring.index');
         Route::post('recurring', [RecurringTaskController::class, 'store'])->name('recurring.store');
         Route::post('recurring/{recurring}/toggle', [RecurringTaskController::class, 'toggle'])->name('recurring.toggle');
+    });
+
+    Route::middleware('module:departments')->group(function () {
+        Route::get('departments', [DepartmentController::class, 'index'])->name('departments.index');
+        Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');
+        Route::patch('departments/{department}', [DepartmentController::class, 'update'])->name('departments.update');
+        Route::post('departments/{department}/toggle', [DepartmentController::class, 'toggle'])->name('departments.toggle');
     });
 
     Route::get('members', [MemberController::class, 'index'])->name('members.index');

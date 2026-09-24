@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Accounting\SpreadsheetReader;
+use App\Enums\Permission;
 use App\Services\CurrentWorkspace;
 use App\Services\ReceivableImporter;
 use Illuminate\Http\Request;
@@ -88,7 +89,7 @@ class ReceivableImportController extends Controller
 
     private function guard()
     {
-        abort_unless($this->workspace->role()->canSeeFinance(), 403);
+        abort_unless($this->workspace->can(Permission::ViewFinance), 403);
 
         return $this->workspace->get();
     }

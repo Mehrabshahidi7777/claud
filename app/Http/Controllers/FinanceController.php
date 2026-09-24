@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ExpenseCategory;
+use App\Enums\Permission;
 use App\Enums\ReceivableStatus;
 use App\Enums\TaskStatus;
 use App\Models\Activity;
@@ -245,7 +246,7 @@ class FinanceController extends Controller
 
     private function guard()
     {
-        abort_unless($this->workspace->role()->canSeeFinance(), 403);
+        abort_unless($this->workspace->can(Permission::ViewFinance), 403);
 
         return $this->workspace->get();
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Enums\RecurrenceAnchor;
 use App\Enums\RecurrenceUnit;
 use App\Enums\TaskPriority;
@@ -63,6 +64,8 @@ class RecurringTaskController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless($this->workspace->can(Permission::ManageRecurring), 403);
+
         $workspace = $this->workspace->get();
 
         $validated = $request->validate([

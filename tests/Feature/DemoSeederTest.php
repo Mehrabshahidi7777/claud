@@ -48,6 +48,7 @@ class DemoSeederTest extends TestCase
             ['recurring.index'],
             ['contracts.index'],
             ['members.index'],
+            ['departments.index'],
             ['reports.index'],
             ['reports.weekly.index'],
             ['billing.index'],
@@ -102,6 +103,26 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('گواهینامه صلاحیت پیمانکاری')
             ->assertSee('منقضی شده که رها کردنش گران است');
+    }
+
+    public function test_the_demo_shows_the_permission_split_a_company_already_has(): void
+    {
+        // The accountant and the HR officer are the pair worth demonstrating:
+        // one sees the money and not the staff file, the other the reverse.
+        $accountant = User::where('phone', '989121110009')->sole();
+        $hr = User::where('phone', '989121110010')->sole();
+
+        $this->actingAs($accountant)->get(route('finance.index'))->assertOk();
+        $this->actingAs($accountant)->get(route('members.index'))->assertForbidden();
+
+        $this->actingAs($hr)->get(route('members.index'))->assertOk();
+        $this->actingAs($hr)->get(route('finance.index'))->assertForbidden();
+
+        $this->actingAs($this->owner)
+            ->get(route('departments.index'))
+            ->assertOk()
+            ->assertSee('بازرگانی')
+            ->assertSee('منابع انسانی و اداری');
     }
 
     public function test_the_demo_ships_a_weekly_report_with_something_in_every_section(): void

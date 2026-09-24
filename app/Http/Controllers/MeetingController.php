@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Models\Activity;
@@ -38,6 +39,8 @@ class MeetingController extends Controller
 
     public function create()
     {
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
+
         return view('meetings.create', ['workspace' => $this->workspace->get()]);
     }
 

@@ -24,7 +24,7 @@ class Task extends Model
         // Where the task came from. Every one of these has been forgotten here
         // once and cost an afternoon: the column exists, the engine sets it,
         // and $fillable drops it in silence.
-        'meeting_id', 'recurring_task_id', 'contract_id',
+        'meeting_id', 'recurring_task_id', 'contract_id', 'department_id',
         // Written when a reply comes in rather than by a form. Omitting them
         // makes an inbound "انجام شد" close the task without recording when,
         // and a deferral lose the reason it was given.
@@ -72,6 +72,14 @@ class Task extends Model
     public function recurringTask(): BelongsTo
     {
         return $this->belongsTo(RecurringTask::class);
+    }
+
+    /**
+     * Which part of the company this belongs to, where the company has parts.
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function followUps(): HasMany

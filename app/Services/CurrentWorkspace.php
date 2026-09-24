@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\Permission;
 use App\Enums\WorkspaceRole;
+use App\Models\Department;
 use App\Models\Task;
 use App\Models\Workspace;
 use Illuminate\Support\Facades\Auth;
@@ -58,6 +60,34 @@ class CurrentWorkspace
             ->first()
             ?->pivot
             ?->role ?? WorkspaceRole::Guest->value);
+    }
+
+    /**
+     * The question every guard in the application should be asking.
+     *
+     * Nothing outside the role enum tests what role somebody has: the day a
+     * customer wants an accountant who cannot add staff, this is one table to
+     * edit rather than a hunt through the controllers.
+     */
+    public function can(Permission $permission): bool
+    {
+        return $this->role()->can($permission);
+    }
+
+    /**
+     * Where the signed-in user sits, or null in a company small enough not to
+     * have departments — which must stay a legitimate state rather than one
+     * the product nags about.
+     */
+    public function department(): ?Department
+    {
+        $departmentId = $this->get()->members()
+            ->where('users.id', Auth::id())
+            ->first()
+            ?->pivot
+            ?->department_id;
+
+        return $departmentId === null ? null : Department::find($departmentId);
     }
 
     /**

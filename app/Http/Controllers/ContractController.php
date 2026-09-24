@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\ContractKind;
 use App\Enums\PartyType;
+use App\Enums\Permission;
 use App\Models\Activity;
 use App\Models\Contract;
 use App\Services\ContractWatcher;
@@ -28,6 +29,8 @@ class ContractController extends Controller
 
     public function index()
     {
+        abort_unless($this->workspace->can(Permission::ViewContracts), 403);
+
         $workspace = $this->workspace->get();
 
         $contracts = Contract::forWorkspace($workspace->id)
@@ -78,6 +81,8 @@ class ContractController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless($this->workspace->can(Permission::ManageContracts), 403);
+
         $workspace = $this->workspace->get();
 
         $validated = $request->validate([

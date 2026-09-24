@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\ApprovalStatus;
 use App\Enums\ApprovalType;
 use App\Enums\ContractKind;
+use App\Enums\DepartmentKind;
 use App\Enums\ExpenseCategory;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
@@ -18,6 +19,7 @@ use App\Enums\WorkspaceRole;
 use App\Enums\WorkspaceType;
 use App\Models\ApprovalRequest;
 use App\Models\Contract;
+use App\Models\Department;
 use App\Models\Expense;
 use App\Models\Holiday;
 use App\Models\Meeting;
@@ -82,18 +84,74 @@ class DemoSeeder extends Seeder
             ['phone' => '989121110005', 'name' => 'امید صادقی'],
         ])->map(fn ($data) => User::create($data));
 
-        $workspace->members()->attach($owner, ['role' => WorkspaceRole::Owner->value]);
+        // The departments nearly every service company has. Seeded before the
+        // members, because where somebody sits is part of adding them.
+        $departments = collect([
+            DepartmentKind::Management,
+            DepartmentKind::Accounting,
+            DepartmentKind::Commercial,
+            DepartmentKind::HumanResources,
+            DepartmentKind::Operations,
+        ])->mapWithKeys(fn (DepartmentKind $kind) => [
+            $kind->value => Department::create([
+                'workspace_id' => $workspace->id,
+                'kind' => $kind,
+                'name' => $kind->label(),
+            ]),
+        ]);
+
+        $workspace->members()->attach($owner, [
+            'role' => WorkspaceRole::Owner->value,
+            'department_id' => $departments[DepartmentKind::Management->value]->id,
+        ]);
+
         $workspace->members()->attach($opsManager, [
             'role' => WorkspaceRole::Admin->value,
+            'department_id' => $departments[DepartmentKind::Operations->value]->id,
+            'manager_id' => $owner->id,
+        ]);
+
+        // An accountant and an HR officer, which is the pair that makes the
+        // permission split visible: one sees the money and not the staff
+        // file, the other the reverse.
+        $accountant = User::create([
+            'phone' => '989121110009',
+            'name' => 'سمیه رحیمی',
+            'phone_verified_at' => now(),
+        ]);
+
+        $hrOfficer = User::create([
+            'phone' => '989121110010',
+            'name' => 'زهرا کاظمی',
+            'phone_verified_at' => now(),
+        ]);
+
+        $workspace->members()->attach($accountant, [
+            'role' => WorkspaceRole::Finance->value,
+            'department_id' => $departments[DepartmentKind::Accounting->value]->id,
+            'manager_id' => $owner->id,
+        ]);
+
+        $workspace->members()->attach($hrOfficer, [
+            'role' => WorkspaceRole::HumanResources->value,
+            'department_id' => $departments[DepartmentKind::HumanResources->value]->id,
             'manager_id' => $owner->id,
         ]);
 
         foreach ($technicians as $technician) {
             $workspace->members()->attach($technician, [
                 'role' => WorkspaceRole::Member->value,
+                'department_id' => $departments[DepartmentKind::Operations->value]->id,
                 'manager_id' => $opsManager->id,
             ]);
         }
+
+        // Heads, so an overdue task climbs to somebody who knows what it was
+        // rather than to the managing director.
+        $departments[DepartmentKind::Operations->value]->update(['lead_id' => $opsManager->id]);
+        $departments[DepartmentKind::Accounting->value]->update(['lead_id' => $accountant->id]);
+        $departments[DepartmentKind::HumanResources->value]->update(['lead_id' => $hrOfficer->id]);
+        $departments[DepartmentKind::Management->value]->update(['lead_id' => $owner->id]);
 
         // A real workspace gets its trial at onboarding; the demo needs one
         // too, or the paywall blocks the demo itself.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Models\Invoice;
 use App\Services\BillingService;
 use App\Services\CurrentWorkspace;
@@ -22,7 +23,7 @@ class BillingController extends Controller
 
         // Only an owner sees prices and invoices. A member who could raise an
         // invoice could commit the company to a bill.
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageBilling), 403);
 
         $subscription = $this->billing->currentSubscription($workspace);
 
@@ -47,7 +48,7 @@ class BillingController extends Controller
     {
         $workspace = $this->workspace->get();
 
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageBilling), 403);
 
         $validated = $request->validate([
             'plan_key' => ['required', Rule::in(array_keys(config('payment.plans')))],
@@ -73,7 +74,7 @@ class BillingController extends Controller
     public function invoice(Invoice $invoice)
     {
         abort_unless($invoice->workspace_id === $this->workspace->get()->id, 404);
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageBilling), 403);
 
         return view('billing.invoice', [
             'invoice' => $invoice,
@@ -87,7 +88,7 @@ class BillingController extends Controller
     public function pay(Request $request, Invoice $invoice, PaymentService $payments)
     {
         abort_unless($invoice->workspace_id === $this->workspace->get()->id, 404);
-        abort_unless($this->workspace->role()->canManageMembers(), 403);
+        abort_unless($this->workspace->can(Permission::ManageBilling), 403);
 
         if (! $invoice->status->isPayable()) {
             return redirect()->route('billing.invoice', $invoice)

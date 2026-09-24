@@ -38,13 +38,18 @@ class Workspace extends Model
         // alphabetical convention, and `workspace_user` reads the way the
         // relationship actually runs.
         return $this->belongsToMany(User::class, 'workspace_user')
-            ->withPivot(['role', 'manager_id', 'away_until', 'deactivated_at'])
+            ->withPivot(['role', 'department_id', 'manager_id', 'away_until', 'deactivated_at'])
             ->withTimestamps();
     }
 
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
     }
 
     public function subscriptions(): HasMany
