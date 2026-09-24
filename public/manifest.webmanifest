@@ -1,7 +1,7 @@
 {
-    "name": "سامانه پیگیری",
-    "short_name": "پیگیری",
-    "description": "کارها را پیگیری می‌کند تا هیچ کاری زمین نماند",
+    "name": "پیگیر",
+    "short_name": "پیگیر",
+    "description": "هیچ کاری زمین نمی‌ماند",
     "lang": "fa",
     "dir": "rtl",
     "start_url": "/tasks?filter=mine",

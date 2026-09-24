@@ -53,6 +53,7 @@ class Activity extends Model
             'receivable.recorded' => 'مطالبه ثبت شد',
             'receivable.chase_raised' => 'برای وصولش تسک پیگیری ساخته شد',
             'receivable.payment_recorded' => 'دریافت ثبت شد',
+            'receivables.imported' => 'فاکتورها از حسابداری درون‌ریزی شد',
             'invoice.paid' => 'فاکتور پرداخت شد',
             'weekly_report.sent' => 'گزارش هفتگی فرستاده شد',
             default => $this->event,

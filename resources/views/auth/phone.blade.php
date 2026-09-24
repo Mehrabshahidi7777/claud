@@ -4,9 +4,14 @@
 
 @section('content')
 <div class="mx-auto max-w-sm pt-10">
-    <h1 class="text-xl font-bold">ورود به سامانه</h1>
+    {{-- The sign-in screen is the one page a prospect sees before they have
+         any reason to care, so it carries the name and the promise. --}}
+    <p class="text-sm font-medium text-slate-900">{{ config('brand.name') }}</p>
+    <h1 class="mt-1 text-xl font-bold">{{ config('brand.slogan') }}</h1>
+
     <p class="mt-2 text-sm text-slate-600">
-        شماره موبایل خود را بفرستید. کد ورود پیامک می‌شود.
+        شماره موبایل خود را بفرستید. کد ورود پیامک می‌شود — نه رمزی هست، نه
+        ایمیلی.
     </p>
 
     <form method="POST" action="{{ route('login.request') }}" class="mt-6 space-y-4">

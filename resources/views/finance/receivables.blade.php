@@ -15,6 +15,10 @@
         <div class="mb-4 flex flex-wrap items-baseline gap-3">
             <h1 class="text-lg font-bold">مطالبات</h1>
             <a href="{{ route('finance.index') }}" class="text-sm text-slate-500 hover:text-slate-900">← گزارش مالی</a>
+            <a href="{{ route('finance.import') }}"
+               class="ms-auto rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+                درون‌ریزی از حسابداری
+            </a>
         </div>
 
         @if ($receivables->isEmpty())

@@ -9,6 +9,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PaymentCallbackController;
+use App\Http\Controllers\ReceivableImportController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
@@ -96,6 +97,10 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::post('finance/receivables', [FinanceController::class, 'storeReceivable'])->name('finance.receivables.store');
     Route::post('finance/receivables/{receivable}/settle', [FinanceController::class, 'settleReceivable'])
         ->name('finance.receivables.settle');
+
+    Route::get('finance/import', [ReceivableImportController::class, 'show'])->name('finance.import');
+    Route::post('finance/import', [ReceivableImportController::class, 'store'])->name('finance.import.store');
+    Route::get('finance/import/template', [ReceivableImportController::class, 'template'])->name('finance.import.template');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::get('approvals/create', [ApprovalController::class, 'create'])->name('approvals.create');

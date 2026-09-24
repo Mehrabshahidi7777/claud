@@ -41,6 +41,7 @@ class DemoSeederTest extends TestCase
             ['finance.index'],
             ['finance.expenses'],
             ['finance.receivables'],
+            ['finance.import'],
             ['members.index'],
             ['reports.index'],
             ['reports.weekly.index'],

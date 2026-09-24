@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'سامانه پیگیری')</title>
+    <title>@yield('title', config('brand.name'))</title>
 
     {{-- Installable on a technician's phone. The field worker is the one who
          needs it on a home screen — they open it in a plant room with one bar
@@ -14,7 +14,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="پیگیری">
+    <meta name="apple-mobile-web-app-title" content="{{ config('brand.name') }}">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="icon" href="/icons/icon-192.png" type="image/png">
 
@@ -33,7 +33,7 @@
     <header class="border-b border-slate-200 bg-white">
         <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
             <a href="{{ route('tasks.index') }}" class="shrink-0 text-lg font-bold text-slate-900">
-                سامانه پیگیری
+                {{ config('brand.name') }}
             </a>
 
             @isset($workspace)
