@@ -2,9 +2,16 @@
 
 namespace App\Services;
 
+use App\Enums\ContractStatus;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
 use App\Enums\TaskStatus;
+use App\Models\Activity;
+use App\Models\ApprovalRequest;
+use App\Models\Contract;
+use App\Models\Expense;
+use App\Models\Receivable;
+use App\Models\RecurringTask;
 use App\Models\SmsInbound;
 use App\Models\SmsOutbound;
 use App\Models\Task;
@@ -232,6 +239,152 @@ class ReportBuilder
                 'used' => $this->workspace->sms_used,
                 'remaining' => $this->workspace->remainingSmsCredit(),
             ],
+
+            // The rest of the engines, each one only where the plan has it.
+            // A household that receives a receivables section once a week has
+            // been sent somebody else's report.
+            'recurring' => $this->workspace->has('recurring') ? $this->recurringSection() : null,
+            'contracts' => $this->workspace->has('contracts') ? $this->contractsSection() : null,
+            'money' => $this->workspace->has('finance') ? $this->moneySection($from) : null,
+            'approvals' => $this->workspace->has('approvals') ? $this->approvalsSection() : null,
+        ];
+    }
+
+    /**
+     * Recurring work that has come round, and what forgetting it costs.
+     *
+     * The priced figure is the one a managing director reads: a service that
+     * is only invoiced when somebody rings the customer is revenue sitting on
+     * the floor, and it is invisible everywhere else.
+     *
+     * @return array<string, mixed>
+     */
+    private function recurringSection(): array
+    {
+        $active = RecurringTask::forWorkspace($this->workspace->id)->active()->get();
+
+        $overdue = $active->filter->isOverdue();
+
+        return [
+            'overdue' => $overdue->count(),
+            'due_soon' => $active->filter(
+                fn (RecurringTask $r) => ! $r->isOverdue() && $r->isDueToRaise(),
+            )->count(),
+            'value_at_risk' => (int) $overdue->sum('estimated_value'),
+            'worst' => $overdue
+                ->sortBy('next_due_on')
+                ->take(5)
+                ->map(fn (RecurringTask $r) => [
+                    'title' => $r->title,
+                    'customer' => $r->customer_name,
+                    'due_on' => $r->next_due_on->toDateString(),
+                    'value' => $r->estimated_value,
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function contractsSection(): array
+    {
+        $active = Contract::forWorkspace($this->workspace->id)
+            ->where('status', ContractStatus::Active->value)
+            ->get();
+
+        $expired = $active->filter->hasExpired();
+
+        return [
+            'expired' => $expired->count(),
+
+            // Said apart from the rest: an expired staff contract is a
+            // liability and a lapsed qualification loses tenders, while a
+            // lapsed stationery agreement is untidy.
+            'serious' => $expired->filter(fn (Contract $c) => $c->kind->lapseIsSerious())->count(),
+            'expiring_soon' => $active->filter->isExpiringSoon()->count(),
+            'soonest' => $active
+                ->filter(fn (Contract $c) => $c->hasExpired() || $c->isExpiringSoon())
+                ->sortBy('expires_on')
+                ->take(5)
+                ->map(fn (Contract $c) => [
+                    'title' => $c->title,
+                    'party' => $c->party_name,
+                    'days' => $c->daysToExpiry(),
+                    'serious' => $c->kind->lapseIsSerious(),
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function moneySection(CarbonImmutable $from): array
+    {
+        $open = Receivable::forWorkspace($this->workspace->id)->outstanding()->get();
+
+        return [
+            'outstanding' => (int) $open->sum(fn (Receivable $r) => $r->outstanding()),
+            'overdue' => (int) $open->filter->isOverdue()->sum(fn (Receivable $r) => $r->outstanding()),
+
+            // Overdue with nobody on it. The one number that says the company
+            // is losing money to nothing but inattention.
+            'unchased' => $open->filter(
+                fn (Receivable $r) => $r->isOverdue() && $r->task_id === null,
+            )->count(),
+
+            'collected' => (int) Activity::where('workspace_id', $this->workspace->id)
+                ->where('event', 'receivable.payment_recorded')
+                ->where('created_at', '>=', $from)
+                ->get()
+                ->sum(fn (Activity $a) => (int) data_get($a->properties, 'received', 0)),
+
+            'spent' => (int) Expense::forWorkspace($this->workspace->id)
+                ->where('spent_on', '>=', $from->toDateString())
+                ->sum('amount'),
+
+            'worst' => $open->filter->isOverdue()
+                ->sortByDesc(fn (Receivable $r) => $r->daysOverdue())
+                ->take(5)
+                ->map(fn (Receivable $r) => [
+                    'customer' => $r->customer_name,
+                    'amount' => $r->outstanding(),
+                    'days' => $r->daysOverdue(),
+                    'chased' => $r->task_id !== null,
+                ])
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function approvalsSection(): array
+    {
+        $pending = ApprovalRequest::forWorkspace($this->workspace->id)->pending()->with('requester')->get();
+
+        return [
+            'pending' => $pending->count(),
+
+            // Waiting a week is the number worth printing: somebody has been
+            // blocked since the last report and nobody noticed.
+            'stale' => $pending->filter(
+                fn (ApprovalRequest $r) => $r->created_at->lessThan(CarbonImmutable::now()->subDays(7)),
+            )->count(),
+            'oldest' => $pending
+                ->sortBy('created_at')
+                ->take(3)
+                ->map(fn (ApprovalRequest $r) => [
+                    'title' => $r->title,
+                    'requester' => $r->requester?->name,
+                    'waiting_days' => (int) $r->created_at->diffInDays(now()),
+                ])
+                ->values()
+                ->all(),
         ];
     }
 

@@ -35,6 +35,7 @@ use App\Services\ContractWatcher;
 use App\Services\FollowUpScheduler;
 use App\Services\ReceivableChaser;
 use App\Services\RecurrenceSweeper;
+use App\Services\WeeklyReportDispatcher;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -174,6 +175,11 @@ class DemoSeeder extends Seeder
         $this->seedContracts($workspace, $owner, $opsManager, $technicians);
 
         $this->seedPastWeeklyReports($workspace);
+
+        // Built last, so it snapshots the money, contracts and services the
+        // seeder has just created. The demo then opens on a report that
+        // actually has something in every section.
+        app(WeeklyReportDispatcher::class)->dispatchFor($workspace);
 
         $this->seedHouseholdWorkspace($owner);
 

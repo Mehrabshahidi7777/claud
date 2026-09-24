@@ -13,6 +13,13 @@ class Workspace extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The database has the same default, but a model built in memory and not
+     * refreshed would otherwise carry a null type — and everything that asks
+     * "does this workspace have finance?" would fall over on it.
+     */
+    protected $attributes = ['type' => 'corporate'];
+
     protected $fillable = ['name', 'type', 'timezone', 'settings', 'sms_enabled', 'sms_quota', 'sms_used'];
 
     protected function casts(): array
@@ -63,7 +70,9 @@ class Workspace extends Model
      */
     public function has(string $module): bool
     {
-        return $this->type->has($module);
+        // A row written before types existed is a company, which is what it
+        // has been behaving as all along.
+        return ($this->type ?? WorkspaceType::Corporate)->has($module);
     }
 
     public function timezone(): string

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\WeeklyReport;
 use App\Models\Workspace;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -100,6 +101,28 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('گواهینامه صلاحیت پیمانکاری')
             ->assertSee('منقضی شده که رها کردنش گران است');
+    }
+
+    public function test_the_demo_ships_a_weekly_report_with_something_in_every_section(): void
+    {
+        // The Saturday report is what a managing director reads, so in a demo
+        // it must not be the one screen that looks half-built.
+        $report = WeeklyReport::latest('id')->first();
+
+        $this->assertNotNull($report, 'The demo should arrive with a report already built.');
+
+        foreach (['money', 'contracts', 'recurring'] as $section) {
+            $this->assertNotNull($report->metric($section), "The [$section] section is missing.");
+        }
+
+        $this->assertGreaterThan(0, $report->metric('money.overdue'));
+        $this->assertGreaterThan(0, $report->metric('contracts.serious'));
+
+        $this->actingAs($this->owner)
+            ->get(route('reports.weekly.show', $report->share_token))
+            ->assertOk()
+            ->assertSee('پول')
+            ->assertSee('قراردادها و مجوزها');
     }
 
     public function test_the_demo_carries_a_household_workspace_that_is_visibly_a_different_product(): void
