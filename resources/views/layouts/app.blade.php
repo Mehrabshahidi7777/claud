@@ -31,46 +31,50 @@
 
 @auth
     <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-            <a href="{{ route('tasks.index') }}" class="text-lg font-bold text-slate-900">
+        <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+            <a href="{{ route('tasks.index') }}" class="shrink-0 text-lg font-bold text-slate-900">
                 سامانه پیگیری
             </a>
 
             @isset($workspace)
-                <span class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+                <span class="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 sm:inline">
                     {{ $workspace->name }}
                 </span>
             @endisset
 
-            <nav class="flex items-center gap-1 text-sm">
+            {{-- Scrolls sideways instead of wrapping. Eight links stacked over
+                 three rows push the page content off a phone screen, and the
+                 field worker's phone is the device this has to survive. --}}
+            <nav class="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 text-sm
+                        [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 @php $current = request()->route()?->getName(); @endphp
 
                 <a href="{{ route('tasks.index') }}"
-                   class="rounded-lg px-3 py-2 {{ $current === 'tasks.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'tasks.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     تسک‌ها
                 </a>
                 <a href="{{ route('meetings.index') }}"
-                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     جلسات
                 </a>
                 <a href="{{ route('approvals.index') }}"
-                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'approvals') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'approvals') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     درخواست‌ها
                 </a>
                 <a href="{{ route('reports.index') }}"
-                   class="rounded-lg px-3 py-2 {{ $current === 'reports.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'reports.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     گزارش
                 </a>
                 <a href="{{ route('reports.weekly.index') }}"
-                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'reports.weekly') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'reports.weekly') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     هفتگی
                 </a>
                 <a href="{{ route('billing.index') }}"
-                   class="rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'billing') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'billing') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     صورتحساب
                 </a>
                 <a href="{{ route('members.index') }}"
-                   class="rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'members.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     اعضا
                 </a>
 
@@ -86,7 +90,7 @@
                 @endphp
 
                 <a href="{{ route('notifications.index') }}"
-                   class="relative rounded-lg px-3 py-2 {{ $current === 'notifications.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="relative shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'notifications.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     اعلان‌ها
                     @if ($unread > 0)
                         <span class="tabular absolute -top-1 -start-1 rounded-full bg-red-600 px-1.5 text-[11px] text-white">
@@ -96,7 +100,7 @@
                 </a>
             </nav>
 
-            <form method="POST" action="{{ route('logout') }}" class="ms-auto">
+            <form method="POST" action="{{ route('logout') }}" class="shrink-0">
                 @csrf
                 <button type="submit" class="text-sm text-slate-500 hover:text-slate-900">خروج</button>
             </form>

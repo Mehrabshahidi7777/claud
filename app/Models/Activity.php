@@ -23,6 +23,38 @@ class Activity extends Model
         return $this->morphTo();
     }
 
+    /**
+     * What this entry says out loud, in the timeline.
+     *
+     * Every event is spelled out rather than falling through to a generic
+     * phrase: a history a manager cannot read is not a history, and this is
+     * the page that answers "why is this on my list, and who moved it".
+     */
+    public function label(): string
+    {
+        return match ($this->event) {
+            'task.created' => 'تسک ثبت شد',
+            'task.created_from_meeting' => 'از روی صورتجلسه ثبت شد',
+            'task.completed' => 'در سامانه بسته شد',
+            'task.completed_by_sms' => 'با پاسخ پیامکی بسته شد',
+            'task.cancelled' => 'لغو شد',
+            'task.cancellation_requested' => 'مجری درخواست لغو داد',
+            'task.rescheduled' => 'ددلاین جابه‌جا شد',
+            'task.repeatedly_deferred' => 'چند بار پشت سر هم تأخیر خورد',
+            'meeting.recorded' => 'صورتجلسه ثبت شد',
+            'member.added' => 'عضو اضافه شد',
+            'member.sms_resumed' => 'ارسال پیامک دوباره فعال شد',
+            'user.sms_opted_out' => 'دریافت پیامک را قطع کرد',
+            'approval.submitted' => 'درخواست ثبت شد',
+            'approval.approved' => 'درخواست تأیید شد',
+            'approval.rejected' => 'درخواست رد شد',
+            'approval.cancelled' => 'درخواست لغو شد',
+            'invoice.paid' => 'فاکتور پرداخت شد',
+            'weekly_report.sent' => 'گزارش هفتگی فرستاده شد',
+            default => $this->event,
+        };
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

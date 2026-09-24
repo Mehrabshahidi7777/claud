@@ -41,7 +41,10 @@
                     <div class="rounded-2xl border bg-white p-4 {{ $isOverdue ? 'border-red-200' : 'border-slate-200' }}">
                         <div class="flex flex-wrap items-start gap-3">
                             <div class="min-w-0 flex-1">
-                                <p class="font-medium">{{ $task->title }}</p>
+                                <a href="{{ route('tasks.show', $task) }}"
+                                   class="font-medium hover:underline hover:decoration-slate-300 hover:underline-offset-4">
+                                    {{ $task->title }}
+                                </a>
 
                                 <div class="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
                                     <span>{{ $task->assignee?->name ?? 'بدون مسئول' }}</span>
@@ -143,6 +146,14 @@
                     <input id="title" name="title" value="{{ old('title') }}" required
                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+                </div>
+
+                <div>
+                    <label for="description" class="block text-sm">توضیح <span class="text-xs text-slate-400">(اختیاری)</span></label>
+                    <textarea id="description" name="description" rows="2"
+                              placeholder="جزئیاتی که مجری لازم دارد بداند"
+                              class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">{{ old('description') }}</textarea>
+                    @error('description')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>

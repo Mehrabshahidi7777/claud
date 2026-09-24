@@ -44,6 +44,33 @@ class TaskFollowUp extends Model
     }
 
     /**
+     * Why this rung never went out, in words a manager can act on.
+     *
+     * The skip reason is the single most useful column in the system when
+     * someone asks "پس چرا پیامک نرفت؟", and a raw `recipient_opted_out` on
+     * screen answers nobody. Anything unmapped falls through to the raw value
+     * rather than a vague sentence, so a new reason is visibly unfinished
+     * instead of silently meaningless.
+     */
+    public function skipExplanation(): ?string
+    {
+        return match ($this->skip_reason) {
+            null => null,
+            'task_closed' => 'تسک قبلش بسته شده بود',
+            'task_deferred' => 'تسک به تعویق افتاده بود',
+            'no_recipient' => 'گیرنده‌ای نداشت',
+            'recipient_opted_out' => 'گیرنده دریافت پیامک را قطع کرده',
+            'recipient_away' => 'گیرنده مرخصی تأییدشده داشت',
+            'sending_disabled_globally' => 'ارسال پیامک سراسری خاموش بود',
+            'sending_disabled_for_workspace' => 'ارسال پیامک این فضای کاری خاموش بود',
+            'priority_below_sms_threshold' => 'اولویت تسک پایین‌تر از حد پیامک بود',
+            'workspace_out_of_sms_credit' => 'اعتبار پیامک تمام شده بود',
+            'subscription_expired' => 'اشتراک منقضی شده بود',
+            default => $this->skip_reason,
+        };
+    }
+
+    /**
      * Rungs the sweep should act on. Anything already sent, skipped or failed
      * is history — the unique index on (task_id, step) makes sure a retry
      * cannot resurrect it.

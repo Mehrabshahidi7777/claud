@@ -45,6 +45,35 @@ class TaskController extends Controller
         ]);
     }
 
+    /**
+     * One task, with everything that has happened to it.
+     *
+     * The list page shows what is true now; this shows how it got there —
+     * where the task came from, every rung the engine fired or skipped and
+     * why, and who moved what. It is the page that answers "چرا این افتاده
+     * گردن من" and the one that makes a demo land.
+     */
+    public function show(Task $task)
+    {
+        $this->workspace->authorize($task);
+
+        $workspace = $this->workspace->get();
+
+        return view('tasks.show', [
+            'workspace' => $workspace,
+            'task' => $task->load(['assignee', 'creator', 'meeting', 'followUps.recipient']),
+            'members' => $workspace->members()->orderBy('name')->get(),
+            'canCancel' => $this->workspace->role()->canCancelTasks(),
+
+            'activities' => Activity::where('workspace_id', $workspace->id)
+                ->where('subject_type', $task->getMorphClass())
+                ->where('subject_id', $task->getKey())
+                ->with('user')
+                ->latest('id')
+                ->get(),
+        ]);
+    }
+
     public function store(Request $request)
     {
         $workspace = $this->workspace->get();

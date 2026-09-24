@@ -72,6 +72,21 @@ if (installBanner) {
 }
 
 /**
+ * A confirmation step on the destructive actions.
+ *
+ * Cancelling a task deletes its remaining follow-ups, which is not something
+ * to do on a misclick — and unlike completing a task, there is no button that
+ * undoes it.
+ */
+document.querySelectorAll('form[data-confirm]').forEach((form) => {
+    form.addEventListener('submit', (event) => {
+        if (!window.confirm(form.dataset.confirm)) {
+            event.preventDefault();
+        }
+    });
+});
+
+/**
  * Show only the fields the chosen request type actually uses.
  *
  * Progressive enhancement: with JavaScript off every field is visible and the

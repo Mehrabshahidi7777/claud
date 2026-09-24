@@ -57,6 +57,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     Route::post('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     Route::post('tasks/{task}/cancel', [TaskController::class, 'cancel'])->name('tasks.cancel');
     Route::post('tasks/{task}/reschedule', [TaskController::class, 'reschedule'])->name('tasks.reschedule');
