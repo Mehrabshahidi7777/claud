@@ -38,6 +38,9 @@ class DemoSeederTest extends TestCase
             ['meetings.index'],
             ['approvals.index'],
             ['approvals.create'],
+            ['finance.index'],
+            ['finance.expenses'],
+            ['finance.receivables'],
             ['members.index'],
             ['reports.index'],
             ['reports.weekly.index'],
@@ -69,5 +72,13 @@ class DemoSeederTest extends TestCase
             // whose deadline falls inside the requested leave.
             ->assertSee('تحویل صورت‌وضعیت ماهانه به کارفرما')
             ->assertSee('خرید دستگاه جوش');
+
+        // The row that sells the money module: an overdue invoice that has
+        // already become somebody's task, not a line in a report nobody reads.
+        $this->actingAs($this->owner)
+            ->get(route('finance.index'))
+            ->assertOk()
+            ->assertSee('کارخانه شیمیایی پارس')
+            ->assertSee('در حال پیگیری');
     }
 }

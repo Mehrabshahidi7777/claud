@@ -38,7 +38,28 @@ class AppServiceProvider extends ServiceProvider
         // until they pay.
         View::composer('layouts.app', function ($view) {
             $view->with('subscriptionLapsed', $this->subscriptionHasLapsed());
+            $view->with('financeVisible', $this->canSeeFinance());
         });
+    }
+
+    /**
+     * Whether to offer the money pages in the header at all.
+     *
+     * A link that answers 403 is worse than no link: it tells an ordinary
+     * member the page exists and that they are not trusted with it, every
+     * time they look at the navigation.
+     */
+    private function canSeeFinance(): bool
+    {
+        if (! Auth::check()) {
+            return false;
+        }
+
+        try {
+            return app(CurrentWorkspace::class)->role()->canSeeFinance();
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     /**

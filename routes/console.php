@@ -41,3 +41,17 @@ Schedule::command('subscriptions:sweep')
     ->dailyAt('09:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+/*
+| Overdue receivables, once a day at the start of the working morning.
+|
+| Daily rather than hourly because nothing about an unpaid invoice changes
+| between 9:05 and 9:10, and because the chase task it raises enters the
+| ordinary ladder — running this often would only bring the task forward by
+| minutes while multiplying the chance of a duplicate.
+*/
+
+Schedule::command('receivables:chase')
+    ->dailyAt('08:30')
+    ->withoutOverlapping()
+    ->runInBackground();

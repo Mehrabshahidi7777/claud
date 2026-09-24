@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
@@ -80,6 +81,21 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('meetings/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
     Route::post('meetings/{meeting}/actions', [MeetingController::class, 'confirmAction'])->name('meetings.actions.confirm');
     Route::post('meetings/{meeting}/reparse', [MeetingController::class, 'reparse'])->name('meetings.reparse');
+
+    /*
+    | The money pages. Guarded inside the controller by role rather than by a
+    | middleware, because what the company spends is not something every
+    | member sees.
+    */
+
+    Route::get('finance', [FinanceController::class, 'index'])->name('finance.index');
+    Route::get('finance/expenses', [FinanceController::class, 'expenses'])->name('finance.expenses');
+    Route::post('finance/expenses', [FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+    Route::post('finance/expenses/parse', [FinanceController::class, 'parseExpense'])->name('finance.expenses.parse');
+    Route::get('finance/receivables', [FinanceController::class, 'receivables'])->name('finance.receivables');
+    Route::post('finance/receivables', [FinanceController::class, 'storeReceivable'])->name('finance.receivables.store');
+    Route::post('finance/receivables/{receivable}/settle', [FinanceController::class, 'settleReceivable'])
+        ->name('finance.receivables.settle');
 
     Route::get('approvals', [ApprovalController::class, 'index'])->name('approvals.index');
     Route::get('approvals/create', [ApprovalController::class, 'create'])->name('approvals.create');

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ApprovalRequest extends Model
@@ -53,6 +54,15 @@ class ApprovalRequest extends Model
     public function decider(): BelongsTo
     {
         return $this->belongsTo(User::class, 'decided_by');
+    }
+
+    /**
+     * The spend that was filed against this approval, if anyone ever filed
+     * one. Its absence is what the reconciliation view reports.
+     */
+    public function expense(): HasOne
+    {
+        return $this->hasOne(Expense::class);
     }
 
     public function scopePending(Builder $query): Builder

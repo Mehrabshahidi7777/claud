@@ -23,6 +23,17 @@ enum WorkspaceRole: string
         return in_array($this, [self::Owner, self::Admin], true);
     }
 
+    /**
+     * What the company spends and who owes it money is not something every
+     * member should see. Kept separate from member management on purpose:
+     * these two will come apart the first time a customer asks for an
+     * accountant who cannot add staff.
+     */
+    public function canSeeFinance(): bool
+    {
+        return in_array($this, [self::Owner, self::Admin], true);
+    }
+
     public function label(): string
     {
         return match ($this) {

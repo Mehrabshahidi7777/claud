@@ -4,14 +4,18 @@ namespace Database\Seeders;
 
 use App\Enums\ApprovalStatus;
 use App\Enums\ApprovalType;
+use App\Enums\ExpenseCategory;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
+use App\Enums\ReceivableStatus;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\WorkspaceRole;
 use App\Models\ApprovalRequest;
+use App\Models\Expense;
 use App\Models\Holiday;
 use App\Models\Meeting;
+use App\Models\Receivable;
 use App\Models\SmsOutbound;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
@@ -21,6 +25,7 @@ use App\Models\Workspace;
 use App\Notifications\TaskReminder;
 use App\Services\BillingService;
 use App\Services\FollowUpScheduler;
+use App\Services\ReceivableChaser;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -154,6 +159,8 @@ class DemoSeeder extends Seeder
 
         $this->seedMeeting($workspace, $owner, $opsManager, $technicians);
         $this->seedApprovals($workspace, $owner, $opsManager, $technicians->first());
+
+        $this->seedFinance($workspace, $owner, $opsManager);
 
         $this->seedPastWeeklyReports($workspace);
 
@@ -419,6 +426,63 @@ class DemoSeeder extends Seeder
             'decision_note' => 'با فاکتور رسمی دوباره ثبت شود.',
             'created_at' => now()->subDays(5),
         ]);
+    }
+
+    /**
+     * Money going out and money not coming in.
+     *
+     * The receivables are seeded across the ageing buckets on purpose, with
+     * one of them badly overdue and already chased — that row, with a live
+     * task behind it, is the single most convincing thing on the screen:
+     * every accounting package in the country can print an overdue list, and
+     * only this one has put somebody's name on it.
+     */
+    private function seedFinance(Workspace $workspace, User $owner, User $manager): void
+    {
+        foreach ([
+            [ExpenseCategory::Payroll, 'حقوق مهر ماه', null, 1_850_000_000, 6],
+            [ExpenseCategory::Purchase, 'خرید کمپرسور و لوازم یدکی', 'بازرگانی آریا', 420_000_000, 11],
+            [ExpenseCategory::Contractor, 'دستمزد اکیپ نصب پروژه الهیه', null, 310_000_000, 14],
+            [ExpenseCategory::Transport, 'کرایه حمل تجهیزات به کرج', 'باربری سپهر', 38_000_000, 9],
+            [ExpenseCategory::Rent, 'اجاره دفتر مهر', 'آقای موسوی', 260_000_000, 20],
+            [ExpenseCategory::Utilities, 'قبض برق و گاز کارگاه', null, 47_000_000, 17],
+            [ExpenseCategory::Purchase, 'خرید ابزار دستی', 'فروشگاه سام', 62_000_000, 3],
+            [ExpenseCategory::TaxInsurance, 'بیمه تأمین اجتماعی شهریور', null, 540_000_000, 25],
+        ] as [$category, $title, $vendor, $amount, $daysAgo]) {
+            Expense::create([
+                'workspace_id' => $workspace->id,
+                'created_by' => $owner->id,
+                'category' => $category,
+                'title' => $title,
+                'vendor' => $vendor,
+                'amount' => $amount,
+                'spent_on' => now()->subDays($daysAgo)->toDateString(),
+            ]);
+        }
+
+        foreach ([
+            ['شرکت ساختمانی نگین', 'صورت‌وضعیت شماره ۳ برج نگین', 1_240_000_000, -18, 0],
+            ['مجتمع تجاری الهیه', 'فاز اول نصب سیستم تهویه', 860_000_000, 12, 0],
+            ['کارخانه شیمیایی پارس', 'سرویس سالانه چیلرها', 390_000_000, 47, 0],
+            ['دفتر فنی میرداماد', 'تعمیر اضطراری موتورخانه', 145_000_000, 96, 45_000_000],
+        ] as [$customer, $title, $amount, $overdueDays, $settled]) {
+            Receivable::create([
+                'workspace_id' => $workspace->id,
+                'created_by' => $owner->id,
+                'owner_id' => $manager->id,
+                'customer_name' => $customer,
+                'title' => $title,
+                'amount' => $amount,
+                'settled_amount' => $settled,
+                'status' => $settled > 0 ? ReceivableStatus::Partial : ReceivableStatus::Open,
+                'issued_on' => now()->subDays($overdueDays + 30)->toDateString(),
+                'due_on' => now()->subDays($overdueDays)->toDateString(),
+            ]);
+        }
+
+        // Run the sweep so the demo opens with chase tasks already live rather
+        // than with a feature that has to be described instead of shown.
+        app(ReceivableChaser::class)->sweepWorkspace($workspace);
     }
 
     /**

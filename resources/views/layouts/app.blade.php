@@ -57,6 +57,12 @@
                    class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     جلسات
                 </a>
+                @if ($financeVisible ?? false)
+                    <a href="{{ route('finance.index') }}"
+                       class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'finance') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                        مالی
+                    </a>
+                @endif
                 <a href="{{ route('approvals.index') }}"
                    class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'approvals') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     درخواست‌ها
