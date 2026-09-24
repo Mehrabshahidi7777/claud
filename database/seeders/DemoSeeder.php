@@ -8,6 +8,8 @@ use App\Enums\ExpenseCategory;
 use App\Enums\FollowUpStatus;
 use App\Enums\FollowUpStep;
 use App\Enums\ReceivableStatus;
+use App\Enums\RecurrenceAnchor;
+use App\Enums\RecurrenceUnit;
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Enums\WorkspaceRole;
@@ -16,6 +18,7 @@ use App\Models\Expense;
 use App\Models\Holiday;
 use App\Models\Meeting;
 use App\Models\Receivable;
+use App\Models\RecurringTask;
 use App\Models\SmsOutbound;
 use App\Models\Task;
 use App\Models\TaskFollowUp;
@@ -26,6 +29,7 @@ use App\Notifications\TaskReminder;
 use App\Services\BillingService;
 use App\Services\FollowUpScheduler;
 use App\Services\ReceivableChaser;
+use App\Services\RecurrenceSweeper;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 
@@ -161,6 +165,7 @@ class DemoSeeder extends Seeder
         $this->seedApprovals($workspace, $owner, $opsManager, $technicians->first());
 
         $this->seedFinance($workspace, $owner, $opsManager);
+        $this->seedRecurring($workspace, $owner, $opsManager, $technicians);
 
         $this->seedPastWeeklyReports($workspace);
 
@@ -426,6 +431,60 @@ class DemoSeeder extends Seeder
             'decision_note' => 'با فاکتور رسمی دوباره ثبت شود.',
             'created_at' => now()->subDays(5),
         ]);
+    }
+
+    /**
+     * Service contracts, the module that makes money rather than reporting it.
+     *
+     * Two of them are deliberately past their date and priced, so the demo
+     * opens on a real figure: this much revenue is sitting there because
+     * nobody rang the customer. That number is the argument for the
+     * subscription, made in the customer's own currency.
+     *
+     * @param  Collection<int, User>  $technicians
+     */
+    private function seedRecurring(Workspace $workspace, User $owner, User $manager, $technicians): void
+    {
+        foreach ([
+            ['سرویس شش‌ماهه چیلرها', 'کارخانه شیمیایی پارس', 6, RecurrenceUnit::Month, 240_000_000, -34, 3],
+            ['سرویس دوره‌ای هواسازها', 'مجتمع تجاری الهیه', 3, RecurrenceUnit::Month, 85_000_000, -9, 7],
+            ['بازدید فنی موتورخانه', 'برج نگین', 6, RecurrenceUnit::Month, 120_000_000, 12, 2],
+            ['سرویس سالانه پکیج‌ها', 'شرکت ساختمانی نگین', 1, RecurrenceUnit::Year, 310_000_000, 74, 4],
+        ] as [$title, $customer, $count, $unit, $value, $dueInDays, $done]) {
+            RecurringTask::create([
+                'workspace_id' => $workspace->id,
+                'created_by' => $owner->id,
+                'assignee_id' => $technicians->random()->id,
+                'title' => $title,
+                'customer_name' => $customer,
+                'customer_phone' => '021887766'.random_int(10, 99),
+                'interval_unit' => $unit,
+                'interval_count' => $count,
+                'anchor' => RecurrenceAnchor::Completion,
+                'lead_days' => 14,
+                'next_due_on' => now()->addDays($dueInDays)->toDateString(),
+                'last_done_on' => now()->subDays(abs($dueInDays) + 30)->toDateString(),
+                'occurrences' => $done,
+                'estimated_value' => $value,
+                'priority' => TaskPriority::Normal,
+            ]);
+        }
+
+        // The household kind, on the same engine: no customer, no price.
+        RecurringTask::create([
+            'workspace_id' => $workspace->id,
+            'created_by' => $manager->id,
+            'assignee_id' => $manager->id,
+            'title' => 'تمدید بیمه شخص ثالث خودروهای شرکت',
+            'interval_unit' => RecurrenceUnit::Year,
+            'interval_count' => 1,
+            'anchor' => RecurrenceAnchor::Scheduled,
+            'lead_days' => 30,
+            'next_due_on' => now()->addDays(21)->toDateString(),
+            'priority' => TaskPriority::High,
+        ]);
+
+        app(RecurrenceSweeper::class)->sweepWorkspace($workspace);
     }
 
     /**

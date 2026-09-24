@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Observers\TaskObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,13 +13,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy(TaskObserver::class)]
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'workspace_id', 'title', 'description', 'assignee_id', 'creator_id',
-        'due_at', 'priority', 'status', 'may_break_quiet_hours', 'meeting_id',
+        'due_at', 'priority', 'status', 'may_break_quiet_hours', 'meeting_id', 'recurring_task_id',
         // Written when a reply comes in rather than by a form. Omitting them
         // makes an inbound "انجام شد" close the task without recording when,
         // and a deferral lose the reason it was given.
@@ -56,6 +59,15 @@ class Task extends Model
     public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
+    }
+
+    /**
+     * The recurring schedule this task is one occurrence of, when it came
+     * from one. Completing it advances that schedule.
+     */
+    public function recurringTask(): BelongsTo
+    {
+        return $this->belongsTo(RecurringTask::class);
     }
 
     public function followUps(): HasMany

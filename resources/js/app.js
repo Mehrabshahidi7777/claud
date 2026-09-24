@@ -72,6 +72,30 @@ if (installBanner) {
 }
 
 /**
+ * Explain the recurrence anchor as it is chosen.
+ *
+ * The choice is invisible until months later — a bill paid late that drags
+ * every future bill with it, or a service booked far too soon — so the
+ * consequence is spelled out at the moment somebody picks one.
+ */
+const anchorSelect = document.querySelector('[data-anchor]');
+
+if (anchorSelect) {
+    const hint = document.querySelector('[data-anchor-hint]');
+
+    const showHint = () => {
+        const option = anchorSelect.selectedOptions[0];
+
+        if (hint && option) {
+            hint.textContent = option.dataset.hint ?? '';
+        }
+    };
+
+    anchorSelect.addEventListener('change', showHint);
+    showHint();
+}
+
+/**
  * A confirmation step on the destructive actions.
  *
  * Cancelling a task deletes its remaining follow-ups, which is not something

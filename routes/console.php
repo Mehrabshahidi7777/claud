@@ -55,3 +55,16 @@ Schedule::command('receivables:chase')
     ->dailyAt('08:30')
     ->withoutOverlapping()
     ->runInBackground();
+
+/*
+| Recurring work, raised once a day.
+|
+| Early enough that a service falling due today is on somebody's list before
+| they have planned their morning, and daily rather than hourly because a
+| lead time measured in days gains nothing from being checked in minutes.
+*/
+
+Schedule::command('recurrences:run')
+    ->dailyAt('07:30')
+    ->withoutOverlapping()
+    ->runInBackground();

@@ -42,6 +42,7 @@ class DemoSeederTest extends TestCase
             ['finance.expenses'],
             ['finance.receivables'],
             ['finance.import'],
+            ['recurring.index'],
             ['members.index'],
             ['reports.index'],
             ['reports.weekly.index'],
@@ -81,5 +82,13 @@ class DemoSeederTest extends TestCase
             ->assertOk()
             ->assertSee('کارخانه شیمیایی پارس')
             ->assertSee('در حال پیگیری');
+
+        // Revenue sitting there because nobody rang the customer — the figure
+        // that argues for the subscription in the buyer's own currency.
+        $this->actingAs($this->owner)
+            ->get(route('recurring.index'))
+            ->assertOk()
+            ->assertSee('سرویس شش‌ماهه چیلرها')
+            ->assertSee('درآمد در معرض از دست رفتن');
     }
 }

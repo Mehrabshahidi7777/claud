@@ -10,6 +10,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\ReceivableImportController;
+use App\Http\Controllers\RecurringTaskController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
@@ -65,6 +66,10 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::post('tasks/{task}/reschedule', [TaskController::class, 'reschedule'])->name('tasks.reschedule');
 
     Route::post('tasks/parse', TaskParseController::class)->name('tasks.parse');
+
+    Route::get('recurring', [RecurringTaskController::class, 'index'])->name('recurring.index');
+    Route::post('recurring', [RecurringTaskController::class, 'store'])->name('recurring.store');
+    Route::post('recurring/{recurring}/toggle', [RecurringTaskController::class, 'toggle'])->name('recurring.toggle');
 
     Route::get('members', [MemberController::class, 'index'])->name('members.index');
     Route::post('members', [MemberController::class, 'store'])->name('members.store');

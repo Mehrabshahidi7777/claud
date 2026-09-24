@@ -53,6 +53,10 @@
                    class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ $current === 'tasks.index' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     تسک‌ها
                 </a>
+                <a href="{{ route('recurring.index') }}"
+                   class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'recurring') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                    دوره‌ای
+                </a>
                 <a href="{{ route('meetings.index') }}"
                    class="shrink-0 whitespace-nowrap rounded-lg px-3 py-2 {{ str_starts_with((string) $current, 'meetings') ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     جلسات
