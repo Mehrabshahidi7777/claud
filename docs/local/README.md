@@ -44,6 +44,9 @@ cp php.ini-development php.ini
 # روشن کردن افزونه‌هایی که پروژه لازم دارد
 sed -i -E 's/^;extension_dir = "ext"(\r?)$/extension_dir = "ext"\1/; s/^;extension=(curl|fileinfo|intl|mbstring|openssl|pdo_mysql|pdo_sqlite|sqlite3|zip)(\r?)$/extension=\1\2/' php.ini
 
+# سریع‌تر شدن PHP (OPcache) و وقت بیشتر برای کامپیوترهای قدیمی‌تر
+sed -i -E 's/^max_execution_time = 30(\r?)$/max_execution_time = 120\1/; s/^;zend_extension=opcache(\r?)$/zend_extension=opcache\1/; s/^;opcache\.enable=1(\r?)$/opcache.enable=1\1/' php.ini
+
 # این PHP را جلوتر از PHP زمپ بگذار
 echo 'export PATH="/c/php84:$PATH"' >> ~/.bashrc
 source ~/.bashrc
@@ -206,6 +209,8 @@ php artisan migrate
 | پیام | راه |
 | --- | --- |
 | `php: command not found` یا نسخه‌ی 8.2 | بخش ۰ |
+| `MissingAppKeyException` | `APP_KEY` در `.env` خالی است: `php artisan key:generate` و بعد `php artisan optimize:clear` |
+| `Maximum execution time of 30 seconds exceeded` | معمولاً پشت یک خطای دیگر است؛ اول آن را درست کنید. برای سرعت، دستور OPcache بخش ۰ را بزنید و `php artisan serve` را دوباره اجرا کنید |
 | `could not find driver` | افزونه‌ی `pdo_sqlite` روشن نشده؛ دستور `sed` بخش ۰ را دوباره بزنید |
 | `Vite manifest not found` | `npm run build` |
 | «کد تازه فرستاده شد…» | یک دقیقه صبر کنید، یا `php artisan cache:clear` |
