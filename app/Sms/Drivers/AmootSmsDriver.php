@@ -53,7 +53,12 @@ class AmootSmsDriver implements SmsDriver
     public function credit(): ?int
     {
         try {
-            $response = $this->request()->get($this->endpoint('credit'));
+            // Authenticated the same way as a send. Without the token the
+            // panel refuses the call, and the balance reads as "unknown"
+            // forever — on the one screen meant to warn that credit is low.
+            $response = $this->request()->get($this->endpoint('credit'), array_filter([
+                'Token' => $this->config['token'] ?? null,
+            ]));
         } catch (Throwable) {
             return null;
         }

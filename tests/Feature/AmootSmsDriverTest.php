@@ -29,24 +29,38 @@ class AmootSmsDriverTest extends TestCase
         Http::assertSent(fn (Request $request): bool => $request['PatternValues'] === 'مریم,خرید میز، صندلی');
     }
 
+    public function test_the_balance_is_asked_for_with_the_token(): void
+    {
+        Http::fake(['*' => Http::response(['RemainCount' => 4200])]);
+
+        $credit = $this->driver()->credit();
+
+        $this->assertSame(4200, $credit);
+        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'CreditRemain')
+            && $request['Token'] === 'token');
+    }
+
     private function sendChase(string $title): void
     {
         config(['sms.patterns.chase.code' => '1234']);
 
         Http::fake(['*' => Http::response(['Status' => 'Success', 'MessageID' => 9])]);
 
-        $driver = new AmootSmsDriver(Http::getFacadeRoot(), [
-            'base_url' => 'https://portal.amootsms.com/rest',
-            'token' => 'token',
-            'line_number' => '5000',
-            'endpoints' => ['send_pattern' => 'SendWithPattern'],
-        ]);
-
-        $result = $driver->send(PatternMessage::make('989121110001', 'chase', [
+        $result = $this->driver()->send(PatternMessage::make('989121110001', 'chase', [
             'name' => 'مریم',
             'title' => $title,
         ]));
 
         $this->assertTrue($result->successful);
+    }
+
+    private function driver(): AmootSmsDriver
+    {
+        return new AmootSmsDriver(Http::getFacadeRoot(), [
+            'base_url' => 'https://portal.amootsms.com/rest',
+            'token' => 'token',
+            'line_number' => '5000',
+            'endpoints' => ['send_pattern' => 'SendWithPattern', 'credit' => 'CreditRemain'],
+        ]);
     }
 }
