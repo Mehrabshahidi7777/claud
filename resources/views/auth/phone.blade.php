@@ -6,8 +6,11 @@
 <div class="mx-auto max-w-sm pt-10">
     {{-- The sign-in screen is the one page a prospect sees before they have
          any reason to care, so it carries the name and the promise. --}}
-    <p class="text-sm font-medium text-slate-900">{{ config('brand.name') }}</p>
-    <h1 class="mt-1 text-xl font-bold">{{ config('brand.slogan') }}</h1>
+    <p class="flex items-center gap-2 text-sm font-medium text-slate-900">
+        <img src="/icons/logo.svg" alt="" class="size-10" width="40" height="40">
+        {{ config('brand.name') }}
+    </p>
+    <h1 class="mt-3 text-xl font-bold">{{ config('brand.slogan') }}</h1>
 
     <p class="mt-2 text-sm text-slate-600">
         شماره موبایل خود را بفرستید. کد ورود پیامک می‌شود — نه رمزی هست، نه

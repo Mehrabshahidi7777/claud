@@ -15,7 +15,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="{{ config('brand.name') }}">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
     <link rel="icon" href="/icons/icon-192.png" type="image/png">
 
     {{-- Vazirmatn is bundled by Vite from resources/fonts (see app.css), so
@@ -46,7 +47,9 @@
         );
     }
 
-    $mark = '<span class="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">پ</span>';
+    // The same mark as the installed app's icon, so the page and the home
+    // screen read as one product.
+    $mark = '<img src="/icons/logo.svg" alt="" class="size-8 shrink-0" width="32" height="32">';
 @endphp
 
 @auth

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'مدیریت کل') · {{ config('brand.name') }}</title>
+    <link rel="icon" href="/icons/logo.svg" type="image/svg+xml">
     <link rel="icon" href="/icons/icon-192.png" type="image/png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -15,7 +16,8 @@
      who can see every company should never mistake this for their own. --}}
 <header class="bg-slate-900 text-white">
     <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-        <a href="{{ route('admin.dashboard') }}" class="shrink-0 text-lg font-bold">
+        <a href="{{ route('admin.dashboard') }}" class="flex shrink-0 items-center gap-2 text-lg font-bold">
+            <img src="/icons/logo.svg" alt="" class="size-8" width="32" height="32">
             {{ config('brand.name') }}
             <span class="ms-1 rounded-md bg-amber-400 px-2 py-0.5 text-xs font-medium text-slate-900">مدیریت کل</span>
         </a>
