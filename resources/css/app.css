@@ -1,5 +1,33 @@
 @import 'tailwindcss';
 
+/* Served from our own build, not Google Fonts. The product runs on an Iranian
+   server for Iranian users; a stylesheet from abroad is the first thing to
+   stall when international traffic is throttled, and during a shutdown it
+   would be the one broken piece of an otherwise working page. */
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/vazirmatn/Vazirmatn-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/vazirmatn/Vazirmatn-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('../fonts/vazirmatn/Vazirmatn-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Persian numerals in a proportional font sit badly next to Latin ones, and
    Vazirmatn is the one widely available family that renders both cleanly at
    the sizes a table uses. */

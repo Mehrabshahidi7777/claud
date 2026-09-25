@@ -18,13 +18,8 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="icon" href="/icons/icon-192.png" type="image/png">
 
-    {{-- Vazirmatn renders Persian correctly at small sizes, which the default
-         system stack does not. Loaded from Google Fonts with a swap so the
-         page is never blank while it arrives. --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
-
+    {{-- Vazirmatn is bundled by Vite from resources/fonts (see app.css), so
+         the page loads nothing from outside the server. --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">

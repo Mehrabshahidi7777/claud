@@ -69,6 +69,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Scheduler Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Storage stays in UTC, but the daily jobs in routes/console.php are
+    | written as office hours ("08:30", "09:00"). Read in UTC those land at
+    | noon in Tehran, after the working morning they were meant to open.
+    |
+    */
+
+    'schedule_timezone' => env('SCHEDULE_TIMEZONE', 'Asia/Tehran'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |
