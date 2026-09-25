@@ -23,7 +23,7 @@ return new class extends Migration
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
 
             $table->string('title');
-            $table->timestamp('held_at');
+            $table->dateTime('held_at');
 
             // What was pasted in, untouched.
             $table->longText('notes');

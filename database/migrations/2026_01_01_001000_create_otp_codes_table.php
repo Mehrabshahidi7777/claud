@@ -16,7 +16,7 @@ return new class extends Migration
             // short-lived though they are.
             $table->string('code_hash');
 
-            $table->timestamp('expires_at');
+            $table->dateTime('expires_at');
             $table->timestamp('consumed_at')->nullable();
 
             // Three wrong guesses locks this code out. Without it, a five digit

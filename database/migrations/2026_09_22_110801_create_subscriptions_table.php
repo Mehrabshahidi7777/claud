@@ -22,8 +22,8 @@ return new class extends Migration
             // forgetting and us locking the account.
             $table->string('status')->default('trialing');
 
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->dateTime('starts_at');
+            $table->dateTime('ends_at');
             $table->timestamp('grace_ends_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
 

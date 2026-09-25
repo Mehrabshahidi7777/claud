@@ -34,7 +34,7 @@ return new class extends Migration
             $table->boolean('applied')->default(false);
             $table->string('ignored_reason')->nullable();
 
-            $table->timestamp('received_at');
+            $table->dateTime('received_at');
             $table->timestamps();
 
             $table->index(['from_phone', 'received_at']);

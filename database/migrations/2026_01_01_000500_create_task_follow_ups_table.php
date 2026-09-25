@@ -23,7 +23,7 @@ return new class extends Migration
             // later reporting-line change cannot silently redirect history.
             $table->foreignId('recipient_id')->nullable()->constrained('users')->nullOnDelete();
 
-            $table->timestamp('scheduled_at');
+            $table->dateTime('scheduled_at');
             $table->timestamp('sent_at')->nullable();
             $table->string('status')->default('pending');
 
