@@ -44,6 +44,25 @@ class TaskFollowUp extends Model
     }
 
     /**
+     * When this rung goes out, in words.
+     *
+     * A pending rung whose moment has already passed is waiting on the next
+     * sweep, not something that happened in the past — and "پیامک پیگیری، یک
+     * ماه پیش" on a screen headed "قدم بعدی سامانه" reads as a bug rather
+     * than as a queue.
+     */
+    public function whenDue(): string
+    {
+        if ($this->status !== FollowUpStatus::Pending) {
+            return $this->sent_at?->diffForHumans() ?? '—';
+        }
+
+        return $this->scheduled_at->isFuture()
+            ? $this->scheduled_at->diffForHumans()
+            : 'در صف اجرا';
+    }
+
+    /**
      * Why this rung never went out, in words a manager can act on.
      *
      * The skip reason is the single most useful column in the system when

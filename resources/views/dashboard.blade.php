@@ -114,7 +114,7 @@
                             <span class="text-xs text-slate-500">{{ $followUp->step->label() }}</span>
                             <span class="text-xs text-slate-400">{{ $followUp->recipient?->name }}</span>
                             <span class="tabular text-xs text-slate-400">
-                                {{ $followUp->scheduled_at->diffForHumans() }}
+                                {{ $followUp->whenDue() }}
                             </span>
                         </li>
                     @endforeach

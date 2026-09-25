@@ -88,7 +88,7 @@
                                 @if ($next && ! $task->status->isClosed())
                                     <p class="mt-2 text-xs text-slate-400">
                                         بعدی: {{ $next->step->label() }} —
-                                        <span class="tabular">{{ $next->scheduled_at->diffForHumans() }}</span>
+                                        <span class="tabular">{{ $next->whenDue() }}</span>
                                     </p>
                                 @endif
                             </div>

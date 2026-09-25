@@ -145,7 +145,7 @@
                                             ناموفق: {{ $followUp->skipExplanation() ?? 'خطای سرویس' }}
                                             @break
                                         @default
-                                            در انتظار — {{ $followUp->scheduled_at->diffForHumans() }}
+                                            در انتظار — {{ $followUp->whenDue() }}
                                     @endswitch
                                 </p>
                             </div>
