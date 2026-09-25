@@ -59,6 +59,21 @@ class User extends Authenticatable
         return $this->hasMany(Task::class, 'assignee_id');
     }
 
+    /**
+     * Whether this person runs the platform itself, from the numbers in
+     * PLATFORM_ADMIN_PHONES. Compared after normalising both sides, so
+     * "0913…" in the environment matches "98913…" in the table.
+     */
+    public function isPlatformAdmin(): bool
+    {
+        $admins = array_map(
+            fn (string $phone) => PhoneNumber::normalize($phone),
+            config('platform.admin_phones', []),
+        );
+
+        return $this->phone !== null && in_array($this->phone, array_filter($admins), true);
+    }
+
     public function hasOptedOutOfSms(): bool
     {
         return $this->sms_opted_out_at !== null;

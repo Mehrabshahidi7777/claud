@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\SmsController as AdminSmsController;
+use App\Http\Controllers\Admin\WorkspaceController as AdminWorkspaceController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
 use App\Http\Controllers\BillingController;
@@ -160,4 +164,28 @@ Route::middleware(['auth', 'subscribed'])->group(function () {
     Route::get('reports/weekly/{token}', [WeeklyReportController::class, 'show'])
         ->where('token', '[A-Za-z0-9]+')
         ->name('reports.weekly.show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| The platform owner's panel
+|--------------------------------------------------------------------------
+|
+| Outside the workspace group on purpose: the person who sells پیگیر may
+| own no workspace at all, and nothing here is about the one they are in.
+| No "subscribed" middleware either — a lapsed customer is exactly what this
+| panel exists to see.
+|
+*/
+
+Route::middleware(['auth', 'platform-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', AdminDashboardController::class)->name('dashboard');
+
+    Route::get('workspaces', [AdminWorkspaceController::class, 'index'])->name('workspaces.index');
+    Route::get('workspaces/{workspace}', [AdminWorkspaceController::class, 'show'])->name('workspaces.show');
+    Route::post('workspaces/{workspace}/extend', [AdminWorkspaceController::class, 'extend'])->name('workspaces.extend');
+    Route::post('workspaces/{workspace}/sms', [AdminWorkspaceController::class, 'updateSms'])->name('workspaces.sms');
+
+    Route::get('payments', AdminPaymentController::class)->name('payments.index');
+    Route::get('sms', AdminSmsController::class)->name('sms.index');
 });

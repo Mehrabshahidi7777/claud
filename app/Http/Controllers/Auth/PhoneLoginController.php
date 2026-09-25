@@ -85,6 +85,12 @@ class PhoneLoginController extends Controller
         $request->session()->forget('otp_phone');
         $request->session()->regenerate();
 
+        // Whoever runs the platform lands on its panel, unless they also use
+        // پیگیر as a customer — then their own workspace, with a link across.
+        if ($result['user']->isPlatformAdmin() && $result['user']->workspaces()->doesntExist()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         // Someone with no name has never finished signing up, whether they are
         // new or were created by a manager who only entered a number.
         if ($result['user']->name === '' || $result['user']->workspaces()->doesntExist()) {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\WorkspaceRole;
 use App\Enums\WorkspaceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,24 @@ class Workspace extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * The customer: whoever created the workspace and pays for it.
+     */
+    public function owners(): BelongsToMany
+    {
+        return $this->members()->wherePivot('role', WorkspaceRole::Owner->value);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     /**

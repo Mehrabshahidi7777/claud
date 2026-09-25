@@ -209,6 +209,8 @@ DB_PASSWORD=همان-رمز-بخش-۳
 
 SESSION_SECURE_COOKIE=true
 
+PLATFORM_ADMIN_PHONES=09134451502   # شماره‌ی شما برای پنل مدیریت کل
+
 MAIL_FROM_ADDRESS=report@peygir.ir
 ```
 
@@ -349,6 +351,11 @@ cd /var/www/peygir && grep "SMS (log driver)" $(ls -t storage/logs/laravel-*.log
 
 کد را وارد کنید. فضای کاری و نوعش (شرکتی، خانوادگی یا دوستانه) را می‌سازید و
 مالک آن می‌شوید.
+
+
+**پنل مدیریت کل:** با شماره‌ای که در `PLATFORM_ADMIN_PHONES` گذاشتید وارد شوید؛
+مستقیم به `https://peygir.ir/admin` می‌روید. آنجا همه‌ی مشتری‌ها، پرداخت‌ها و
+پیامک‌ها را می‌بینید.
 
 ---
 

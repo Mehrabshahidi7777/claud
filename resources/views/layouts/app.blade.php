@@ -160,6 +160,13 @@
                 </a>
             </nav>
 
+            @if (auth()->user()->isPlatformAdmin())
+                <a href="{{ route('admin.dashboard') }}"
+                   class="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-amber-300">
+                    مدیریت کل
+                </a>
+            @endif
+
             <form method="POST" action="{{ route('logout') }}" class="shrink-0">
                 @csrf
                 <button type="submit" class="text-sm text-slate-500 hover:text-slate-900">خروج</button>

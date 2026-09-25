@@ -65,6 +65,8 @@ class Activity extends Model
             'receivables.imported' => 'فاکتورها از حسابداری درون‌ریزی شد',
             'invoice.paid' => 'فاکتور پرداخت شد',
             'weekly_report.sent' => 'گزارش هفتگی فرستاده شد',
+            'subscription.granted_by_platform' => 'پشتیبانی پیگیر روز اشتراک اضافه کرد',
+            'workspace.sms_updated_by_platform' => 'پشتیبانی پیگیر تنظیمات پیامک را تغییر داد',
             default => $this->event,
         };
     }

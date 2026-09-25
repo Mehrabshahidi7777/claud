@@ -165,8 +165,12 @@ class BillingService
      * The fourteen day trial. No card is asked for: a trial that wants one is
      * a trial most people never start.
      */
-    public function startTrial(Workspace $workspace, string $planKey = 'corporate'): Subscription
+    public function startTrial(Workspace $workspace, ?string $planKey = null): Subscription
     {
+        // A household on trial is trying the household plan. Defaulting every
+        // trial to corporate showed a family a five-seat company invoice.
+        $planKey ??= $workspace->type->planKey();
+
         return Subscription::create([
             'workspace_id' => $workspace->id,
             'plan_key' => $planKey,
@@ -176,6 +180,46 @@ class BillingService
             'starts_at' => now(),
             'ends_at' => now()->addDays((int) config('payment.trial_days', 14)),
         ]);
+    }
+
+    /**
+     * Days given by the platform owner rather than bought: a longer trial for
+     * a company that is still deciding, a week for an outage, a free month
+     * for a first customer.
+     *
+     * Days are added to whatever is left, never to today, so a gift cannot
+     * shorten a term. A subscription in grace or already gone comes back as
+     * active; a trial stays a trial, just a longer one.
+     */
+    public function grantDays(Workspace $workspace, int $days): Subscription
+    {
+        return DB::transaction(function () use ($workspace, $days) {
+            $subscription = $this->currentSubscription($workspace);
+
+            if ($subscription === null) {
+                return Subscription::create([
+                    'workspace_id' => $workspace->id,
+                    'plan_key' => $workspace->type->planKey(),
+                    'seats' => config("payment.plans.{$workspace->type->planKey()}.min_seats", 1),
+                    'term' => 'monthly',
+                    'status' => SubscriptionStatus::Active,
+                    'starts_at' => now(),
+                    'ends_at' => now()->addDays($days),
+                ]);
+            }
+
+            $from = $subscription->ends_at->isFuture() ? $subscription->ends_at->copy() : now();
+
+            $subscription->update([
+                'ends_at' => $from->addDays($days),
+                'grace_ends_at' => null,
+                'status' => $subscription->status === SubscriptionStatus::Trialing
+                    ? SubscriptionStatus::Trialing
+                    : SubscriptionStatus::Active,
+            ]);
+
+            return $subscription;
+        });
     }
 
     public function currentSubscription(Workspace $workspace): ?Subscription
