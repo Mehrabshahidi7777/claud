@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::post('onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 });
 
-Route::middleware(['auth', 'subscribed'])->group(function () {
+Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
 
     Route::post('workspaces/{workspace}/switch', WorkspaceSwitchController::class)

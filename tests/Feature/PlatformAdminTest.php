@@ -69,6 +69,19 @@ class PlatformAdminTest extends TestCase
             ->assertRedirect(route('admin.dashboard'));
     }
 
+    public function test_the_admin_without_a_workspace_is_sent_to_the_panel_not_an_error(): void
+    {
+        $this->actingAs($this->admin)->get(route('dashboard'))->assertRedirect(route('admin.dashboard'));
+        $this->actingAs($this->admin)->get(route('tasks.index'))->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_anyone_else_without_a_workspace_is_sent_to_finish_signing_up(): void
+    {
+        $newcomer = User::factory()->create(['phone' => '09125550000', 'name' => '']);
+
+        $this->actingAs($newcomer)->get(route('dashboard'))->assertRedirect(route('onboarding'));
+    }
+
     public function test_the_admin_sees_every_customer_on_every_page(): void
     {
         $pars = $this->customer('تأسیسات پارس', '09121110001');

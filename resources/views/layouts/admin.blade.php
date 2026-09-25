@@ -35,6 +35,10 @@
 
         @if (auth()->user()->workspaces()->exists())
             <a href="{{ route('dashboard') }}" class="shrink-0 text-sm text-slate-300 hover:text-white">سامانه‌ی خودم</a>
+        @else
+            {{-- The owner can open a workspace of their own to see پیگیر the
+                 way a customer does. --}}
+            <a href="{{ route('onboarding') }}" class="shrink-0 text-sm text-slate-300 hover:text-white">ساختن فضای کاری خودم</a>
         @endif
 
         <form method="POST" action="{{ route('logout') }}" class="shrink-0">

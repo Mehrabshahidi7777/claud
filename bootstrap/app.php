@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\EnsureSubscriptionAllowsWrites;
+use App\Http\Middleware\EnsureUserHasWorkspace;
 use App\Http\Middleware\EnsureWorkspaceHasModule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'subscribed' => EnsureSubscriptionAllowsWrites::class,
             'module' => EnsureWorkspaceHasModule::class,
             'platform-admin' => EnsurePlatformAdmin::class,
+            'has-workspace' => EnsureUserHasWorkspace::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
