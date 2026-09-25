@@ -159,7 +159,7 @@
                 <div>
                     <label for="member-phone" class="block text-sm">شماره موبایل</label>
                     <input id="member-phone" name="phone" value="{{ old('phone') }}" required
-                           dir="ltr" placeholder="09121234567" inputmode="tel"
+                           dir="ltr" placeholder="0913…" inputmode="tel"
                            class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('phone')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
