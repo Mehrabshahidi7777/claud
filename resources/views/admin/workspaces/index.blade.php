@@ -14,7 +14,7 @@
     <div class="min-w-48 flex-1">
         <label for="q" class="block text-xs text-slate-500">نام شرکت یا شماره‌ی یکی از اعضا</label>
         <input id="q" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="مثلاً تأسیسات یا 0912…"
-               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
     </div>
 
     <div>
@@ -37,7 +37,7 @@
         </select>
     </div>
 
-    <button class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">جستجو</button>
+    <button class="rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">جستجو</button>
 </form>
 
 @if ($workspaces->isEmpty())

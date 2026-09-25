@@ -14,7 +14,7 @@
     <div class="mb-4 flex items-baseline gap-3">
         <h1 class="text-lg font-bold">درخواست‌ها</h1>
         <a href="{{ route('approvals.create') }}"
-           class="ms-auto rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+           class="ms-auto rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
             درخواست جدید
         </a>
     </div>
@@ -82,7 +82,7 @@
                         @csrf
 
                         <input type="text" name="note" maxlength="255" placeholder="توضیح (اختیاری)"
-                               class="min-w-40 flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-slate-900 focus:outline-none">
+                               class="min-w-40 flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
 
                         <button type="submit" name="decision" value="approve"
                                 class="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">

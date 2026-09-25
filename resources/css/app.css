@@ -33,6 +33,22 @@
    the sizes a table uses. */
 @theme {
     --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, sans-serif;
+
+    /* One brand colour, a calm cobalt, for what the product itself does:
+       primary buttons, the current page, focus. Green, amber and red keep
+       their meaning (done, warning, overdue) and are never decoration, so a
+       glance at a page still reads as a status report. */
+    --color-brand-50: #eef3fe;
+    --color-brand-100: #dde7fc;
+    --color-brand-200: #bfd0f8;
+    --color-brand-300: #93aff2;
+    --color-brand-400: #6285e9;
+    --color-brand-500: #4066dd;
+    --color-brand-600: #2f4fc4;
+    --color-brand-700: #283f9f;
+    --color-brand-800: #253681;
+    --color-brand-900: #222f66;
+    --color-brand-950: #161d3f;
 }
 
 /* Tabular figures keep a column of dates and counts aligned, which matters

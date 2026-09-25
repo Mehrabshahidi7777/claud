@@ -151,7 +151,7 @@
                 <div class="mt-2 flex gap-2">
                     <input id="days" name="days" type="number" min="1" max="365" value="30" required
                            class="tabular w-24 rounded-xl border border-slate-300 px-3 py-2 text-sm">
-                    <button class="flex-1 rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                    <button class="flex-1 rounded-xl bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800">
                         اضافه کن
                     </button>
                 </div>

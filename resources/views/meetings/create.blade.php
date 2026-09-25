@@ -19,15 +19,15 @@
             <label for="title" class="block text-sm font-medium">عنوان جلسه</label>
             <input id="title" name="title" value="{{ old('title') }}" required autofocus
                    placeholder="جلسه هفتگی عملیات"
-                   class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                   class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
             @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
         </div>
 
         <div>
             <label for="held_date" class="block text-sm font-medium">تاریخ برگزاری</label>
             <input id="held_date" name="held_date" value="{{ old('held_date') }}"
-                   dir="ltr" placeholder="1405/07/15"
-                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                   dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()) }}"
+                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
             <p class="mt-1 text-xs text-slate-400">خالی بگذارید تا امروز ثبت شود.</p>
             @error('held_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
         </div>
@@ -36,7 +36,7 @@
             <label for="notes" class="block text-sm font-medium">متن جلسه</label>
             <textarea id="notes" name="notes" rows="12" required
                       placeholder="رضا تا پنجشنبه گزارش سرویس‌ها را آماده کند. درباره قیمت پروژه جردن بحث شد و قرار شد حسین فردا با کارفرما تماس بگیرد…"
-                      class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-7 focus:border-slate-900 focus:outline-none">{{ old('notes') }}</textarea>
+                      class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm leading-7 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">{{ old('notes') }}</textarea>
             @error('notes')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
         </div>
 
@@ -48,7 +48,7 @@
         </p>
 
         <button type="submit"
-                class="w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800">
+                class="w-full rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-800">
             ثبت و استخراج اقدام‌ها
         </button>
     </form>

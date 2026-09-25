@@ -108,7 +108,7 @@
                                         @endforeach
                                     </select>
 
-                                    <button class="rounded-lg bg-slate-900 px-2 py-1 text-xs text-white">
+                                    <button class="rounded-lg bg-brand-700 px-2 py-1 text-xs text-white">
                                         ذخیره
                                     </button>
                                 </form>
@@ -152,7 +152,7 @@
                 <div>
                     <label for="member-name" class="block text-sm">نام</label>
                     <input id="member-name" name="name" value="{{ old('name') }}" required
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -160,7 +160,7 @@
                     <label for="member-phone" class="block text-sm">شماره موبایل</label>
                     <input id="member-phone" name="phone" value="{{ old('phone') }}" required
                            dir="ltr" placeholder="09121234567" inputmode="tel"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('phone')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -216,7 +216,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     افزودن
                 </button>
             </form>

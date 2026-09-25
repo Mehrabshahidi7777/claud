@@ -63,12 +63,12 @@
             <form method="POST" action="{{ route('finance.expenses.parse') }}" class="mt-2">
                 @csrf
                 <textarea name="text" rows="3" required
-                          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">{{ old('text') }}</textarea>
+                          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">{{ old('text') }}</textarea>
 
                 @error('ai')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 @error('text')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
 
-                <button class="mt-2 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                <button class="mt-2 w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     استخراج هزینه
                 </button>
             </form>
@@ -90,7 +90,7 @@
                     <label for="title" class="block text-sm">شرح</label>
                     <input id="title" name="title" required
                            value="{{ old('title', $draft['title'] ?? '') }}"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -98,14 +98,14 @@
                     <label for="amount" class="block text-sm">مبلغ <span class="text-xs text-slate-400">(ریال)</span></label>
                     <input id="amount" name="amount" required inputmode="numeric" dir="ltr"
                            value="{{ old('amount', $draft['amount'] ?? '') }}"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('amount')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label for="category" class="block text-sm">دسته</label>
                     <select id="category" name="category"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach ($categories as $category)
                             <option value="{{ $category->value }}"
                                     @selected(old('category', $draft['category'] ?? 'other') === $category->value)>
@@ -119,14 +119,14 @@
                     <label for="vendor" class="block text-sm">طرف حساب <span class="text-xs text-slate-400">(اختیاری)</span></label>
                     <input id="vendor" name="vendor"
                            value="{{ old('vendor', $draft['vendor'] ?? '') }}"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                 </div>
 
                 <div>
                     <label for="spent_date" class="block text-sm">تاریخ</label>
-                    <input id="spent_date" name="spent_date" required dir="ltr" placeholder="1405/07/12"
+                    <input id="spent_date" name="spent_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()) }}"
                            value="{{ old('spent_date', $draft['spent_date'] ?? JalaliDate::format(CarbonImmutable::now())) }}"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('spent_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -136,7 +136,7 @@
                             بابت کدام تأییدیه؟ <span class="text-xs text-slate-400">(اختیاری)</span>
                         </label>
                         <select id="approval_request_id" name="approval_request_id"
-                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                             <option value="">— بدون تأییدیه —</option>
                             @foreach ($openApprovals as $approval)
                                 <option value="{{ $approval->id }}" @selected(old('approval_request_id') == $approval->id)>
@@ -148,7 +148,7 @@
                 @endif
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     ثبت هزینه
                 </button>
             </form>

@@ -196,8 +196,8 @@
                         <label for="due_date" class="block text-sm">تاریخ جدید</label>
                         <input id="due_date" name="due_date" required
                                value="{{ old('due_date', $due ? JalaliDate::format($due) : '') }}"
-                               dir="ltr" placeholder="1405/07/15"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(7)) }}"
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('due_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
 
@@ -205,12 +205,12 @@
                         <label for="due_time" class="block text-sm">ساعت</label>
                         <input id="due_time" name="due_time" type="time"
                                value="{{ old('due_time', $due?->format('H:i')) }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('due_time')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
 
                     <button type="submit"
-                            class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                            class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                         ثبت ددلاین جدید
                     </button>
                 </form>

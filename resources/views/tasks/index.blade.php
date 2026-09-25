@@ -20,7 +20,7 @@
                 'done' => 'بسته‌شده',
             ] as $key => $label)
                 <a href="{{ route('tasks.index', ['filter' => $key]) }}"
-                   class="rounded-lg px-3 py-1.5 text-sm {{ $filter === $key ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100' }}">
+                   class="rounded-lg px-3 py-1.5 text-sm {{ $filter === $key ? 'bg-brand-700 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-100' }}">
                     {{ $label }}
                 </a>
             @endforeach
@@ -124,10 +124,10 @@
 
             <textarea id="ai-text" rows="4"
                       placeholder="فردا ساعت ۳ با آقای رضایی جلسه، گزارش را هم تا پنجشنبه آماده کن"
-                      class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"></textarea>
+                      class="mt-2 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15"></textarea>
 
             <button id="ai-parse" type="button"
-                    class="mt-2 w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                    class="mt-2 w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                 استخراج تسک‌ها
             </button>
 
@@ -144,7 +144,7 @@
                 <div>
                     <label for="title" class="block text-sm">عنوان</label>
                     <input id="title" name="title" value="{{ old('title') }}" required
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -152,14 +152,14 @@
                     <label for="description" class="block text-sm">توضیح <span class="text-xs text-slate-400">(اختیاری)</span></label>
                     <textarea id="description" name="description" rows="2"
                               placeholder="جزئیاتی که مجری لازم دارد بداند"
-                              class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">{{ old('description') }}</textarea>
+                              class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">{{ old('description') }}</textarea>
                     @error('description')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label for="assignee_id" class="block text-sm">مسئول</label>
                     <select id="assignee_id" name="assignee_id"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         <option value="">— بدون مسئول —</option>
                         @foreach ($members as $member)
                             <option value="{{ $member->id }}" @selected(old('assignee_id') == $member->id)>
@@ -173,21 +173,21 @@
                     <div>
                         <label for="due_date" class="block text-sm">ددلاین</label>
                         <input id="due_date" name="due_date" value="{{ old('due_date') }}"
-                               dir="ltr" placeholder="1404/07/15"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(7)) }}"
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('due_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label for="due_time" class="block text-sm">ساعت</label>
                         <input id="due_time" name="due_time" type="time" value="{{ old('due_time') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     </div>
                 </div>
 
                 <div>
                     <label for="priority" class="block text-sm">اولویت</label>
                     <select id="priority" name="priority"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach (App\Enums\TaskPriority::cases() as $priority)
                             <option value="{{ $priority->value }}"
                                     @selected(old('priority', 'normal') === $priority->value)>
@@ -212,7 +212,7 @@
                 </label>
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     ثبت تسک
                 </button>
             </form>

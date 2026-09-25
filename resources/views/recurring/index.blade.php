@@ -135,7 +135,7 @@
                     <label for="title" class="block text-sm">عنوان</label>
                     <input id="title" name="title" required value="{{ old('title') }}"
                            placeholder="سرویس دوره‌ای چیلر"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -144,12 +144,12 @@
                         <label for="interval_count" class="block text-sm">هر</label>
                         <input id="interval_count" name="interval_count" required inputmode="numeric" dir="ltr"
                                value="{{ old('interval_count', 6) }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     </div>
                     <div>
                         <label for="interval_unit" class="block text-sm">واحد</label>
                         <select id="interval_unit" name="interval_unit"
-                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                             @foreach ($units as $unit)
                                 <option value="{{ $unit->value }}" @selected(old('interval_unit', 'month') === $unit->value)>
                                     {{ $unit->label() }}
@@ -162,9 +162,9 @@
 
                 <div>
                     <label for="next_due_date" class="block text-sm">نوبت بعدی</label>
-                    <input id="next_due_date" name="next_due_date" required dir="ltr" placeholder="1405/08/15"
+                    <input id="next_due_date" name="next_due_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(30)) }}"
                            value="{{ old('next_due_date') }}"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('next_due_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -172,7 +172,7 @@
                     <label for="lead_days" class="block text-sm">چند روز قبلش یادآوری شود</label>
                     <input id="lead_days" name="lead_days" required inputmode="numeric" dir="ltr"
                            value="{{ old('lead_days', 7) }}"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     <p class="mt-1 text-xs text-slate-400">
                         سرویسی که همان روزِ موعد ظاهر شود فروخته نمی‌شود — باید وقت
                         هماهنگی با مشتری باشد.
@@ -183,7 +183,7 @@
                 <div>
                     <label for="anchor" class="block text-sm">دوره‌ی بعدی از کِی شمرده شود</label>
                     <select id="anchor" name="anchor" data-anchor
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach ($anchors as $anchor)
                             <option value="{{ $anchor->value }}" data-hint="{{ $anchor->hint() }}"
                                     @selected(old('anchor', 'scheduled') === $anchor->value)>
@@ -203,13 +203,13 @@
                         <div>
                             <label for="customer_name" class="block text-sm">نام مشتری</label>
                             <input id="customer_name" name="customer_name" value="{{ old('customer_name') }}"
-                                   class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                   class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         </div>
 
                         <div>
                             <label for="customer_phone" class="block text-sm">شماره تماس مشتری</label>
                             <input id="customer_phone" name="customer_phone" dir="ltr" value="{{ old('customer_phone') }}"
-                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         </div>
 
                         <div>
@@ -218,7 +218,7 @@
                             </label>
                             <input id="estimated_value" name="estimated_value" inputmode="numeric" dir="ltr"
                                    value="{{ old('estimated_value') }}"
-                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                             <p class="mt-1 text-xs text-slate-400">
                                 همین عدد است که می‌گوید فراموش کردن سرویس‌ها چقدر برایتان آب می‌خورد.
                             </p>
@@ -229,7 +229,7 @@
                 <div>
                     <label for="assignee_id" class="block text-sm">مسئول</label>
                     <select id="assignee_id" name="assignee_id"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         <option value="">— خودم —</option>
                         @foreach ($members as $member)
                             <option value="{{ $member->id }}" @selected(old('assignee_id') == $member->id)>
@@ -242,7 +242,7 @@
                 <div>
                     <label for="priority" class="block text-sm">اولویت</label>
                     <select id="priority" name="priority"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach ($priorities as $priority)
                             <option value="{{ $priority->value }}" @selected(old('priority', 'normal') === $priority->value)>
                                 {{ $priority->label() }}
@@ -252,7 +252,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     ثبت کار دوره‌ای
                 </button>
             </form>

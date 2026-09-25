@@ -89,7 +89,7 @@
                     <input type="hidden" name="seats" value="{{ $displaySeats }}">
 
                     <button name="term" value="monthly"
-                            class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                            class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                         خرید ماهانه
                     </button>
 

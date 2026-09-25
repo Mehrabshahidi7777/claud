@@ -77,7 +77,7 @@
                                 <input id="received-{{ $receivable->id }}" name="received" required
                                        inputmode="numeric" dir="ltr" max="{{ $receivable->outstanding() }}"
                                        placeholder="{{ $receivable->outstanding() }}"
-                                       class="tabular w-40 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:border-slate-900 focus:outline-none">
+                                       class="tabular w-40 rounded-lg border border-slate-300 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
 
                                 <button class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">
                                     ثبت دریافت
@@ -113,7 +113,7 @@
                 <div>
                     <label for="customer_name" class="block text-sm">نام مشتری</label>
                     <input id="customer_name" name="customer_name" required value="{{ old('customer_name') }}"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('customer_name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -121,30 +121,30 @@
                     <label for="title" class="block text-sm">بابت</label>
                     <input id="title" name="title" required value="{{ old('title') }}"
                            placeholder="صورت‌وضعیت شماره ۳"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label for="amount" class="block text-sm">مبلغ <span class="text-xs text-slate-400">(ریال)</span></label>
                     <input id="amount" name="amount" required inputmode="numeric" dir="ltr" value="{{ old('amount') }}"
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('amount')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label for="issued_date" class="block text-sm">تاریخ صدور</label>
-                        <input id="issued_date" name="issued_date" required dir="ltr" placeholder="1405/07/01"
+                        <input id="issued_date" name="issued_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()) }}"
                                value="{{ old('issued_date', JalaliDate::format(CarbonImmutable::now())) }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('issued_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label for="due_date" class="block text-sm">سررسید</label>
-                        <input id="due_date" name="due_date" required dir="ltr" placeholder="1405/08/01"
+                        <input id="due_date" name="due_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(30)) }}"
                                value="{{ old('due_date') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('due_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -152,7 +152,7 @@
                 <div>
                     <label for="owner_id" class="block text-sm">مسئول وصول</label>
                     <select id="owner_id" name="owner_id"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         <option value="">— مالک فضای کاری —</option>
                         @foreach ($members as $member)
                             <option value="{{ $member->id }}" @selected(old('owner_id') == $member->id)>
@@ -166,7 +166,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     ثبت مطالبه
                 </button>
             </form>

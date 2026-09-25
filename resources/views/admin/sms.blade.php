@@ -25,7 +25,7 @@
             @endforeach
         </select>
     </div>
-    <button class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">جستجو</button>
+    <button class="rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">جستجو</button>
 </form>
 
 <p class="mb-3 text-xs text-slate-500">پیامک‌های موتور پیگیری. کد ورود اینجا ثبت نمی‌شود.</p>

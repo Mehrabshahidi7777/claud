@@ -14,10 +14,10 @@
     <h1 class="me-auto text-lg font-bold">پرداخت‌ها</h1>
 
     <a href="{{ route('admin.payments.index') }}"
-       class="rounded-lg px-3 py-1.5 text-sm {{ $status === null ? 'bg-slate-900 text-white' : 'bg-white ring-1 ring-slate-200' }}">همه</a>
+       class="rounded-lg px-3 py-1.5 text-sm {{ $status === null ? 'bg-brand-700 text-white' : 'bg-white ring-1 ring-slate-200' }}">همه</a>
     @foreach (PaymentStatus::cases() as $case)
         <a href="{{ route('admin.payments.index', ['status' => $case->value]) }}"
-           class="rounded-lg px-3 py-1.5 text-sm {{ $status === $case->value ? 'bg-slate-900 text-white' : 'bg-white ring-1 ring-slate-200' }}">
+           class="rounded-lg px-3 py-1.5 text-sm {{ $status === $case->value ? 'bg-brand-700 text-white' : 'bg-white ring-1 ring-slate-200' }}">
             {{ $case->label() }}
         </a>
     @endforeach

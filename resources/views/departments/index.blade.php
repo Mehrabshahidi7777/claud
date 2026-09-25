@@ -42,13 +42,13 @@
                                         {{ $department->kind->label() }}
                                     </label>
                                     <input id="name-{{ $department->id }}" name="name" value="{{ $department->name }}" required
-                                           class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-900 focus:outline-none">
+                                           class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                                 </div>
 
                                 <div class="min-w-40 flex-1">
                                     <label class="block text-xs text-slate-500" for="lead-{{ $department->id }}">سرپرست</label>
                                     <select id="lead-{{ $department->id }}" name="lead_id"
-                                            class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-slate-900 focus:outline-none">
+                                            class="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                                         <option value="">— ندارد —</option>
                                         @foreach ($members as $member)
                                             <option value="{{ $member->id }}" @selected($department->lead_id === $member->id)>
@@ -58,7 +58,7 @@
                                     </select>
                                 </div>
 
-                                <button class="rounded-lg bg-slate-900 px-3 py-1.5 text-sm text-white hover:bg-slate-800">
+                                <button class="rounded-lg bg-brand-700 px-3 py-1.5 text-sm text-white hover:bg-brand-800">
                                     ذخیره
                                 </button>
                             </form>
@@ -161,7 +161,7 @@
                     <div>
                         <label for="kind" class="block text-sm">نوع</label>
                         <select id="kind" name="kind"
-                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                             @foreach ($kinds as $kind)
                                 <option value="{{ $kind->value }}" @selected(old('kind') === $kind->value)>
                                     {{ $kind->label() }}
@@ -176,14 +176,14 @@
                         </label>
                         <input id="new-name" name="name" value="{{ old('name') }}"
                                placeholder="اگر خالی بماند، همان نام نوع"
-                               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label for="new-lead" class="block text-sm">سرپرست</label>
                         <select id="new-lead" name="lead_id"
-                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                             <option value="">— بعداً —</option>
                             @foreach ($members as $member)
                                 <option value="{{ $member->id }}" @selected(old('lead_id') == $member->id)>
@@ -197,7 +197,7 @@
                     </div>
 
                     <button type="submit"
-                            class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                            class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                         افزودن بخش
                     </button>
                 </form>

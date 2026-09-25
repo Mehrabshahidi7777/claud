@@ -23,12 +23,12 @@
 
         @auth
             <a href="{{ route('billing.index') }}"
-               class="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800">
+               class="mt-5 inline-block rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-800">
                 بازگشت به صورتحساب
             </a>
         @else
             <a href="{{ route('login') }}"
-               class="mt-5 inline-block rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800">
+               class="mt-5 inline-block rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-800">
                 ورود به سامانه
             </a>
         @endauth

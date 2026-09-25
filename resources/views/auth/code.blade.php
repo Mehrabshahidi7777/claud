@@ -20,7 +20,7 @@
             <input id="code" name="code"
                    inputmode="numeric" autocomplete="one-time-code"
                    maxlength="5" autofocus required dir="ltr"
-                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-3 text-center text-2xl tracking-[0.4em] focus:border-slate-900 focus:outline-none">
+                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-3 text-center text-2xl tracking-[0.4em] focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
 
             @error('code')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -28,7 +28,7 @@
         </div>
 
         <button type="submit"
-                class="w-full rounded-xl bg-slate-900 px-4 py-2.5 font-medium text-white hover:bg-slate-800">
+                class="w-full rounded-xl bg-brand-700 px-4 py-2.5 font-medium text-white hover:bg-brand-800">
             ورود
         </button>
     </form>

@@ -14,7 +14,7 @@
     <div class="mb-4 flex items-baseline gap-3">
         <h1 class="text-lg font-bold">جلسات</h1>
         <a href="{{ route('meetings.create') }}"
-           class="ms-auto rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+           class="ms-auto rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
             ثبت جلسه
         </a>
     </div>

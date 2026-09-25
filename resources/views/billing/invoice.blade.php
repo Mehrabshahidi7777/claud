@@ -103,7 +103,7 @@
             <form method="POST" action="{{ route('billing.pay', $invoice) }}" class="mt-5">
                 @csrf
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-3 font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-3 font-medium text-white hover:bg-brand-800">
                     پرداخت از درگاه بانک سامان
                 </button>
             </form>

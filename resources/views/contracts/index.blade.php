@@ -142,14 +142,14 @@
                     <label for="title" class="block text-sm">عنوان</label>
                     <input id="title" name="title" required value="{{ old('title') }}"
                            placeholder="قرارداد یک‌ساله"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('title')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label for="kind" class="block text-sm">نوع</label>
                     <select id="kind" name="kind" data-contract-kind
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach ($kinds as $kind)
                             <option value="{{ $kind->value }}" data-notice="{{ $kind->defaultNoticeDays() }}"
                                     @selected(old('kind') === $kind->value)>
@@ -162,7 +162,7 @@
                 <div>
                     <label for="party_type" class="block text-sm">طرف قرارداد</label>
                     <select id="party_type" name="party_type"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @foreach ($partyTypes as $type)
                             <option value="{{ $type->value }}" @selected(old('party_type') === $type->value)>
                                 {{ $type->label() }}
@@ -176,7 +176,7 @@
                         اگر یکی از اعضاست <span class="text-xs text-slate-400">(اختیاری)</span>
                     </label>
                     <select id="party_user_id" name="party_user_id"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         <option value="">— انتخاب کنید —</option>
                         @foreach ($members as $member)
                             <option value="{{ $member->id }}" @selected(old('party_user_id') == $member->id)>
@@ -189,23 +189,23 @@
                 <div>
                     <label for="party_name" class="block text-sm">یا نام طرف قرارداد</label>
                     <input id="party_name" name="party_name" value="{{ old('party_name') }}"
-                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     @error('party_name')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label for="starts_date" class="block text-sm">شروع</label>
-                        <input id="starts_date" name="starts_date" required dir="ltr" placeholder="1405/01/01"
+                        <input id="starts_date" name="starts_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()) }}"
                                value="{{ old('starts_date') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('starts_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label for="expires_date" class="block text-sm">انقضا</label>
-                        <input id="expires_date" name="expires_date" required dir="ltr" placeholder="1405/12/29"
+                        <input id="expires_date" name="expires_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(365)) }}"
                                value="{{ old('expires_date') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('expires_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -214,7 +214,7 @@
                     <label for="notice_days" class="block text-sm">چند روز قبلش یادآوری شود</label>
                     <input id="notice_days" name="notice_days" required inputmode="numeric" dir="ltr"
                            value="{{ old('notice_days', 60) }}" data-notice-days
-                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                           class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     <p class="mt-1 text-xs text-slate-400">
                         برای قرارداد کارکنان پیش‌فرض ۶۰ روز است — یادآوری در روز
                         انقضا دیگر به درد نمی‌خورد.
@@ -241,17 +241,17 @@
                         <div>
                             <label for="reference" class="block text-sm">شماره قرارداد یا مجوز</label>
                             <input id="reference" name="reference" dir="ltr" value="{{ old('reference') }}"
-                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         </div>
                         <div>
                             <label for="value" class="block text-sm">مبلغ <span class="text-xs text-slate-400">(ریال)</span></label>
                             <input id="value" name="value" inputmode="numeric" dir="ltr" value="{{ old('value') }}"
-                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         </div>
                         <div>
                             <label for="note" class="block text-sm">توضیح</label>
                             <textarea id="note" name="note" rows="2"
-                                      class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">{{ old('note') }}</textarea>
+                                      class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">{{ old('note') }}</textarea>
                         </div>
                     </div>
                 </details>
@@ -259,7 +259,7 @@
                 <div>
                     <label for="owner_id" class="block text-sm">مسئول تمدید</label>
                     <select id="owner_id" name="owner_id"
-                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                            class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         <option value="">— خودم —</option>
                         @foreach ($members as $member)
                             <option value="{{ $member->id }}" @selected(old('owner_id') == $member->id)>
@@ -270,7 +270,7 @@
                 </div>
 
                 <button type="submit"
-                        class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                        class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                     ثبت
                 </button>
             </form>

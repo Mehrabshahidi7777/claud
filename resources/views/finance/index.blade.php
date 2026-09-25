@@ -77,7 +77,7 @@
                         {{-- A bar drawn to the same scale as the percentage
                              beside it, so the two can never disagree. --}}
                         <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                            <div class="h-full rounded-full bg-slate-800" style="width: {{ max(1, $row['share']) }}%"></div>
+                            <div class="h-full rounded-full bg-brand-600" style="width: {{ max(1, $row['share']) }}%"></div>
                         </div>
                     </div>
                 @endforeach
@@ -162,7 +162,7 @@
             </ul>
 
             <a href="{{ route('finance.expenses') }}"
-               class="mt-3 inline-block rounded-lg bg-slate-900 px-3 py-1.5 text-xs text-white hover:bg-slate-800">
+               class="mt-3 inline-block rounded-lg bg-brand-700 px-3 py-1.5 text-xs text-white hover:bg-brand-800">
                 ثبت هزینه برایشان
             </a>
         @endif

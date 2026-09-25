@@ -10,7 +10,7 @@
          needs it on a home screen — they open it in a plant room with one bar
          of signal, not at a desk. --}}
     <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#283f9f">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,210 +24,185 @@
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
 
+@php
+    $user = auth()->user();
+
+    // No workspace yet (finishing sign-up, or the platform owner) means no
+    // modules to link to; the page keeps only the name and sign-out.
+    $hasNav = $user !== null && isset($workspace);
+
+    if ($hasNav) {
+        $otherWorkspaces = $user->workspaces()
+            ->where('workspaces.id', '!=', $workspace->id)
+            ->orderBy('name')
+            ->get();
+
+        // The count the ladder's free rungs produce. Cached for a minute so a
+        // menu rendered on every page does not cost a query on every page.
+        $unread = cache()->remember(
+            'unread-notifications:'.$user->id,
+            now()->addMinute(),
+            fn () => $user->unreadNotifications()->count(),
+        );
+    }
+
+    $mark = '<span class="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-600 text-sm font-bold text-white">پ</span>';
+@endphp
+
 @auth
-    <header class="border-b border-slate-200 bg-white">
-        <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-            <a href="{{ route('dashboard') }}" class="shrink-0 text-lg font-bold text-slate-900">
-                {{ config('brand.name') }}
-            </a>
+    @if ($hasNav)
+        {{-- Desktop: the menu is a sidebar, so a company with every module
+             switched on still reads as a list rather than a crammed row. --}}
+        <aside class="fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-slate-200 bg-white lg:flex">
+            <div class="space-y-4 border-b border-slate-100 px-4 pt-5 pb-4">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-1">
+                    {!! $mark !!}
+                    <span class="text-lg font-bold text-slate-900">{{ config('brand.name') }}</span>
+                </a>
 
-            @isset($workspace)
-                @php
-                    // Only worth a control when there is somewhere to go. Most
-                    // people belong to exactly one and should see a label.
-                    $otherWorkspaces = auth()->user()->workspaces()
-                        ->where('workspaces.id', '!=', $workspace->id)
-                        ->orderBy('name')
-                        ->get();
-                @endphp
+                @include('layouts.partials.workspace-switcher')
+            </div>
 
-                @if ($otherWorkspaces->isEmpty())
-                    <span class="hidden shrink-0 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 sm:inline">
-                        {{ $workspace->name }}
-                    </span>
-                @else
-                    <details class="relative hidden shrink-0 sm:block">
-                        <summary class="cursor-pointer list-none rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 hover:bg-slate-200">
-                            {{ $workspace->name }}
-                            <span class="text-xs text-slate-400">({{ $workspace->type->label() }})</span>
-                        </summary>
+            <div class="flex-1 overflow-y-auto px-3 py-4">
+                @include('layouts.partials.nav')
+            </div>
 
-                        <div class="absolute start-0 z-20 mt-1 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
-                            @foreach ($otherWorkspaces as $other)
-                                <form method="POST" action="{{ route('workspaces.switch', $other->id) }}">
-                                    @csrf
-                                    <button class="w-full rounded-lg px-3 py-2 text-start text-sm hover:bg-slate-100">
-                                        {{ $other->name }}
-                                        <span class="block text-xs text-slate-400">{{ $other->type->label() }}</span>
-                                    </button>
-                                </form>
-                            @endforeach
-                        </div>
-                    </details>
-                @endif
-            @endisset
-
-            {{-- Scrolls sideways instead of wrapping. Eight links stacked over
-                 three rows push the page content off a phone screen, and the
-                 field worker's phone is the device this has to survive. --}}
-            {{-- Scrolls sideways instead of wrapping: on a phone, ten links
-                 stacked three rows deep push the page itself off the screen,
-                 and the field worker's phone is the device this must survive.
-
-                 Which links exist at all comes from the workspace type, so a
-                 household is never shown the receivables page it does not
-                 have. The routes behind them answer 404 too — a hidden link
-                 is still a URL somebody eventually types. --}}
-            {{-- No workspace yet (finishing sign-up, or the platform owner) means no
-                 modules to link to; the header keeps only the name and sign-out. --}}
-            @isset($workspace)
-            <nav class="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 text-sm
-                        [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                @php
-                    $current = request()->route()?->getName();
-
-                    $tab = fn (bool $on) => 'shrink-0 whitespace-nowrap rounded-lg px-3 py-2 '
-                        .($on ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100');
-
-                    $starts = fn (string $prefix) => str_starts_with((string) $current, $prefix);
-                @endphp
-
-                <a href="{{ route('dashboard') }}" class="{{ $tab($current === 'dashboard') }}">خانه</a>
-
-                <a href="{{ route('tasks.index') }}" class="{{ $tab($starts('tasks')) }}">تسک‌ها</a>
-
-                @if ($workspace->has('recurring'))
-                    <a href="{{ route('recurring.index') }}" class="{{ $tab($starts('recurring')) }}">دوره‌ای</a>
-                @endif
-
-                @if ($workspace->has('settlements'))
-                    <a href="{{ route('settlements.index') }}" class="{{ $tab($starts('settlements')) }}">حساب‌وکتاب</a>
-                @endif
-
-                @if ($workspace->has('contracts') && $allowed(App\Enums\Permission::ViewContracts))
-                    <a href="{{ route('contracts.index') }}" class="{{ $tab($starts('contracts')) }}">قراردادها</a>
-                @endif
-
-                @if ($workspace->has('meetings') && $allowed(App\Enums\Permission::ManageMeetings))
-                    <a href="{{ route('meetings.index') }}" class="{{ $tab($starts('meetings')) }}">جلسات</a>
-                @endif
-
-                @if ($workspace->has('approvals'))
-                    <a href="{{ route('approvals.index') }}" class="{{ $tab($starts('approvals')) }}">درخواست‌ها</a>
-                @endif
-
-                {{-- Finance also turns on the role: what the company spends is
-                     not something every member sees. --}}
-                @if ($workspace->has('finance') && ($financeVisible ?? false))
-                    <a href="{{ route('finance.index') }}" class="{{ $tab($starts('finance')) }}">مالی</a>
-                @endif
-
-                @if ($workspace->has('reports') && ($reportsVisible ?? false))
-                    <a href="{{ route('reports.index') }}" class="{{ $tab($current === 'reports.index') }}">گزارش</a>
-                    <a href="{{ route('reports.weekly.index') }}" class="{{ $tab($starts('reports.weekly')) }}">هفتگی</a>
-                @endif
-
-                @if ($workspace->has('departments') && $allowed(App\Enums\Permission::ManageDepartments))
-                    <a href="{{ route('departments.index') }}" class="{{ $tab($starts('departments')) }}">بخش‌ها</a>
-                @endif
-
-                @if ($workspace->has('members') && $allowed(App\Enums\Permission::ManageMembers))
-                    <a href="{{ route('members.index') }}" class="{{ $tab($current === 'members.index') }}">
-                        {{ $workspace->type->memberWord() }}
+            <div class="space-y-2 border-t border-slate-100 p-3">
+                @if ($user->isPlatformAdmin())
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="block rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100">
+                        پنل مدیریت کل
                     </a>
                 @endif
 
-                @if ($workspace->has('billing') && $allowed(App\Enums\Permission::ManageBilling))
-                    <a href="{{ route('billing.index') }}" class="{{ $tab($starts('billing')) }}">صورتحساب</a>
-                @endif
+                <div class="flex items-center gap-2 px-1">
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-slate-800">{{ $user->name ?: '—' }}</p>
+                        <p class="tabular text-xs text-slate-500" dir="ltr">{{ $user->localPhone() }}</p>
+                    </div>
 
-                @php
-                    // The count the ladder's free rungs produce. Cached for a
-                    // minute so a header rendered on every page does not cost
-                    // a query on every page.
-                    $unread = cache()->remember(
-                        'unread-notifications:'.auth()->id(),
-                        now()->addMinute(),
-                        fn () => auth()->user()->unreadNotifications()->count(),
-                    );
-                @endphp
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900">خروج</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+    @endif
 
-                <a href="{{ route('notifications.index') }}"
-                   class="relative {{ $tab($current === 'notifications.index') }}">
-                    اعلان‌ها
-                    @if ($unread > 0)
-                        <span class="tabular absolute -top-1 -start-1 rounded-full bg-red-600 px-1.5 text-[11px] text-white">
-                            {{ $unread > 9 ? '۹+' : $unread }}
-                        </span>
-                    @endif
-                </a>
-            </nav>
-            @else
-                <span class="flex-1"></span>
-            @endisset
+    {{-- Phones and tablets: a slim bar with the bell and a menu button. The
+         field worker's phone is the device this has to survive. --}}
+    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur {{ $hasNav ? 'lg:hidden' : '' }}">
+        <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+            <a href="{{ route('dashboard') }}" class="flex shrink-0 items-center gap-2">
+                {!! $mark !!}
+                <span class="text-lg font-bold text-slate-900">{{ config('brand.name') }}</span>
+            </a>
 
-            @if (auth()->user()->isPlatformAdmin())
+            @if ($hasNav)
+                <span class="min-w-0 truncate text-sm text-slate-500">{{ $workspace->name }}</span>
+            @endif
+
+            <span class="flex-1"></span>
+
+            @if ($user->isPlatformAdmin())
                 <a href="{{ route('admin.dashboard') }}"
-                   class="shrink-0 rounded-lg bg-amber-400 px-3 py-1.5 text-xs font-medium text-slate-900 hover:bg-amber-300">
+                   class="shrink-0 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100">
                     مدیریت کل
                 </a>
             @endif
 
-            <form method="POST" action="{{ route('logout') }}" class="shrink-0">
-                @csrf
-                <button type="submit" class="text-sm text-slate-500 hover:text-slate-900">خروج</button>
-            </form>
+            @if ($hasNav)
+                <a href="{{ route('notifications.index') }}" class="relative shrink-0 rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900" aria-label="اعلان‌ها">
+                    <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/>
+                    </svg>
+                    @if ($unread > 0)
+                        <span class="tabular absolute top-0.5 end-0.5 min-w-4 rounded-full bg-red-500 px-1 text-center text-[10px] font-medium leading-4 text-white ring-2 ring-white">
+                            {{ $unread > 9 ? '۹+' : $unread }}
+                        </span>
+                    @endif
+                </a>
+
+                <details class="group shrink-0">
+                    <summary class="flex cursor-pointer list-none items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50">
+                        <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                        </svg>
+                        منو
+                    </summary>
+
+                    <div class="absolute inset-x-0 top-full max-h-[calc(100vh-4rem)] overflow-y-auto border-b border-slate-200 bg-white px-4 pt-3 pb-4 shadow-lg">
+                        <div class="mx-auto max-w-md space-y-4">
+                            @include('layouts.partials.workspace-switcher')
+                            @include('layouts.partials.nav')
+
+                            <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 pt-3">
+                                @csrf
+                                <button type="submit" class="w-full rounded-lg px-3 py-2 text-start text-sm text-slate-600 hover:bg-slate-100">خروج</button>
+                            </form>
+                        </div>
+                    </div>
+                </details>
+            @else
+                <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+                    @csrf
+                    <button type="submit" class="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900">خروج</button>
+                </form>
+            @endif
         </div>
     </header>
 @endauth
 
-@if (! empty($subscriptionLapsed))
-    {{-- Not a one-shot flash. Someone bounced from a save needs to know why on
-         whichever page they land on next, and the state persists until they
-         pay — so the banner does too. --}}
-    <div class="border-b border-amber-200 bg-amber-50 px-4 py-3">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm text-amber-900">
-            <span>
-                اشتراک شما تمام شده است. همه‌چیز قابل مشاهده است، ولی تا تمدید
-                امکان ثبت تغییر جدید وجود ندارد.
-            </span>
+<div class="{{ $hasNav ? 'lg:ps-64' : '' }}">
+    @if (! empty($subscriptionLapsed))
+        {{-- Not a one-shot flash. Someone bounced from a save needs to know why
+             on whichever page they land on next, and the state persists until
+             they pay — so the banner does too. --}}
+        <div class="border-b border-amber-200 bg-amber-50 px-4 py-3">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm text-amber-900">
+                <span>
+                    اشتراک شما تمام شده است. همه‌چیز قابل مشاهده است، ولی تا تمدید
+                    امکان ثبت تغییر جدید وجود ندارد.
+                </span>
 
-            <a href="{{ route('billing.index') }}"
-               class="ms-auto rounded-lg bg-amber-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-800">
-                تمدید اشتراک
-            </a>
-        </div>
-    </div>
-@endif
-
-@auth
-    {{-- Hidden until the browser says the app is installable, and dismissed
-         for good once. A technician who never installs it is still reachable
-         by SMS, so this is an offer and never a wall. --}}
-    <div id="install-banner" class="hidden border-b border-slate-200 bg-slate-900 px-4 py-3 text-white">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm">
-            <span>این سامانه را روی گوشی نصب کنید تا سریع‌تر به کارهایتان برسید.</span>
-
-            <button data-install type="button"
-                    class="ms-auto rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-900">
-                نصب
-            </button>
-            <button data-dismiss type="button" class="text-sm text-slate-300 hover:text-white">
-                بعداً
-            </button>
-        </div>
-    </div>
-@endauth
-
-<main class="mx-auto max-w-6xl px-4 py-6">
-    @if (session('status'))
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-            {{ session('status') }}
+                <a href="{{ route('billing.index') }}"
+                   class="ms-auto rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-700">
+                    تمدید اشتراک
+                </a>
+            </div>
         </div>
     @endif
 
-    @yield('content')
-</main>
+    @auth
+        {{-- Hidden until the browser says the app is installable, and dismissed
+             for good once. A technician who never installs it is still
+             reachable by SMS, so this is an offer and never a wall. --}}
+        <div id="install-banner" class="hidden border-b border-brand-100 bg-brand-50 px-4 py-3">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-3 text-sm text-brand-900">
+                <span>این سامانه را روی گوشی نصب کنید تا سریع‌تر به کارهایتان برسید.</span>
+
+                <button data-install type="button"
+                        class="ms-auto rounded-lg bg-brand-700 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-800">
+                    نصب
+                </button>
+                <button data-dismiss type="button" class="text-sm text-brand-700 hover:text-brand-900">
+                    بعداً
+                </button>
+            </div>
+        </div>
+    @endauth
+
+    <main class="mx-auto max-w-6xl px-4 py-6 lg:px-8">
+        @if (session('status'))
+            <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {{ session('status') }}
+            </div>
+        @endif
+
+        @yield('content')
+    </main>
+</div>
 
 </body>
 </html>

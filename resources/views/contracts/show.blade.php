@@ -149,32 +149,32 @@
                         <label for="starts_date" class="block text-sm">شروع دوره‌ی جدید</label>
                         <input id="starts_date" name="starts_date" required dir="ltr"
                                value="{{ old('starts_date', JalaliDate::format(CarbonImmutable::parse($contract->expires_on)->addDay())) }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('starts_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label for="expires_date" class="block text-sm">انقضای جدید</label>
-                        <input id="expires_date" name="expires_date" required dir="ltr" placeholder="1406/12/29"
+                        <input id="expires_date" name="expires_date" required dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(365)) }}"
                                value="{{ old('expires_date') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                         @error('expires_date')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label for="value" class="block text-sm">مبلغ جدید <span class="text-xs text-slate-400">(اختیاری)</span></label>
                         <input id="value" name="value" inputmode="numeric" dir="ltr" value="{{ old('value') }}"
-                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     </div>
 
                     <div>
                         <label for="note" class="block text-sm">توضیح دوره‌ی قبل</label>
                         <input id="note" name="note" value="{{ old('note') }}"
-                               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none">
+                               class="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
                     </div>
 
                     <button type="submit"
-                            class="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">
+                            class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                         ثبت تمدید
                     </button>
                 </form>

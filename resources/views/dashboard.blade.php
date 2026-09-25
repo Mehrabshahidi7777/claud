@@ -22,7 +22,7 @@
         <span class="text-sm text-slate-500">{{ $workspace->type->tagline() }}</span>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-3">
+    <div class="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
 
         {{-- The viewer's own work first. A manager sees their list and so
              does the technician who otherwise only ever gets texted. --}}

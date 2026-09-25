@@ -12,7 +12,7 @@
     <div class="ms-auto flex gap-1 text-sm">
         @foreach ([7 => 'هفته', 30 => 'ماه', 90 => 'سه ماه'] as $value => $label)
             <a href="{{ route('reports.index', ['days' => $value]) }}"
-               class="rounded-lg px-3 py-1.5 {{ $days === $value ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200' }}">
+               class="rounded-lg px-3 py-1.5 {{ $days === $value ? 'bg-brand-700 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200' }}">
                 {{ $label }}
             </a>
         @endforeach
