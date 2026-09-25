@@ -413,11 +413,11 @@ POST /api/webhooks/sms/amoot/{هر-رشته-تصادفی}
 php -r "echo bin2hex(random_bytes(24));"
 ```
 
-> ⚠️ **قبل از اولین ارسال واقعی:** نام دقیق پارامترهای `SendWithPattern` و شکل
-> پاسخ آن بین نسخه‌های پنل فرق می‌کند. از مستندات پنل خودتان بررسی کنید و در
-> صورت نیاز فقط `payloadFor()` و `interpret()` در
-> `app/Sms/Drivers/AmootSmsDriver.php` را تنظیم کنید. بقیه‌ی موتور از این
-> فرمت جدا نگه داشته شده است.
+> **روش ارسال، مطابق [مستندات رسمی آموت](https://github.com/AmootSoft/AmootSMS):**
+> با خط اختصاصی، پترن از `SendWithPatternOWN` می‌رود (با `LineNumber`)؛ بدون
+> خط اختصاصی از `SendWithPattern`. توکن هم در هدر `Authorization` و هم در پارامتر
+> `Token` فرستاده می‌شود. اعتبار از `AccountStatus` (فیلد `RemaindCredit`) خوانده
+> می‌شود. همه‌ی این قالب فقط در `app/Sms/Drivers/AmootSmsDriver.php` است.
 
 ### درایورها
 
@@ -1260,7 +1260,7 @@ php artisan queue:work --tries=3
 ## توسعه
 
 ```bash
-php artisan test                   # ۴۷۳ تست
+php artisan test                   # ۴۷۶ تست
 ./vendor/bin/pint                  # قالب‌بندی کد
 php artisan followups:run --dry    # چه پیگیری‌هایی سررسید شده‌اند
 php artisan reports:weekly --workspace=1
