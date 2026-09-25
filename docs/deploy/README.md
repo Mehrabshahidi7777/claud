@@ -186,6 +186,27 @@ cd /var/www/peygir
 > اگر شاخه را در `main` ادغام کردید، `-b main` بنویسید. اسکریپت به‌روزرسانی همیشه
 > همان شاخه‌ای را می‌کشد که سرور رویش است.
 
+### اگر سرور به گیت‌هاب وصل نشد
+
+کد را از کامپیوتر خودتان بفرستید. در **Git Bash**، داخل پوشه‌ی پروژه:
+
+```bash
+git archive --format=tar.gz -o peygir.tar.gz HEAD
+scp peygir.tar.gz root@SERVER_IP:/tmp/
+```
+
+روی سرور (با root):
+
+```bash
+mkdir -p /var/www/peygir
+tar -xzf /tmp/peygir.tar.gz -C /var/www/peygir
+chown -R peygir:peygir /var/www/peygir
+```
+
+در این حالت هر جا `deploy.sh` را اجرا می‌کنید، `SKIP_PULL=1` جلویش بگذارید (بخش ۶
+و ۱۳)؛ برای به‌روزرسانی بعدی همین سه دستور را تکرار کنید. فایل `.env` و پوشه‌ی
+`storage` سرور دست نمی‌خورند، چون در آرشیو نیستند.
+
 ---
 
 ## ۵. فایل ‎.env
@@ -223,6 +244,11 @@ MAIL_FROM_ADDRESS=report@peygir.ir
 
 `SMS_DRIVER=log` و `PAYMENT_GATEWAY=fake` و `AI_PROVIDER=null` بمانند تا بخش‌های
 ۱۰ تا ۱۲.
+
+> **از `.env` کامپیوتر خودتان چه چیزی را بیاورید؟** فقط مقادیری که از بیرون گرفته‌اید:
+> `AMOOT_BASE_URL`، `AMOOT_TOKEN`، `AMOOT_LINE_NUMBER`، کد پترن‌ها، `SEP_TERMINAL_ID`
+> و `PLATFORM_ADMIN_PHONES`. **کل فایل را کپی نکنید:** `APP_KEY`، `APP_ENV`،
+> `APP_DEBUG` و تنظیمات دیتابیس روی سرور فرق دارند.
 
 ---
 

@@ -6,7 +6,8 @@
 #
 # Run as the peygir user, never as root. If npm cannot reach its registry
 # from the server, build on your own machine, upload public/build, and run
-# with SKIP_ASSETS=1.
+# with SKIP_ASSETS=1. If the code was uploaded as an archive rather than
+# cloned (GitHub unreachable from the server), run with SKIP_PULL=1.
 
 set -euo pipefail
 
@@ -17,10 +18,12 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
-branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${SKIP_PULL:-0}" != "1" ] && [ -d .git ]; then
+    branch="$(git rev-parse --abbrev-ref HEAD)"
 
-echo "==> Pulling ${branch}"
-git pull --ff-only origin "${branch}"
+    echo "==> Pulling ${branch}"
+    git pull --ff-only origin "${branch}"
+fi
 
 echo "==> PHP dependencies"
 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
@@ -53,4 +56,4 @@ trap - EXIT
 echo "==> Health check"
 php artisan app:check || true
 
-echo "Done: $(git log -1 --format='%h %s')"
+echo "Done: $(git log -1 --format='%h %s' 2>/dev/null || date)"
