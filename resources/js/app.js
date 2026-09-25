@@ -186,12 +186,16 @@ if (parseButton) {
         message.classList.remove('hidden');
     };
 
-    const escape = (value) => {
-        const node = document.createElement('div');
-        node.textContent = value ?? '';
-
-        return node.innerHTML;
-    };
+    // Escapes for text AND attribute values. Serialising a text node only
+    // escapes <, > and &, which left a quote in a model-written title free to
+    // close value="…" and add an event handler to the draft form.
+    const escape = (value) =>
+        String(value ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
 
     parseButton.addEventListener('click', async () => {
         const text = textarea.value.trim();

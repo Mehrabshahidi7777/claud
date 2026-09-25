@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Enums\WorkspaceRole;
 use App\Models\Activity;
 use App\Models\Settlement;
 use App\Models\SharedExpense;
@@ -140,6 +141,17 @@ class SettlementController extends Controller
         ], [
             'to_user_id.different' => 'پرداخت‌کننده و گیرنده نمی‌توانند یک نفر باشند.',
         ]);
+
+        // Recording "A paid B" wipes B's claim on A, so it is B's word — or
+        // A's, which B can see and dispute — never a third friend's.
+        $userId = $request->user()->id;
+
+        if (! in_array($userId, [(int) $validated['from_user_id'], (int) $validated['to_user_id']], true)
+            && $this->workspace->role() !== WorkspaceRole::Owner) {
+            throw ValidationException::withMessages([
+                'from_user_id' => 'فقط پرداخت‌کننده، گیرنده یا مدیر گروه می‌تواند این پرداخت را ثبت کند.',
+            ]);
+        }
 
         $owed = $this->balances->owedBetween(
             $workspace,

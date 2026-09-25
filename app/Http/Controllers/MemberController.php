@@ -34,7 +34,10 @@ class MemberController extends Controller
         return view('members.index', [
             'workspace' => $workspace,
             'members' => $workspace->members()->orderBy('name')->get(),
-            'roles' => WorkspaceRole::assignable(),
+            'roles' => array_values(array_filter(
+                WorkspaceRole::assignable(),
+                fn (WorkspaceRole $role) => $this->workspace->role()->covers($role),
+            )),
             'departments' => $workspace->has('departments')
                 ? Department::forWorkspace($workspace->id)->active()->orderBy('name')->get()
                 : collect(),
@@ -62,6 +65,7 @@ class MemberController extends Controller
         ]);
 
         $this->refuseOwnerRole($validated['role']);
+        $this->refuseRoleAboveOwn(WorkspaceRole::from($validated['role']));
 
         $phone = PhoneNumber::normalize($validated['phone']);
 
@@ -101,7 +105,19 @@ class MemberController extends Controller
         $workspace = $this->workspace->get();
 
         abort_unless($this->workspace->can(Permission::ManageMembers), 403);
-        abort_unless($workspace->members()->where('users.id', $member->id)->exists(), 404);
+
+        $membership = $workspace->members()->where('users.id', $member->id)->first()?->pivot;
+
+        abort_unless($membership !== null, 404);
+
+        $currentRole = WorkspaceRole::from($membership->role);
+
+        // The owner's row is theirs alone to edit, and editing it never
+        // touches the role: the form has no "owner" option, so saving a
+        // department used to demote the owner to admin as a side effect.
+        if ($currentRole === WorkspaceRole::Owner) {
+            abort_unless($member->id === $request->user()->id, 403);
+        }
 
         $validated = $request->validate([
             'role' => ['required', Rule::enum(WorkspaceRole::class)],
@@ -116,7 +132,20 @@ class MemberController extends Controller
             'away_until' => ['nullable', 'date'],
         ]);
 
-        $this->refuseOwnerRole($validated['role']);
+        if ($currentRole === WorkspaceRole::Owner) {
+            $validated['role'] = WorkspaceRole::Owner->value;
+        } else {
+            $newRole = WorkspaceRole::from($validated['role']);
+
+            $this->refuseOwnerRole($validated['role']);
+
+            if ($member->id === $request->user()->id && $newRole !== $currentRole) {
+                throw ValidationException::withMessages(['role' => 'نقش خودتان را نمی‌توانید تغییر دهید.']);
+            }
+
+            $this->refuseRoleAboveOwn($currentRole);
+            $this->refuseRoleAboveOwn($newRole);
+        }
 
         // Nobody is their own manager: an escalation that loops back to the
         // person who missed the deadline reaches nobody.
@@ -147,6 +176,15 @@ class MemberController extends Controller
         if ($role === WorkspaceRole::Owner->value) {
             throw ValidationException::withMessages([
                 'role' => 'مالک از این صفحه تعیین نمی‌شود.',
+            ]);
+        }
+    }
+
+    private function refuseRoleAboveOwn(WorkspaceRole $role): void
+    {
+        if (! $this->workspace->role()->covers($role)) {
+            throw ValidationException::withMessages([
+                'role' => 'این نقش دسترسی‌هایی دارد که خودتان ندارید.',
             ]);
         }
     }

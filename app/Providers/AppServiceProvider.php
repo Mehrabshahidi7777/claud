@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Enums\Permission;
 use App\Services\BillingService;
 use App\Services\CurrentWorkspace;
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
@@ -39,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             $view->with('subscriptionLapsed', $this->subscriptionHasLapsed());
             $view->with('financeVisible', $this->canSeeFinance());
+            $view->with('reportsVisible', $this->canSeeReports());
+            $view->with('allowed', $this->permissionCheck());
         });
     }
 
@@ -57,6 +61,40 @@ class AppServiceProvider extends ServiceProvider
 
         try {
             return app(CurrentWorkspace::class)->role()->canSeeFinance();
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * The same question the controllers ask, for deciding which header links
+     * to draw at all.
+     *
+     * @return Closure(Permission): bool
+     */
+    private function permissionCheck(): Closure
+    {
+        return function (Permission $permission): bool {
+            if (! Auth::check()) {
+                return false;
+            }
+
+            try {
+                return app(CurrentWorkspace::class)->can($permission);
+            } catch (Throwable) {
+                return false;
+            }
+        };
+    }
+
+    private function canSeeReports(): bool
+    {
+        if (! Auth::check()) {
+            return false;
+        }
+
+        try {
+            return app(CurrentWorkspace::class)->seesAllTasks();
         } catch (Throwable) {
             return false;
         }

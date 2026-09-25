@@ -8,6 +8,7 @@ use App\Enums\TaskStatus;
 use App\Models\Activity;
 use App\Models\Meeting;
 use App\Models\Task;
+use App\Services\AiQuota;
 use App\Services\CurrentWorkspace;
 use App\Services\FollowUpScheduler;
 use App\Services\MeetingParser;
@@ -30,6 +31,7 @@ class MeetingController extends Controller
 
         return view('meetings.index', [
             'workspace' => $workspace,
+            'canManage' => $this->workspace->can(Permission::ManageMeetings),
             'meetings' => Meeting::where('workspace_id', $workspace->id)
                 ->withCount('tasks')
                 ->latest('held_at')
@@ -49,8 +51,10 @@ class MeetingController extends Controller
      * model is reachable is the point: the record is worth having on its own,
      * and it is the only way to re-run the extraction later.
      */
-    public function store(Request $request, MeetingParser $parser)
+    public function store(Request $request, MeetingParser $parser, AiQuota $quota)
     {
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
+
         $workspace = $this->workspace->get();
 
         $validated = $request->validate([
@@ -69,7 +73,11 @@ class MeetingController extends Controller
             'notes' => $validated['notes'],
         ]);
 
-        $parsed = $parser->parse($meeting, $workspace);
+        // Over the day's allowance the meeting is still recorded, with its
+        // full text, exactly as when the model is down.
+        $parsed = $quota->take($workspace)
+            ? $parser->parse($meeting, $workspace)
+            : ['summary' => null, 'decisions' => [], 'actions' => [], 'used_ai' => false];
 
         $meeting->update([
             'summary' => $parsed['summary'],
@@ -90,6 +98,7 @@ class MeetingController extends Controller
 
         return view('meetings.show', [
             'workspace' => $meeting->workspace,
+            'canManage' => $this->workspace->can(Permission::ManageMeetings),
             'meeting' => $meeting->load('tasks.assignee', 'creator'),
 
             // Drafts survive exactly one redirect. They are a proposal, not a
@@ -106,6 +115,7 @@ class MeetingController extends Controller
     public function confirmAction(Request $request, Meeting $meeting)
     {
         abort_unless($meeting->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
 
         $workspace = $this->workspace->get();
 
@@ -147,9 +157,14 @@ class MeetingController extends Controller
      * Run the notes through the model again. The rules will be wrong in the
      * first months, and this is why the raw text is kept.
      */
-    public function reparse(Meeting $meeting, MeetingParser $parser)
+    public function reparse(Meeting $meeting, MeetingParser $parser, AiQuota $quota)
     {
         abort_unless($meeting->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
+
+        if (! $quota->take($this->workspace->get())) {
+            return back()->withErrors(['ai' => 'سقف استفاده‌ی امروز از دستیار هوشمند پر شده است.']);
+        }
 
         $parsed = $parser->parse($meeting, $this->workspace->get());
 

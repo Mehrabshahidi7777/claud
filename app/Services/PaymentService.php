@@ -177,13 +177,18 @@ class PaymentService
 
         // Both sides in one transaction: a crash between them would leave an
         // invoice paid with nothing extended, or the reverse.
+        //
+        // The invoice row is locked before its status is read. The callback
+        // arrives through the payer's browser, so it can be fired twice at
+        // once; without the lock both requests saw "unpaid" and each added a
+        // month to the subscription.
         DB::transaction(function () use ($payment) {
+            $invoice = Invoice::whereKey($payment->invoice_id)->lockForUpdate()->firstOrFail();
+
             $payment->update([
                 'status' => PaymentStatus::Verified,
                 'verified_at' => now(),
             ]);
-
-            $invoice = $payment->invoice->fresh();
 
             if ($invoice->status !== InvoiceStatus::Paid) {
                 $this->billing->applyPaidInvoice($invoice);

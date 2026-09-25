@@ -97,6 +97,12 @@ class CurrentWorkspace
     public function authorize(Task $task): void
     {
         abort_unless($task->workspace_id === $this->get()->id, 404);
+        abort_unless($this->seesAllTasks() || $task->involves((int) Auth::id()), 404);
+    }
+
+    public function seesAllTasks(): bool
+    {
+        return $this->role()->seesAllTasksIn($this->get()->type);
     }
 
     public function switchTo(int $workspaceId): bool

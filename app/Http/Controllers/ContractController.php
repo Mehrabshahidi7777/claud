@@ -45,6 +45,7 @@ class ContractController extends Controller
 
         return view('contracts.index', [
             'workspace' => $workspace,
+            'canManage' => $this->workspace->can(Permission::ManageContracts),
             'contracts' => $contracts,
             'members' => $workspace->members()->orderBy('name')->get(),
             'kinds' => ContractKind::cases(),
@@ -66,9 +67,11 @@ class ContractController extends Controller
     public function show(Contract $contract)
     {
         abort_unless($contract->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ViewContracts), 403);
 
         return view('contracts.show', [
             'workspace' => $this->workspace->get(),
+            'canManage' => $this->workspace->can(Permission::ManageContracts),
             'contract' => $contract->load(['owner', 'party', 'terms.recorder', 'tasks']),
             'activities' => Activity::where('workspace_id', $contract->workspace_id)
                 ->where('subject_type', $contract->getMorphClass())
@@ -147,6 +150,7 @@ class ContractController extends Controller
     public function renew(Request $request, Contract $contract)
     {
         abort_unless($contract->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageContracts), 403);
         abort_unless($contract->isActive(), 404);
 
         $validated = $request->validate([
@@ -173,6 +177,7 @@ class ContractController extends Controller
     public function end(Request $request, Contract $contract)
     {
         abort_unless($contract->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageContracts), 403);
 
         $this->watcher->end($contract, $request->user());
 

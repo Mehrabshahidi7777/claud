@@ -123,6 +123,33 @@ enum WorkspaceRole: string
         return [self::Admin, self::Lead, self::Finance, self::HumanResources, self::Member, self::Guest];
     }
 
+    /**
+     * Whether the task list shows the whole workspace or only the work this
+     * person is part of. "عضو: کارهای خودش" on the roles page is a promise.
+     */
+    public function seesAllTasksIn(WorkspaceType $type): bool
+    {
+        // A household or a group of friends has no hierarchy to keep work
+        // private from; there only a guest is limited to their own.
+        if ($type !== WorkspaceType::Corporate) {
+            return $this !== self::Guest;
+        }
+
+        return $this->can(Permission::ViewAllTasks);
+    }
+
+    /**
+     * Whether someone in this role may hand out, or take away, the other.
+     *
+     * Managing members is not a licence to exceed yourself: HR can add people
+     * but must not be able to make anyone — least of all themselves — an
+     * admin with the finance access HR is denied.
+     */
+    public function covers(self $other): bool
+    {
+        return collect($other->permissions())->every(fn (Permission $permission) => $this->can($permission));
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Named checks kept for readability at the call sites that read better

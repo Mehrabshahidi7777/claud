@@ -134,7 +134,7 @@
 
     @php $money = $report->metric('money'); @endphp
 
-    @if ($money)
+    @if ($money && $canSeeFinance)
         <div class="mt-4 rounded-2xl border bg-white p-4 {{ $money['unchased'] > 0 ? 'border-amber-300' : 'border-slate-200' }}">
             <div class="flex flex-wrap items-baseline gap-2">
                 <h2 class="font-medium">پول</h2>
@@ -182,7 +182,7 @@
 
     @php $contracts = $report->metric('contracts'); @endphp
 
-    @if ($contracts && ($contracts['expired'] > 0 || $contracts['expiring_soon'] > 0))
+    @if ($contracts && $canSeeContracts && ($contracts['expired'] > 0 || $contracts['expiring_soon'] > 0))
         <div class="mt-4 rounded-2xl border bg-white p-4 {{ $contracts['serious'] > 0 ? 'border-red-300' : 'border-slate-200' }}">
             <h2 class="font-medium">قراردادها و مجوزها</h2>
 

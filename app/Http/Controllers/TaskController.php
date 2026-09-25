@@ -29,6 +29,7 @@ class TaskController extends Controller
         $filter = $request->string('filter')->toString() ?: 'open';
 
         $tasks = Task::forWorkspace($workspace->id)
+            ->unless($this->workspace->seesAllTasks(), fn ($q) => $q->involving($request->user()->id))
             ->with(['assignee', 'followUps'])
             ->when($filter === 'open', fn ($q) => $q->chaseable())
             ->when($filter === 'overdue', fn ($q) => $q->chaseable()->where('due_at', '<', now()))

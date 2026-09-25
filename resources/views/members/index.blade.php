@@ -22,7 +22,16 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($members as $member)
-                        @php $pivot = $member->pivot; @endphp
+                        @php
+                            $pivot = $member->pivot;
+                            $isOwnerRow = $pivot->role === App\Enums\WorkspaceRole::Owner->value;
+
+                            // A row whose role is above your own is shown, not offered
+                            // for editing: saving it would only be refused.
+                            $editable = $isOwnerRow
+                                ? $member->id === auth()->id()
+                                : collect($roles)->contains(fn ($role) => $role->value === $pivot->role);
+                        @endphp
 
                         <tr>
                             <td class="py-2">
@@ -53,18 +62,28 @@
                             <td class="tabular py-2 text-slate-500" dir="ltr">{{ $member->localPhone() }}</td>
 
                             <td class="py-2">
+                                @unless ($editable)
+                                    <span class="text-xs text-slate-500">
+                                        {{ App\Enums\WorkspaceRole::from($pivot->role)->label() }}
+                                    </span>
+                                @else
                                 <form method="POST" action="{{ route('members.update', $member) }}"
                                       class="flex flex-wrap items-center gap-2">
                                     @csrf
                                     @method('PATCH')
 
-                                    <select name="role" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role->value }}" @selected($pivot->role === $role->value)>
-                                                {{ $role->label() }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @if ($isOwnerRow)
+                                        <input type="hidden" name="role" value="{{ $pivot->role }}">
+                                        <span class="px-2 text-xs text-slate-500">مالک</span>
+                                    @else
+                                        <select name="role" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
+                                            @foreach ($roles as $role)
+                                                <option value="{{ $role->value }}" @selected($pivot->role === $role->value)>
+                                                    {{ $role->label() }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @endif
 
                                     @if ($departments->isNotEmpty())
                                         <select name="department_id" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
@@ -93,6 +112,7 @@
                                         ذخیره
                                     </button>
                                 </form>
+                                @endunless
                             </td>
 
                             <td class="py-2 text-xs text-slate-500">

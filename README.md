@@ -1225,7 +1225,7 @@ php artisan queue:work --tries=3
 ## توسعه
 
 ```bash
-php artisan test                   # ۴۲۹ تست
+php artisan test                   # ۴۴۵ تست
 ./vendor/bin/pint                  # قالب‌بندی کد
 php artisan followups:run --dry    # چه پیگیری‌هایی سررسید شده‌اند
 php artisan reports:weekly --workspace=1

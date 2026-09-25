@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Permission;
 use App\Models\WeeklyReport;
 use App\Services\CurrentWorkspace;
 
@@ -25,10 +26,13 @@ class WeeklyReportController extends Controller
         // workspace who came by this link gets a 404, the same answer as a
         // token that does not exist.
         abort_unless($report->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->seesAllTasks(), 403);
 
         return view('reports.weekly', [
             'report' => $report,
             'workspace' => $report->workspace,
+            'canSeeFinance' => $this->workspace->can(Permission::ViewFinance),
+            'canSeeContracts' => $this->workspace->can(Permission::ViewContracts),
         ]);
     }
 
@@ -40,6 +44,8 @@ class WeeklyReportController extends Controller
     public function index()
     {
         $workspace = $this->workspace->get();
+
+        abort_unless($this->workspace->seesAllTasks(), 403);
 
         return view('reports.weekly-index', [
             'workspace' => $workspace,

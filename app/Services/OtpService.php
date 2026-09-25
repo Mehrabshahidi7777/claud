@@ -48,6 +48,13 @@ class OtpService
             return $this->refuse('hourly_limit', $wait);
         }
 
+        // Three guesses a code at five codes an hour is still 360 guesses a
+        // day against one number, around ten percent of the code space in a
+        // month. The daily ceiling keeps a patient attacker under one percent.
+        if ($wait = $this->throttled("otp:phone-daily:$phone", 10, 86400)) {
+            return $this->refuse('daily_limit', $wait);
+        }
+
         if ($ip !== null && $wait = $this->throttled("otp:ip:$ip", 10, 3600)) {
             return $this->refuse('ip_limit', $wait);
         }
@@ -104,7 +111,7 @@ class OtpService
             return ['verified' => false, 'user' => null, 'is_new' => false, 'reason' => 'expired'];
         }
 
-        if ($otp->isLockedOut()) {
+        if (! $otp->claimAttempt()) {
             return ['verified' => false, 'user' => null, 'is_new' => false, 'reason' => 'locked_out'];
         }
 
@@ -114,7 +121,9 @@ class OtpService
             return ['verified' => false, 'user' => null, 'is_new' => false, 'reason' => 'wrong_code'];
         }
 
-        $otp->consume();
+        if (! $otp->consume()) {
+            return ['verified' => false, 'user' => null, 'is_new' => false, 'reason' => 'expired'];
+        }
 
         // A member their manager created already exists with an unverified
         // number; signing in for the first time verifies it rather than

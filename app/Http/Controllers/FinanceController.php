@@ -9,6 +9,7 @@ use App\Enums\TaskStatus;
 use App\Models\Activity;
 use App\Models\Expense;
 use App\Models\Receivable;
+use App\Services\AiQuota;
 use App\Services\CurrentWorkspace;
 use App\Services\ExpenseParser;
 use App\Services\FinanceReport;
@@ -116,13 +117,19 @@ class FinanceController extends Controller
      * sentence goes in, a filled form comes back, and the manager confirms.
      * Nothing is stored by the model.
      */
-    public function parseExpense(Request $request, ExpenseParser $parser)
+    public function parseExpense(Request $request, ExpenseParser $parser, AiQuota $quota)
     {
-        $this->guard();
+        $workspace = $this->guard();
 
         $validated = $request->validate([
             'text' => ['required', 'string', 'min:5', 'max:1000'],
         ]);
+
+        if (! $quota->take($workspace)) {
+            return back()->withErrors([
+                'ai' => 'سقف استفاده‌ی امروز از دستیار هوشمند پر شده است. هزینه را دستی ثبت کنید.',
+            ])->withInput();
+        }
 
         $result = $parser->parse($validated['text']);
 

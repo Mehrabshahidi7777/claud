@@ -164,6 +164,20 @@ class SettlementTest extends TestCase
         $this->assertSame([], app(BalanceSheet::class)->transfers($this->group));
     }
 
+    public function test_a_third_friend_cannot_record_somebody_elses_debt_as_paid(): void
+    {
+        // رضا paid; حسین owes him. امید has no say in whether حسین paid up.
+        $this->addExpense($this->friends[0], 900_000);
+
+        $this->actingAs($this->friends[2])->post(route('settlements.settle'), [
+            'from_user_id' => $this->friends[1]->id,
+            'to_user_id' => $this->friends[0]->id,
+            'amount' => 300_000,
+        ])->assertSessionHasErrors('from_user_id');
+
+        $this->assertDatabaseCount('settlements', 0);
+    }
+
     public function test_a_part_payment_leaves_the_rest_owed(): void
     {
         $this->addExpense($this->friends[0], 900_000);

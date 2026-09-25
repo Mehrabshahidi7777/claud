@@ -68,7 +68,7 @@
                 <p class="mt-3 whitespace-pre-line leading-8 text-slate-700">{{ $contract->note }}</p>
             @endif
 
-            @if ($contract->isActive())
+            @if ($contract->isActive() && $canManage)
                 <form method="POST" action="{{ route('contracts.end', $contract) }}"
                       class="mt-4 border-t border-slate-100 pt-4"
                       data-confirm="این قرارداد خاتمه‌یافته ثبت شود؟ سابقه‌اش باقی می‌ماند.">
@@ -134,7 +134,7 @@
     </div>
 
     <aside class="space-y-4">
-        @if ($contract->isActive())
+        @if ($contract->isActive() && $canManage)
             <div class="rounded-2xl border border-slate-200 bg-white p-4">
                 <h2 class="font-medium">ثبت تمدید</h2>
                 <p class="mt-1 text-xs text-slate-500">

@@ -159,6 +159,64 @@ class RolesAndDepartmentsTest extends TestCase
         );
     }
 
+    public function test_human_resources_cannot_make_themselves_an_admin(): void
+    {
+        // Admin carries the finance access HR is explicitly denied.
+        $hr = $this->member(WorkspaceRole::HumanResources, 'زهرا کاظمی');
+
+        $this->actingAs($hr)->patch(route('members.update', $hr), [
+            'role' => WorkspaceRole::Admin->value,
+        ])->assertSessionHasErrors('role');
+
+        $this->assertSame(WorkspaceRole::HumanResources->value, $this->roleOf($hr));
+    }
+
+    public function test_human_resources_cannot_hand_out_a_role_above_their_own(): void
+    {
+        $hr = $this->member(WorkspaceRole::HumanResources, 'زهرا کاظمی');
+        $member = $this->member(WorkspaceRole::Member, 'رضا مرادی');
+
+        $this->actingAs($hr)->patch(route('members.update', $member), [
+            'role' => WorkspaceRole::Finance->value,
+        ])->assertSessionHasErrors('role');
+
+        $this->actingAs($hr)->post(route('members.store'), [
+            'name' => 'نفر تازه',
+            'phone' => '09125550000',
+            'role' => WorkspaceRole::Admin->value,
+        ])->assertSessionHasErrors('role');
+
+        $this->assertSame(WorkspaceRole::Member->value, $this->roleOf($member));
+        $this->assertDatabaseMissing('users', ['phone' => '989125550000']);
+    }
+
+    public function test_nobody_but_the_owner_can_change_the_owners_membership(): void
+    {
+        $admin = $this->member(WorkspaceRole::Admin, 'سعید کریمی');
+
+        $this->actingAs($admin)->patch(route('members.update', $this->owner), [
+            'role' => WorkspaceRole::Guest->value,
+        ])->assertForbidden();
+
+        $this->assertSame(WorkspaceRole::Owner->value, $this->roleOf($this->owner));
+    }
+
+    public function test_the_owner_saving_their_own_row_stays_owner(): void
+    {
+        $department = Department::create([
+            'workspace_id' => $this->workspace->id,
+            'name' => 'مدیریت',
+            'kind' => DepartmentKind::Management,
+        ]);
+
+        $this->actingAs($this->owner)->patch(route('members.update', $this->owner), [
+            'role' => WorkspaceRole::Owner->value,
+            'department_id' => $department->id,
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame(WorkspaceRole::Owner->value, $this->roleOf($this->owner));
+    }
+
     public function test_an_escalation_climbs_to_the_department_head_before_the_owner(): void
     {
         // In a company of forty, a chase about a purchase order means
@@ -300,5 +358,10 @@ class RolesAndDepartmentsTest extends TestCase
         // And the owner holds all of them, which is what makes them the
         // fallback for everything.
         $this->assertCount(count(Permission::cases()), WorkspaceRole::Owner->permissions());
+    }
+
+    private function roleOf(User $user): string
+    {
+        return $this->workspace->members()->where('users.id', $user->id)->first()->pivot->role;
     }
 }

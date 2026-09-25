@@ -132,4 +132,19 @@ class Task extends Model
     {
         return $query->where('workspace_id', $workspaceId);
     }
+
+    /**
+     * Work someone is part of: assigned to them, or raised by them.
+     */
+    public function scopeInvolving(Builder $query, int $userId): Builder
+    {
+        return $query->where(fn (Builder $query) => $query
+            ->where('assignee_id', $userId)
+            ->orWhere('creator_id', $userId));
+    }
+
+    public function involves(int $userId): bool
+    {
+        return $this->assignee_id === $userId || $this->creator_id === $userId;
+    }
 }

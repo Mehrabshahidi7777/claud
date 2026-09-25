@@ -130,6 +130,7 @@
         @endif
     </div>
 
+    @if ($canManage)
     <aside>
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">قرارداد یا مجوز جدید</h2>
@@ -275,6 +276,7 @@
             </form>
         </div>
     </aside>
+    @endif
 </div>
 
 @endsection

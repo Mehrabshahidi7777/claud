@@ -154,6 +154,46 @@ class PhoneLoginTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_guesses_sent_in_parallel_cannot_take_more_than_three_attempts(): void
+    {
+        $this->requestCodeAndCapture('989121234567');
+
+        // One request loaded the row; three others used every attempt in the
+        // meantime. The stale copy must not get a fourth.
+        $stale = OtpCode::first();
+        OtpCode::whereKey($stale->id)->update(['attempts' => OtpCode::MAX_ATTEMPTS]);
+
+        $this->assertFalse($stale->claimAttempt());
+    }
+
+    public function test_a_code_signs_in_only_once_even_when_submitted_twice_at_once(): void
+    {
+        $this->requestCodeAndCapture('989121234567');
+
+        $first = OtpCode::first();
+        $second = OtpCode::first();
+
+        $this->assertTrue($first->consume());
+        $this->assertFalse($second->consume());
+    }
+
+    public function test_one_number_gets_at_most_ten_codes_a_day(): void
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->clearShortThrottles();
+
+            $this->post(route('login.request'), ['phone' => '09121234567'])
+                ->assertRedirect(route('login.code'));
+        }
+
+        $this->clearShortThrottles();
+
+        $this->post(route('login.request'), ['phone' => '09121234567'])
+            ->assertSessionHasErrors('phone');
+
+        $this->assertDatabaseCount('otp_codes', 10);
+    }
+
     public function test_an_expired_code_is_refused(): void
     {
         $code = $this->requestCodeAndCapture('989121234567');
@@ -239,6 +279,22 @@ class PhoneLoginTest extends TestCase
         $this->assertSame('مهراب شهیدی', $user->fresh()->name);
     }
 
+    public function test_onboarding_cannot_be_posted_again_for_another_free_trial(): void
+    {
+        $user = User::factory()->create(['name' => 'مهراب شهیدی']);
+        Workspace::factory()->create()->members()->attach($user, ['role' => 'owner']);
+
+        $this->actingAs($user)
+            ->post(route('onboarding.store'), [
+                'name' => 'مهراب شهیدی',
+                'workspace' => 'یک شرکت دیگر',
+                'type' => 'corporate',
+            ])
+            ->assertRedirect(route('dashboard'));
+
+        $this->assertDatabaseMissing('workspaces', ['name' => 'یک شرکت دیگر']);
+    }
+
     /**
      * The fake driver records the PatternMessage, so the code that was texted
      * is readable without reaching into the hash.
@@ -256,5 +312,12 @@ class PhoneLoginTest extends TestCase
         $this->assertTrue(Hash::check($code, OtpCode::latest('id')->first()->code_hash));
 
         return $code;
+    }
+
+    private function clearShortThrottles(): void
+    {
+        RateLimiter::clear('otp:phone:989121234567');
+        RateLimiter::clear('otp:phone-hourly:989121234567');
+        RateLimiter::clear('otp:ip:127.0.0.1');
     }
 }

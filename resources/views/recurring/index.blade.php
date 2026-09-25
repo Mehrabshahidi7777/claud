@@ -108,12 +108,14 @@
                                 <span>آخرین بار {{ JalaliDate::format(CarbonImmutable::parse($recurrence->last_done_on)) }}</span>
                             @endif
 
-                            <form method="POST" action="{{ route('recurring.toggle', $recurrence) }}" class="ms-auto">
-                                @csrf
-                                <button class="text-xs text-slate-400 hover:text-slate-900">
-                                    {{ $recurrence->is_active ? 'توقف' : 'فعال‌سازی' }}
-                                </button>
-                            </form>
+                            @if ($canManage)
+                                <form method="POST" action="{{ route('recurring.toggle', $recurrence) }}" class="ms-auto">
+                                    @csrf
+                                    <button class="text-xs text-slate-400 hover:text-slate-900">
+                                        {{ $recurrence->is_active ? 'توقف' : 'فعال‌سازی' }}
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -121,6 +123,7 @@
         @endif
     </div>
 
+    @if ($canManage)
     <aside>
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">کار دوره‌ای جدید</h2>
@@ -255,6 +258,7 @@
             </form>
         </div>
     </aside>
+    @endif
 </div>
 
 @endsection

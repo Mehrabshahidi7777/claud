@@ -51,26 +51,39 @@ class OtpCode extends Model
     }
 
     /**
-     * A wrong guess is counted whether or not the code was still usable, so
-     * three attempts burn the code even when they arrive after it expired.
+     * Takes one of the three attempts, in the database, before the guess is
+     * checked.
+     *
+     * Reading `attempts` and incrementing it later let a burst of parallel
+     * requests all pass the check before any of them counted, turning three
+     * guesses into as many as the attacker could send at once. A conditional
+     * UPDATE is atomic: each guess either gets a slot or is refused.
      */
+    public function claimAttempt(): bool
+    {
+        $claimed = static::whereKey($this->getKey())
+            ->whereNull('consumed_at')
+            ->where('attempts', '<', self::MAX_ATTEMPTS)
+            ->increment('attempts');
+
+        return $claimed === 1;
+    }
+
     public function matches(string $candidate): bool
     {
-        if (Hash::check($candidate, $this->code_hash)) {
-            return true;
-        }
-
-        $this->increment('attempts');
-
-        return false;
+        return Hash::check($candidate, $this->code_hash);
     }
 
     /**
-     * Consumed the moment it works. A code that has logged someone in must not
-     * be replayable for the rest of its two minutes.
+     * Consumed the moment it works, and only once: two requests carrying the
+     * right code at the same moment must not both sign someone in.
      */
-    public function consume(): void
+    public function consume(): bool
     {
-        $this->update(['consumed_at' => now()]);
+        $consumed = static::whereKey($this->getKey())
+            ->whereNull('consumed_at')
+            ->update(['consumed_at' => now()]);
+
+        return $consumed === 1;
     }
 }

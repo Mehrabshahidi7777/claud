@@ -19,7 +19,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'workspace' => $workspace,
-            'cards' => $this->dashboard->for($workspace, $request->user()),
+            'cards' => $this->dashboard->for($workspace, $request->user(), $this->workspace->role()),
             'week' => $this->dashboard->weekSoFar($workspace),
         ]);
     }

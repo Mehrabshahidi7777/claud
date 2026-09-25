@@ -4,7 +4,9 @@ namespace App\Services;
 
 use App\Enums\ContractStatus;
 use App\Enums\FollowUpStatus;
+use App\Enums\Permission;
 use App\Enums\TaskStatus;
+use App\Enums\WorkspaceRole;
 use App\Models\ApprovalRequest;
 use App\Models\Contract;
 use App\Models\Receivable;
@@ -33,23 +35,27 @@ class Dashboard
     /**
      * @return array<string, mixed>
      */
-    public function for(Workspace $workspace, User $user): array
+    public function for(Workspace $workspace, User $user, WorkspaceRole $role): array
     {
+        // Someone limited to their own work sees the attention and next-move
+        // cards for that work only, not for the whole company.
+        $onlyFor = $role->seesAllTasksIn($workspace->type) ? null : $user->id;
+
         $cards = [
             'mine' => $this->myWork($workspace, $user),
-            'attention' => $this->needsAttention($workspace),
-            'nextMoves' => $this->nextMoves($workspace),
+            'attention' => $this->needsAttention($workspace, $onlyFor),
+            'nextMoves' => $this->nextMoves($workspace, $onlyFor),
         ];
 
         if ($workspace->has('recurring')) {
             $cards['recurring'] = $this->recurring($workspace);
         }
 
-        if ($workspace->has('contracts')) {
+        if ($workspace->has('contracts') && $role->can(Permission::ViewContracts)) {
             $cards['contracts'] = $this->contracts($workspace);
         }
 
-        if ($workspace->has('finance')) {
+        if ($workspace->has('finance') && $role->can(Permission::ViewFinance)) {
             $cards['money'] = $this->money($workspace);
         }
 
@@ -96,10 +102,11 @@ class Dashboard
      *
      * @return array{overdue: Collection<int, Task>, unassigned: int, repeatedlyDeferred: int}
      */
-    private function needsAttention(Workspace $workspace): array
+    private function needsAttention(Workspace $workspace, ?int $onlyFor): array
     {
         $chaseable = Task::forWorkspace($workspace->id)
             ->chaseable()
+            ->when($onlyFor, fn ($query) => $query->involving($onlyFor))
             ->with('assignee')
             ->get();
 
@@ -115,6 +122,7 @@ class Dashboard
 
             'repeatedlyDeferred' => Task::forWorkspace($workspace->id)
                 ->chaseable()
+                ->when($onlyFor, fn ($query) => $query->involving($onlyFor))
                 ->where('defer_count', '>=', (int) config('followup.defer_count_before_escalation', 2))
                 ->count(),
         ];
@@ -129,11 +137,13 @@ class Dashboard
      *
      * @return Collection<int, TaskFollowUp>
      */
-    private function nextMoves(Workspace $workspace): Collection
+    private function nextMoves(Workspace $workspace, ?int $onlyFor): Collection
     {
         return TaskFollowUp::query()
             ->where('status', FollowUpStatus::Pending->value)
-            ->whereHas('task', fn ($query) => $query->where('workspace_id', $workspace->id)->chaseable())
+            ->whereHas('task', fn ($query) => $query->where('workspace_id', $workspace->id)
+                ->chaseable()
+                ->when($onlyFor, fn ($query) => $query->involving($onlyFor)))
             ->with(['task', 'recipient'])
             ->orderBy('scheduled_at')
             ->limit(5)

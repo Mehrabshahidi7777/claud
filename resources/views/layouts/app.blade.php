@@ -101,7 +101,7 @@
                     <a href="{{ route('settlements.index') }}" class="{{ $tab($starts('settlements')) }}">حساب‌وکتاب</a>
                 @endif
 
-                @if ($workspace->has('contracts'))
+                @if ($workspace->has('contracts') && $allowed(App\Enums\Permission::ViewContracts))
                     <a href="{{ route('contracts.index') }}" class="{{ $tab($starts('contracts')) }}">قراردادها</a>
                 @endif
 
@@ -119,22 +119,22 @@
                     <a href="{{ route('finance.index') }}" class="{{ $tab($starts('finance')) }}">مالی</a>
                 @endif
 
-                @if ($workspace->has('reports'))
+                @if ($workspace->has('reports') && ($reportsVisible ?? false))
                     <a href="{{ route('reports.index') }}" class="{{ $tab($current === 'reports.index') }}">گزارش</a>
                     <a href="{{ route('reports.weekly.index') }}" class="{{ $tab($starts('reports.weekly')) }}">هفتگی</a>
                 @endif
 
-                @if ($workspace->has('departments'))
+                @if ($workspace->has('departments') && $allowed(App\Enums\Permission::ManageDepartments))
                     <a href="{{ route('departments.index') }}" class="{{ $tab($starts('departments')) }}">بخش‌ها</a>
                 @endif
 
-                @if ($workspace->has('members'))
+                @if ($workspace->has('members') && $allowed(App\Enums\Permission::ManageMembers))
                     <a href="{{ route('members.index') }}" class="{{ $tab($current === 'members.index') }}">
                         {{ $workspace->type->memberWord() }}
                     </a>
                 @endif
 
-                @if ($workspace->has('billing'))
+                @if ($workspace->has('billing') && $allowed(App\Enums\Permission::ManageBilling))
                     <a href="{{ route('billing.index') }}" class="{{ $tab($starts('billing')) }}">صورتحساب</a>
                 @endif
 

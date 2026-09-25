@@ -38,6 +38,7 @@ class RecurringTaskController extends Controller
 
         return view('recurring.index', [
             'workspace' => $workspace,
+            'canManage' => $this->workspace->can(Permission::ManageRecurring),
             'recurrences' => $recurrences,
             'members' => $workspace->members()->orderBy('name')->get(),
             'units' => RecurrenceUnit::cases(),
@@ -136,6 +137,7 @@ class RecurringTaskController extends Controller
     public function toggle(Request $request, RecurringTask $recurring)
     {
         abort_unless($recurring->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageRecurring), 403);
 
         $recurring->update(['is_active' => ! $recurring->is_active]);
 

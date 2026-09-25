@@ -15,6 +15,9 @@ class ReportController extends Controller
     {
         $workspace = $this->workspace->get();
 
+        // A scorecard of who is behind is the whole company's work.
+        abort_unless($this->workspace->seesAllTasks(), 403);
+
         $days = min(max($request->integer('days', 7), 1), 90);
 
         $report = (new ReportBuilder($workspace))
