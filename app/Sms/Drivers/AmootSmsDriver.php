@@ -70,15 +70,19 @@ class AmootSmsDriver implements SmsDriver
     }
 
     /**
-     * VERIFY AGAINST YOUR PANEL. Both the positional list and the named map
-     * are sent because panels differ in which they read; the unused one is
-     * ignored rather than rejected.
+     * VERIFY AGAINST YOUR PANEL. Values travel as one comma-separated list in
+     * the pattern's variable order, so a Latin comma inside a value (a task
+     * titled "میز, صندلی") would shift every value after it. It is folded to
+     * the Persian comma, which reads the same to the recipient.
      *
      * @return array<string, scalar>
      */
     protected function payloadFor(PatternMessage $message): array
     {
-        $values = $message->orderedValues();
+        $values = array_map(
+            static fn (string $value): string => str_replace(',', '،', $value),
+            $message->orderedValues(),
+        );
 
         return array_filter([
             'Token' => $this->config['token'] ?? null,
