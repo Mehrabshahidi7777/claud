@@ -342,11 +342,32 @@ DB_PASSWORD=
 قالب باید در پنل آموت ثبت و تأیید شده باشد و ما فقط کد پترن و مقادیرش را
 می‌فرستیم.
 
-**۱۲ پترن لازم است.** متن تأییدشده‌ی هرکدام در `config/sms.php` آمده:
+**۱۲ پترن لازم است.** متن هرکدام در `config/sms.php` است و همان را عیناً در پنل
+ثبت کنید:
 
-`chase` · `defer_ask` · `escalate` · `confirm_done` · `confirm_defer` ·
-`unknown` · `otp` · `welcome` · `subscription_expiring` · `weekly_report` ·
-`approval_request` · `approval_decision`
+> ⚠️ **متغیرهای آموت با درصد نوشته می‌شوند، نه آکولاد:** `%name%`، نه `{name}`.
+> مقادیر به‌صورت **یک فهرست ترتیبی** فرستاده می‌شوند، پس ترتیب متغیرها در متن پنل
+> باید همان ترتیب ستون سوم باشد. اگر پنل متنی را اصلاح خواست، کلمات را عوض کنید
+> ولی متغیرها و ترتیبشان را نه؛ متن نهایی را در `config/sms.php` هم بگذارید.
+> `SmsPatternRegistryTest` اگر آکولاد یا ترتیب اشتباه ببیند، تست را قرمز می‌کند.
+
+| پترن | متن برای پنل | ترتیب متغیرها | کد در ‎.env |
+| --- | --- | --- | --- |
+| `chase` | <code>%name%، سررسید: %title%<br>۱=انجام شد ۲=تأخیر<br>همین پیامک را پاسخ دهید</code> | ۱. `name`، ۲. `title` | `AMOOT_PATTERN_CHASE` |
+| `defer_ask` | <code>تاریخ جدید را بفرستید<br>مثال: 1404/07/15</code> | — | `AMOOT_PATTERN_DEFER_ASK` |
+| `escalate` | <code>%title%<br>مسئول: %name% - بدون پاسخ<br>تأخیر: %hours% ساعت</code> | ۱. `title`، ۲. `name`، ۳. `hours` | `AMOOT_PATTERN_ESCALATE` |
+| `confirm_done` | <code>ثبت شد. ممنون %name%</code> | ۱. `name` | `AMOOT_PATTERN_CONFIRM_DONE` |
+| `confirm_defer` | <code>تاریخ جدید ثبت شد: %date%</code> | ۱. `date` | `AMOOT_PATTERN_CONFIRM_DEFER` |
+| `unknown` | <code>متوجه نشدم. ۱=انجام شد ۲=تأخیر</code> | — | `AMOOT_PATTERN_UNKNOWN` |
+| `otp` | <code>کد ورود: %code%<br>تا ۲ دقیقه معتبر است</code> | ۱. `code` | `AMOOT_PATTERN_OTP` |
+| `welcome` | <code>%name% عزیز، به %workspace% اضافه شدید</code> | ۱. `name`، ۲. `workspace` | `AMOOT_PATTERN_WELCOME` |
+| `subscription_expiring` | <code>اشتراک %plan% تا %days% روز دیگر تمام می‌شود<br>برای تمدید وارد پنل شوید</code> | ۱. `plan`، ۲. `days` | `AMOOT_PATTERN_SUBSCRIPTION_EXPIRING` |
+| `approval_request` | <code>درخواست %type% از %name%<br>%title%<br>منتظر تأیید شماست</code> | ۱. `type`، ۲. `name`، ۳. `title` | `AMOOT_PATTERN_APPROVAL_REQUEST` |
+| `approval_decision` | <code>درخواست شما %result% شد<br>%title%</code> | ۱. `result`، ۲. `title` | `AMOOT_PATTERN_APPROVAL_DECISION` |
+| `weekly_report` | <code>گزارش هفته آماده است<br>تکمیل به‌موقع: %rate%٪<br>عقب‌افتاده: %overdue%</code> | ۱. `rate`، ۲. `overdue` | `AMOOT_PATTERN_WEEKLY_REPORT` |
+
+`<br>` یعنی خط جدید؛ در پنل Enter بزنید. `٪` در `weekly_report` علامت درصد فارسی
+است و بخشی از متن است، نه متغیر.
 
 > هر متن زیر **۷۰ کاراکتر** نوشته شده، چون پیامک فارسی با UCS-2 می‌رود: ۷۰
 > کاراکتر در یک پیامک و ۶۷ کاراکتر در هر بخش پیامک چندبخشی. یک کاراکتر اضافه،
@@ -1204,7 +1225,7 @@ php artisan queue:work --tries=3
 ## توسعه
 
 ```bash
-php artisan test                   # ۴۰۴ تست
+php artisan test                   # ۴۲۹ تست
 ./vendor/bin/pint                  # قالب‌بندی کد
 php artisan followups:run --dry    # چه پیگیری‌هایی سررسید شده‌اند
 php artisan reports:weekly --workspace=1

@@ -402,7 +402,7 @@ final class PatternMessageFactory
     public static function approvalRequest(): string
     {
         return str_replace(
-            ['{type}', '{name}', '{title}'],
+            ['%type%', '%name%', '%title%'],
             ['مرخصی', 'عبدالرضا', PersianText::truncate(str_repeat('ط', 40), 20)],
             (string) config('sms.patterns.approval_request.preview'),
         );
@@ -411,7 +411,7 @@ final class PatternMessageFactory
     public static function approvalDecision(): string
     {
         return str_replace(
-            ['{result}', '{title}'],
+            ['%result%', '%title%'],
             ['تأیید', PersianText::truncate(str_repeat('ط', 40))],
             (string) config('sms.patterns.approval_decision.preview'),
         );

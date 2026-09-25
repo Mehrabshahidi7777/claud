@@ -101,7 +101,7 @@ final class PatternMessage
     private static function render(string $template, array $tokens): string
     {
         foreach ($tokens as $name => $value) {
-            $template = str_replace('{'.$name.'}', $value, $template);
+            $template = str_replace('%'.$name.'%', $value, $template);
         }
 
         return $template;

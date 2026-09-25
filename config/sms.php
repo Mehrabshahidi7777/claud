@@ -69,6 +69,12 @@ return [
     | order it expects them. `preview` is the approved wording, kept here so
     | the text stays reviewable in code — it is never what gets transmitted.
     |
+    | Amoot writes pattern variables between percent signs (%name%), not
+    | braces, so each preview is exactly the text to paste into the panel.
+    | Values travel as one positional list, which is why `tokens` must list
+    | the variables in the order they appear in the text. SmsPatternRegistryTest
+    | fails the build if either rule is broken.
+    |
     | A Persian SMS is encoded as UCS-2, which means 70 characters in a single
     | message and 67 per part once it splits. Every preview below is written to
     | fit one message at its longest realistic values.
@@ -80,7 +86,7 @@ return [
         'chase' => [
             'code' => env('AMOOT_PATTERN_CHASE'),
             'tokens' => ['name', 'title'],
-            'preview' => "{name}، سررسید: {title}\n۱=انجام شد ۲=تأخیر\nهمین پیامک را پاسخ دهید",
+            'preview' => "%name%، سررسید: %title%\n۱=انجام شد ۲=تأخیر\nهمین پیامک را پاسخ دهید",
         ],
 
         'defer_ask' => [
@@ -92,19 +98,19 @@ return [
         'escalate' => [
             'code' => env('AMOOT_PATTERN_ESCALATE'),
             'tokens' => ['title', 'name', 'hours'],
-            'preview' => "{title}\nمسئول: {name} - بدون پاسخ\nتأخیر: {hours} ساعت",
+            'preview' => "%title%\nمسئول: %name% - بدون پاسخ\nتأخیر: %hours% ساعت",
         ],
 
         'confirm_done' => [
             'code' => env('AMOOT_PATTERN_CONFIRM_DONE'),
             'tokens' => ['name'],
-            'preview' => 'ثبت شد. ممنون {name}',
+            'preview' => 'ثبت شد. ممنون %name%',
         ],
 
         'confirm_defer' => [
             'code' => env('AMOOT_PATTERN_CONFIRM_DEFER'),
             'tokens' => ['date'],
-            'preview' => 'تاریخ جدید ثبت شد: {date}',
+            'preview' => 'تاریخ جدید ثبت شد: %date%',
         ],
 
         'unknown' => [
@@ -116,13 +122,13 @@ return [
         'otp' => [
             'code' => env('AMOOT_PATTERN_OTP'),
             'tokens' => ['code'],
-            'preview' => "کد ورود: {code}\nتا ۲ دقیقه معتبر است",
+            'preview' => "کد ورود: %code%\nتا ۲ دقیقه معتبر است",
         ],
 
         'welcome' => [
             'code' => env('AMOOT_PATTERN_WELCOME'),
             'tokens' => ['name', 'workspace'],
-            'preview' => '{name} عزیز، به {workspace} اضافه شدید',
+            'preview' => '%name% عزیز، به %workspace% اضافه شدید',
         ],
 
         /*
@@ -131,8 +137,8 @@ return [
         */
         'subscription_expiring' => [
             'code' => env('AMOOT_PATTERN_SUBSCRIPTION_EXPIRING'),
-            'tokens' => ['days', 'plan'],
-            'preview' => "اشتراک {plan} تا {days} روز دیگر تمام می‌شود\nبرای تمدید وارد پنل شوید",
+            'tokens' => ['plan', 'days'],
+            'preview' => "اشتراک %plan% تا %days% روز دیگر تمام می‌شود\nبرای تمدید وارد پنل شوید",
         ],
 
         /*
@@ -143,13 +149,13 @@ return [
         'approval_request' => [
             'code' => env('AMOOT_PATTERN_APPROVAL_REQUEST'),
             'tokens' => ['type', 'name', 'title'],
-            'preview' => "درخواست {type} از {name}\n{title}\nمنتظر تأیید شماست",
+            'preview' => "درخواست %type% از %name%\n%title%\nمنتظر تأیید شماست",
         ],
 
         'approval_decision' => [
             'code' => env('AMOOT_PATTERN_APPROVAL_DECISION'),
             'tokens' => ['result', 'title'],
-            'preview' => "درخواست شما {result} شد\n{title}",
+            'preview' => "درخواست شما %result% شد\n%title%",
         ],
 
         /*
@@ -160,7 +166,7 @@ return [
         'weekly_report' => [
             'code' => env('AMOOT_PATTERN_WEEKLY_REPORT'),
             'tokens' => ['rate', 'overdue'],
-            'preview' => "گزارش هفته آماده است\nتکمیل به‌موقع: {rate}٪\nعقب‌افتاده: {overdue}",
+            'preview' => "گزارش هفته آماده است\nتکمیل به‌موقع: %rate%٪\nعقب‌افتاده: %overdue%",
         ],
 
     ],
