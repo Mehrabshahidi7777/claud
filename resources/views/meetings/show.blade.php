@@ -44,7 +44,7 @@
 
     {{-- Drafts, not records. They survive one redirect and nothing is stored
          until the manager confirms an item. --}}
-    @if (! empty($draftActions) && $canManage)
+    @if (! empty($draftActions))
         <div class="mt-4 rounded-2xl border border-emerald-200 bg-white p-5">
             <h2 class="font-medium">اقدام‌های پیشنهادی ({{ count($draftActions) }})</h2>
             <p class="mt-1 text-xs text-slate-500">
@@ -113,12 +113,10 @@
         <div class="flex flex-wrap items-baseline gap-2">
             <h2 class="text-sm font-medium text-slate-500">متن اصلی جلسه</h2>
 
-            @if ($canManage)
-                <form method="POST" action="{{ route('meetings.reparse', $meeting) }}" class="ms-auto">
-                    @csrf
-                    <button class="text-xs text-slate-500 hover:text-slate-900">استخراج دوباره</button>
-                </form>
-            @endif
+            <form method="POST" action="{{ route('meetings.reparse', $meeting) }}" class="ms-auto">
+                @csrf
+                <button class="text-xs text-slate-500 hover:text-slate-900">استخراج دوباره</button>
+            </form>
         </div>
 
         @error('ai')<p class="mt-2 text-xs text-red-600">{{ $message }}</p>@enderror

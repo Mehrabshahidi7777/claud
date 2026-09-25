@@ -66,6 +66,7 @@ class TaskController extends Controller
             'task' => $task->load(['assignee', 'creator', 'meeting', 'followUps.recipient']),
             'members' => $workspace->members()->orderBy('name')->get(),
             'canCancel' => $this->workspace->can(Permission::CancelTasks),
+            'canSeeMeetings' => $this->workspace->can(Permission::ManageMeetings),
 
             'activities' => Activity::where('workspace_id', $workspace->id)
                 ->where('subject_type', $task->getMorphClass())

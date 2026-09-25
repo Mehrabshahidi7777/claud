@@ -109,6 +109,38 @@ class AccessControlTest extends TestCase
         $this->assertDatabaseCount('meetings', 0);
     }
 
+    public function test_meetings_are_read_only_by_the_roles_that_run_them(): void
+    {
+        $lead = $this->join($this->company, WorkspaceRole::Lead);
+        $meeting = Meeting::factory()->for($this->company)->create([
+            'created_by' => $this->owner->id,
+            'title' => 'جلسه‌ی قیمت‌گذاری قرارداد الهیه',
+        ]);
+
+        $this->actingAs($this->member)->get(route('meetings.index'))->assertForbidden();
+        $this->actingAs($this->member)->get(route('meetings.show', $meeting))->assertForbidden();
+
+        $this->actingAs($lead)->get(route('meetings.index'))->assertOk();
+        $this->actingAs($this->owner)->get(route('meetings.show', $meeting))->assertOk();
+    }
+
+    public function test_a_task_from_a_meeting_does_not_reveal_the_meeting_to_its_assignee(): void
+    {
+        $meeting = Meeting::factory()->for($this->company)->create([
+            'created_by' => $this->owner->id,
+            'title' => 'جلسه‌ی قیمت‌گذاری قرارداد الهیه',
+        ]);
+
+        $task = $this->taskFor($this->company, $this->member, 'ارسال پیش‌فاکتور');
+        $task->update(['meeting_id' => $meeting->id]);
+
+        $this->actingAs($this->member)->get(route('tasks.show', $task))
+            ->assertOk()
+            ->assertDontSee($meeting->title);
+
+        $this->actingAs($this->owner)->get(route('tasks.show', $task))->assertSee($meeting->title);
+    }
+
     public function test_re_extracting_a_meeting_counts_against_the_daily_ai_allowance(): void
     {
         config(['ai.daily_parse_limit' => 1]);

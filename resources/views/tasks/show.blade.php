@@ -67,8 +67,9 @@
             @endif
 
             {{-- Where it came from. Months later this is the answer to "این از
-                 کجا آمد" that would otherwise need someone's memory. --}}
-            @if ($task->meeting)
+                 کجا آمد" that would otherwise need someone's memory. Only for
+                 those who may read meetings: the title alone can say too much. --}}
+            @if ($task->meeting && $canSeeMeetings)
                 <p class="mt-3 text-sm">
                     <span class="text-slate-500">از جلسه:</span>
                     <a href="{{ route('meetings.show', $task->meeting) }}"

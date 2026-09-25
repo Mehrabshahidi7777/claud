@@ -105,7 +105,7 @@
                     <a href="{{ route('contracts.index') }}" class="{{ $tab($starts('contracts')) }}">قراردادها</a>
                 @endif
 
-                @if ($workspace->has('meetings'))
+                @if ($workspace->has('meetings') && $allowed(App\Enums\Permission::ManageMeetings))
                     <a href="{{ route('meetings.index') }}" class="{{ $tab($starts('meetings')) }}">جلسات</a>
                 @endif
 

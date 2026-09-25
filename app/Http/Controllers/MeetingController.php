@@ -25,13 +25,19 @@ class MeetingController extends Controller
         private readonly FollowUpScheduler $scheduler,
     ) {}
 
+    /**
+     * Meetings are management's record: what was said about a customer, a
+     * price, a person. Only the roles that run them read them; everybody
+     * else meets the outcome as a task assigned to them.
+     */
     public function index()
     {
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
+
         $workspace = $this->workspace->get();
 
         return view('meetings.index', [
             'workspace' => $workspace,
-            'canManage' => $this->workspace->can(Permission::ManageMeetings),
             'meetings' => Meeting::where('workspace_id', $workspace->id)
                 ->withCount('tasks')
                 ->latest('held_at')
@@ -95,10 +101,10 @@ class MeetingController extends Controller
     public function show(Request $request, Meeting $meeting)
     {
         abort_unless($meeting->workspace_id === $this->workspace->get()->id, 404);
+        abort_unless($this->workspace->can(Permission::ManageMeetings), 403);
 
         return view('meetings.show', [
             'workspace' => $meeting->workspace,
-            'canManage' => $this->workspace->can(Permission::ManageMeetings),
             'meeting' => $meeting->load('tasks.assignee', 'creator'),
 
             // Drafts survive exactly one redirect. They are a proposal, not a
