@@ -117,6 +117,20 @@ class InboundSmsTest extends TestCase
         $this->assertNotSame(TaskStatus::Deferred, $task->fresh()->status);
     }
 
+    public function test_the_example_date_in_the_question_is_itself_a_valid_answer(): void
+    {
+        [$task, $user] = $this->chasedTask();
+
+        app(InboundProcessor::class)->process($user->phone, '2', 'msg-1');
+
+        $question = collect($this->sms->sent)->last(fn ($message) => $message->key === 'defer_ask');
+
+        // Someone who copies the example exactly must not be told "متوجه نشدم".
+        app(InboundProcessor::class)->process($user->phone, $question->tokens['example'], 'msg-2');
+
+        $this->assertSame(TaskStatus::Deferred, $task->fresh()->status);
+    }
+
     public function test_sending_a_jalali_date_defers_the_task_to_it(): void
     {
         [$task, $user] = $this->chasedTask();

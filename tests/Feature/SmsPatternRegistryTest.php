@@ -44,6 +44,12 @@ class SmsPatternRegistryTest extends TestCase
         );
     }
 
+    #[DataProvider('patternKeys')]
+    public function test_every_pattern_has_a_variable_because_amoot_refuses_one_without(string $key): void
+    {
+        $this->assertNotEmpty(config("sms.patterns.$key.tokens"), "[$key] has no variable; the panel will not register it.");
+    }
+
     public function test_a_rendered_message_has_no_variables_left_in_it(): void
     {
         $message = PatternMessage::make('989121110001', 'subscription_expiring', [

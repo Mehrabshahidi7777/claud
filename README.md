@@ -354,16 +354,17 @@ DB_PASSWORD=
 > مقادیر به‌صورت **یک فهرست ترتیبی** فرستاده می‌شوند، پس ترتیب متغیرها در متن پنل
 > باید همان ترتیب ستون سوم باشد. اگر پنل متنی را اصلاح خواست، کلمات را عوض کنید
 > ولی متغیرها و ترتیبشان را نه؛ متن نهایی را در `config/sms.php` هم بگذارید.
-> `SmsPatternRegistryTest` اگر آکولاد یا ترتیب اشتباه ببیند، تست را قرمز می‌کند.
+> آموت پترن **بدون متغیر** را ثبت نمی‌کند؛ برای همین همه‌ی پترن‌ها دست‌کم یک متغیر دارند.
+> `SmsPatternRegistryTest` اگر آکولاد، ترتیب اشتباه یا پترن بی‌متغیر ببیند، تست را قرمز می‌کند.
 
 | پترن | متن برای پنل | ترتیب متغیرها | کد در ‎.env |
 | --- | --- | --- | --- |
 | `chase` | <code>%name%، سررسید: %title%<br>۱=انجام شد ۲=تأخیر<br>همین پیامک را پاسخ دهید</code> | ۱. `name`، ۲. `title` | `AMOOT_PATTERN_CHASE` |
-| `defer_ask` | <code>تاریخ جدید را بفرستید<br>مثال: 1404/07/15</code> | — | `AMOOT_PATTERN_DEFER_ASK` |
+| `defer_ask` | <code>%name%، تاریخ جدید را بفرستید<br>مثال: %example%</code> | ۱. `name`، ۲. `example` | `AMOOT_PATTERN_DEFER_ASK` |
 | `escalate` | <code>%title%<br>مسئول: %name% - بدون پاسخ<br>تأخیر: %hours% ساعت</code> | ۱. `title`، ۲. `name`، ۳. `hours` | `AMOOT_PATTERN_ESCALATE` |
 | `confirm_done` | <code>ثبت شد. ممنون %name%</code> | ۱. `name` | `AMOOT_PATTERN_CONFIRM_DONE` |
 | `confirm_defer` | <code>تاریخ جدید ثبت شد: %date%</code> | ۱. `date` | `AMOOT_PATTERN_CONFIRM_DEFER` |
-| `unknown` | <code>متوجه نشدم. ۱=انجام شد ۲=تأخیر</code> | — | `AMOOT_PATTERN_UNKNOWN` |
+| `unknown` | <code>%name%، متوجه نشدم. ۱=انجام شد ۲=تأخیر</code> | ۱. `name` | `AMOOT_PATTERN_UNKNOWN` |
 | `otp` | <code>کد ورود: %code%<br>تا ۲ دقیقه معتبر است</code> | ۱. `code` | `AMOOT_PATTERN_OTP` |
 | `welcome` | <code>%name% عزیز، به %workspace% اضافه شدید</code> | ۱. `name`، ۲. `workspace` | `AMOOT_PATTERN_WELCOME` |
 | `subscription_expiring` | <code>اشتراک %plan% تا %days% روز دیگر تمام می‌شود<br>برای تمدید وارد پنل شوید</code> | ۱. `plan`، ۲. `days` | `AMOOT_PATTERN_SUBSCRIPTION_EXPIRING` |
@@ -1259,7 +1260,7 @@ php artisan queue:work --tries=3
 ## توسعه
 
 ```bash
-php artisan test                   # ۴۵۸ تست
+php artisan test                   # ۴۷۱ تست
 ./vendor/bin/pint                  # قالب‌بندی کد
 php artisan followups:run --dry    # چه پیگیری‌هایی سررسید شده‌اند
 php artisan reports:weekly --workspace=1

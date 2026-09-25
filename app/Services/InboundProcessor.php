@@ -133,7 +133,10 @@ class InboundProcessor
 
     private function askForDate(SmsInbound $record, User $user): SmsInbound
     {
-        $this->reply($user, 'defer_ask');
+        $this->reply($user, 'defer_ask', [
+            'name' => $user->firstName(),
+            'example' => JalaliDate::format(CarbonImmutable::now()->addDays(3)),
+        ]);
 
         // Not applied yet: the deferral only counts once a date arrives. A
         // task never enters `deferred` without one.
@@ -196,7 +199,7 @@ class InboundProcessor
 
     private function clarify(SmsInbound $record, User $user): SmsInbound
     {
-        $this->reply($user, 'unknown');
+        $this->reply($user, 'unknown', ['name' => $user->firstName()]);
 
         return tap($record)->update(['ignored_reason' => 'not_understood']);
     }

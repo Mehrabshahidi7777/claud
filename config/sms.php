@@ -89,10 +89,15 @@ return [
             'preview' => "%name%، سررسید: %title%\n۱=انجام شد ۲=تأخیر\nهمین پیامک را پاسخ دهید",
         ],
 
+        /*
+        | Amoot refuses a pattern with no variable at all, so the two replies
+        | that used to be fixed text carry the person's name — and the example
+        | date is a real one a few days out, which also never goes stale.
+        */
         'defer_ask' => [
             'code' => env('AMOOT_PATTERN_DEFER_ASK'),
-            'tokens' => [],
-            'preview' => "تاریخ جدید را بفرستید\nمثال: 1404/07/15",
+            'tokens' => ['name', 'example'],
+            'preview' => "%name%، تاریخ جدید را بفرستید\nمثال: %example%",
         ],
 
         'escalate' => [
@@ -115,8 +120,8 @@ return [
 
         'unknown' => [
             'code' => env('AMOOT_PATTERN_UNKNOWN'),
-            'tokens' => [],
-            'preview' => 'متوجه نشدم. ۱=انجام شد ۲=تأخیر',
+            'tokens' => ['name'],
+            'preview' => '%name%، متوجه نشدم. ۱=انجام شد ۲=تأخیر',
         ],
 
         'otp' => [
