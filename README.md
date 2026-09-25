@@ -201,6 +201,10 @@
 
 ## راه‌اندازی سریع
 
+**راهنمای قدم‌به‌قدم ویندوز با Git Bash (PHP، SQLite، دیتای نمونه، اولاما):
+[`docs/local/README.md`](docs/local/README.md)** · برای سرور مجازی:
+[`docs/deploy/README.md`](docs/deploy/README.md)
+
 **پیش‌نیازها:** PHP 8.4، Composer، MySQL 8، Node 20 به بالا.
 
 ```bash
