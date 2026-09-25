@@ -40,6 +40,25 @@ class AmootSmsDriverTest extends TestCase
             && $request['Token'] === 'token');
     }
 
+    public function test_a_full_address_from_the_panel_is_used_as_it_is(): void
+    {
+        config(['sms.patterns.otp.code' => '77']);
+        Http::fake(['*' => Http::response(['Status' => 'Success'])]);
+
+        $driver = new AmootSmsDriver(Http::getFacadeRoot(), [
+            'base_url' => 'https://portal.amootsms.com/rest',
+            'token' => 'token',
+            'line_number' => '',
+            'endpoints' => ['send_pattern' => 'https://api.example.ir/v2/pattern/send'],
+        ]);
+
+        $driver->send(PatternMessage::make('989121110001', 'otp', ['code' => '12345']));
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.example.ir/v2/pattern/send'
+            && ! $request->hasHeader('LineNumber')
+            && ! array_key_exists('LineNumber', $request->data()));
+    }
+
     private function sendChase(string $title): void
     {
         config(['sms.patterns.chase.code' => '1234']);

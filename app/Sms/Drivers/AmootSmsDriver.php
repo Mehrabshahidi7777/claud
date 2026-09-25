@@ -94,9 +94,8 @@ class AmootSmsDriver implements SmsDriver
             'Mobile' => $message->phone,
             'PatternCodeID' => $message->code,
             'PatternValues' => implode(',', $values),
-            'SendDateTime' => '',
             'LineNumber' => $this->config['line_number'] ?? null,
-        ], static fn ($value) => $value !== null);
+        ], static fn ($value) => $value !== null && $value !== '');
     }
 
     /**

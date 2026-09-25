@@ -46,9 +46,12 @@ return [
         'line_number' => env('AMOOT_LINE_NUMBER'),
         'timeout_seconds' => env('AMOOT_TIMEOUT', 15),
 
+        // A method name is appended to base_url; a full https:// address is
+        // used as it stands, so the exact link from the panel's own API page
+        // can be pasted in without touching code.
         'endpoints' => [
-            'send_pattern' => 'SendWithPattern',
-            'credit' => 'CreditRemain',
+            'send_pattern' => env('AMOOT_SEND_PATTERN_URL', 'SendWithPattern'),
+            'credit' => env('AMOOT_CREDIT_URL', 'CreditRemain'),
         ],
 
         /*

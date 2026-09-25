@@ -525,11 +525,29 @@ https://peygir.ir/api/webhooks/sms/amoot/x7k2?secret=رمزی-که-ساختید
 ```ini
 SMS_DRIVER=amoot
 AMOOT_TOKEN=توکن-API-از-پنل
-AMOOT_LINE_NUMBER=شماره-خط-اختصاصی
+AMOOT_LINE_NUMBER=شماره-خط-دقیقاً-مثل-پنل
 AMOOT_INBOUND_SECRET=رمزی-که-ساختید
 AMOOT_PATTERN_OTP=کد-پترن
 # بقیه‌ی AMOOT_PATTERN_... هم هر وقت تأیید شدند
 LOG_LEVEL=warning
+```
+
+**شماره‌ی خط:** دقیقاً همان‌طور که در پنل آموت نوشته شده، بدون فاصله و بدون `+`؛
+مثلاً اگر با `98` شروع می‌شود، با همان `98` بنویسید. اگر پنل برای ارسال پترنی
+شماره‌ی خط نمی‌خواهد، خالی بگذارید؛ آن‌وقت اصلاً فرستاده نمی‌شود.
+
+**آدرس ارسال پترن:** سامانه به این آدرس وصل می‌شود:
+
+```text
+https://portal.amootsms.com/rest/SendWithPattern
+```
+
+آن را با صفحه‌ی **مستندات وب‌سرویس** در پنل آموت مقایسه کنید. اگر آدرس یا نام متد
+فرق دارد، **آدرس کامل** همان صفحه را در `.env` بگذارید؛ کد لازم نیست عوض شود:
+
+```ini
+AMOOT_SEND_PATTERN_URL=https://آدرس-کامل-ارسال-پترن-از-مستندات
+AMOOT_CREDIT_URL=https://آدرس-کامل-استعلام-اعتبار-از-مستندات
 ```
 
 ### د) اعمال و بررسی
@@ -664,7 +682,8 @@ su - peygir -c "cd /var/www/peygir && SKIP_ASSETS=1 bash docs/deploy/deploy.sh"
 | **دامنه** | آدرس سایت | `APP_URL=https://peygir.ir` |
 | **MySQL** (بخش ۳) | رمز دیتابیس | `DB_PASSWORD` |
 | **پنل آموت** | توکن API | `AMOOT_TOKEN` |
-| | شماره‌ی خط اختصاصی | `AMOOT_LINE_NUMBER` |
+| | شماره‌ی خط اختصاصی، دقیقاً مثل پنل (مثلاً با `98`) | `AMOOT_LINE_NUMBER` |
+| | آدرس ارسال پترن، اگر با پیش‌فرض فرق دارد | `AMOOT_SEND_PATTERN_URL` |
 | | کد ۱۲ پترن (بخش ۱۰) | `AMOOT_PATTERN_OTP` … `AMOOT_PATTERN_APPROVAL_DECISION` |
 | **خودتان می‌سازید** | رمز وب‌هوک | `AMOOT_INBOUND_SECRET` |
 | **بانک سامان** | شماره‌ی ترمینال | `SEP_TERMINAL_ID` |
