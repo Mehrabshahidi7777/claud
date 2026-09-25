@@ -78,6 +78,9 @@
                  household is never shown the receivables page it does not
                  have. The routes behind them answer 404 too — a hidden link
                  is still a URL somebody eventually types. --}}
+            {{-- No workspace yet (finishing sign-up, or the platform owner) means no
+                 modules to link to; the header keeps only the name and sign-out. --}}
+            @isset($workspace)
             <nav class="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1 text-sm
                         [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 @php
@@ -159,6 +162,9 @@
                     @endif
                 </a>
             </nav>
+            @else
+                <span class="flex-1"></span>
+            @endisset
 
             @if (auth()->user()->isPlatformAdmin())
                 <a href="{{ route('admin.dashboard') }}"
