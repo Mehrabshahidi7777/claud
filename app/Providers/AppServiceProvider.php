@@ -107,7 +107,7 @@ class AppServiceProvider extends ServiceProvider
      */
     private function subscriptionHasLapsed(): bool
     {
-        if (! Auth::check()) {
+        if (! Auth::check() || ! app(BillingService::class)->enabled()) {
             return false;
         }
 

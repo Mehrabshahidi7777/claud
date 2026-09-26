@@ -93,7 +93,9 @@ class SendGate
         //    the provider, so an expired workspace must not keep spending it.
         //    Grace still counts — a week of goodwill is cheaper than the churn
         //    that cutting someone off mid-week causes.
-        if (! app(BillingService::class)->currentSubscription($workspace)?->grantsAccess()) {
+        $billing = app(BillingService::class);
+
+        if ($billing->enabled() && ! $billing->currentSubscription($workspace)?->grantsAccess()) {
             return $this->skip('subscription_expired');
         }
 

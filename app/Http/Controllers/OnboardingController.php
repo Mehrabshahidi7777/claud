@@ -78,7 +78,14 @@ class OnboardingController extends Controller
             // The trial starts here rather than at the first payment. Without
             // it a brand new customer meets the paywall before they have seen
             // the product work once.
-            $this->billing->startTrial($workspace);
+            // Free: the workspace simply gets its SMS allowance. Paid: the
+            // trial starts here rather than at the first payment, so a new
+            // customer sees the product work before meeting a paywall.
+            if ($this->billing->enabled()) {
+                $this->billing->startTrial($workspace);
+            } else {
+                $this->billing->assignSmsAllowance($workspace);
+            }
 
             // After the trial exists, so the referral days extend it.
             $this->referrals->attach($workspace, $referralCode);

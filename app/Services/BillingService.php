@@ -22,6 +22,30 @@ use InvalidArgumentException;
 class BillingService
 {
     /**
+     * Whether پیگیر charges at all. Everything that would ask for money, or
+     * stop work for want of it, asks this first.
+     */
+    public function enabled(): bool
+    {
+        return (bool) config('payment.enabled');
+    }
+
+    /**
+     * A new workspace's monthly SMS allowance, from the plan its type maps to.
+     * Free or paid, every SMS is real money at the provider, so the allowance
+     * is the one limit that stays.
+     */
+    public function assignSmsAllowance(Workspace $workspace, ?string $planKey = null): void
+    {
+        $planKey ??= $workspace->type->planKey();
+
+        $workspace->forceFill([
+            'sms_quota' => (int) config("payment.plans.$planKey.included_sms", $workspace->sms_quota),
+            'sms_period_started_at' => $workspace->sms_period_started_at ?? now(),
+        ])->save();
+    }
+
+    /**
      * What a term costs, in Rial, broken out the way an invoice needs it.
      *
      * @return array{plan_key: string, seats: int, term: string, subtotal: int, vat: int, total: int, vat_percent: int, months: int}
@@ -278,12 +302,8 @@ class BillingService
         $planKey ??= $workspace->type->planKey();
 
         // A trial sends what the plan it is trying would send, so the first
-        // invoice holds no surprise about how many reminders go out. Usage is
-        // left as it is: a trial starts on a brand new workspace.
-        $workspace->forceFill([
-            'sms_quota' => (int) config("payment.plans.$planKey.included_sms", $workspace->sms_quota),
-            'sms_period_started_at' => $workspace->sms_period_started_at ?? now(),
-        ])->save();
+        // invoice holds no surprise about how many reminders go out.
+        $this->assignSmsAllowance($workspace, $planKey);
 
         return Subscription::create([
             'workspace_id' => $workspace->id,

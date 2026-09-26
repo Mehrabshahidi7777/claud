@@ -26,11 +26,12 @@ class ResetSmsAllowance extends Command
         $reset = 0;
 
         Workspace::query()
-            ->whereHas('subscriptions', fn ($query) => $query->whereIn('status', [
+            // Free, every workspace is live. Paid, only a subscribed one.
+            ->when(config('payment.enabled'), fn ($query) => $query->whereHas('subscriptions', fn ($query) => $query->whereIn('status', [
                 SubscriptionStatus::Trialing->value,
                 SubscriptionStatus::Active->value,
                 SubscriptionStatus::Grace->value,
-            ]))
+            ])))
             ->where(function ($query) {
                 $cutoff = now()->subMonth();
 

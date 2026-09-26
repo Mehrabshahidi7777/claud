@@ -27,7 +27,7 @@ class EnsureSubscriptionAllowsWrites
     {
         // Reading is always allowed, and so is anything under billing — the
         // page that takes the payment cannot be behind the paywall.
-        if ($request->isMethod('GET') || $request->routeIs('billing.*', 'logout')) {
+        if (! $this->billing->enabled() || $request->isMethod('GET') || $request->routeIs('billing.*', 'logout')) {
             return $next($request);
         }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureBillingEnabled;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use App\Http\Middleware\EnsureSubscriptionAllowsWrites;
 use App\Http\Middleware\EnsureUserHasWorkspace;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'subscribed' => EnsureSubscriptionAllowsWrites::class,
+            'billing' => EnsureBillingEnabled::class,
             'module' => EnsureWorkspaceHasModule::class,
             'platform-admin' => EnsurePlatformAdmin::class,
             'has-workspace' => EnsureUserHasWorkspace::class,

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'معرفی به دوستان')
+@section('title', 'دعوت از دوستان')
 
 @section('content')
 
@@ -8,16 +8,25 @@
     use App\Support\JalaliDate;
     use Carbon\CarbonImmutable;
 
-    $shareText = "من کارهایم را با ".config('brand.name')." پیگیری می‌کنم. با این لینک ".($trialDays + $bonusDays)." روز رایگان امتحانش کن:";
+    $isPaid = (bool) config('payment.enabled');
+
+    $shareText = $isPaid
+        ? "من کارهایم را با ".config('brand.name')." پیگیری می‌کنم. با این لینک ".($trialDays + $bonusDays)." روز رایگان امتحانش کن:"
+        : "من کارهایم را با ".config('brand.name')." پیگیری می‌کنم؛ رایگان است. تو هم امتحانش کن:";
 @endphp
 
 <div class="mx-auto max-w-2xl">
 
-    <h1 class="text-lg font-bold">معرفی به دوستان</h1>
+    <h1 class="text-lg font-bold">دعوت از دوستان</h1>
     <p class="mt-1 text-sm text-slate-600">
-        لینک زیر را برای آشنایانتان بفرستید؛ هر دو طرف هدیه می‌گیرید.
+        @if ($isPaid)
+            لینک زیر را برای آشنایانتان بفرستید؛ هر دو طرف هدیه می‌گیرید.
+        @else
+            {{ config('brand.name') }} برای همه رایگان است. لینک زیر را برای آشنایانتان بفرستید تا آن‌ها هم کارهایشان را با آن پیگیری کنند.
+        @endif
     </p>
 
+    @if ($isPaid)
     <div class="mt-4 grid gap-3 sm:grid-cols-2">
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <p class="text-xs text-slate-500">دوستتان</p>
@@ -30,6 +39,7 @@
             <p class="mt-1 text-xs text-slate-500">وقتی دوستتان اولین اشتراکش را خرید.</p>
         </div>
     </div>
+    @endif
 
     {{-- Copy and share are wired in app.js; without JavaScript the link is
          still there to select by hand. --}}
@@ -73,7 +83,9 @@
                         <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{{ $newcomer->type->label() }}</span>
                         <span class="tabular text-xs text-slate-400">{{ JalaliDate::format(CarbonImmutable::parse($newcomer->created_at)) }}</span>
 
-                        @if ($newcomer->referral_rewarded_at)
+                        @if (! $isPaid)
+                            <span class="ms-auto text-xs text-emerald-700">ثبت‌نام کرد</span>
+                        @elseif ($newcomer->referral_rewarded_at)
                             <span class="ms-auto rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-800">
                                 خرید کرد · {{ $bonusDays }} روز هدیه گرفتید
                             </span>

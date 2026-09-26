@@ -127,11 +127,13 @@ Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
     Route::patch('members/{member}', [MemberController::class, 'update'])->name('members.update');
     Route::post('members/{member}/resume-sms', [MemberController::class, 'resumeSms'])->name('members.resume-sms');
 
-    Route::get('billing', [BillingController::class, 'index'])->name('billing.index');
-    Route::post('billing', [BillingController::class, 'store'])->name('billing.store');
-    Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
-    Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
-    Route::post('billing/seats', [BillingController::class, 'seats'])->name('billing.seats');
+    Route::middleware('billing')->group(function () {
+        Route::get('billing', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('billing', [BillingController::class, 'store'])->name('billing.store');
+        Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
+        Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
+        Route::post('billing/seats', [BillingController::class, 'seats'])->name('billing.seats');
+    });
     Route::get('referrals', [ReferralController::class, 'index'])->name('referrals.index');
 
     Route::middleware('module:meetings')->group(function () {

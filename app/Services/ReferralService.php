@@ -77,7 +77,11 @@ class ReferralService
 
         $newcomer->forceFill(['referred_by_workspace_id' => $referrer->id])->save();
 
-        $this->billing->grantDays($newcomer, $this->bonusDays());
+        // Free, there are no days to give; the link still records who
+        // brought whom, which is what the platform panel shows.
+        if ($this->billing->enabled()) {
+            $this->billing->grantDays($newcomer, $this->bonusDays());
+        }
 
         return true;
     }

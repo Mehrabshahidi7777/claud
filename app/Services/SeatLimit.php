@@ -30,6 +30,11 @@ class SeatLimit
 
     public function limit(Workspace $workspace): int
     {
+        // Free: nobody pays per person, so the only ceiling is the safety one.
+        if (! $this->billing->enabled()) {
+            return (int) config('payment.free_member_ceiling', 500);
+        }
+
         $planKey = $this->planKey($workspace);
         $planMax = (int) config("payment.plans.$planKey.max_seats", PHP_INT_MAX);
 
@@ -53,6 +58,10 @@ class SeatLimit
      */
     public function canBuyMore(Workspace $workspace): bool
     {
+        if (! $this->billing->enabled()) {
+            return false;
+        }
+
         $planKey = $this->planKey($workspace);
 
         return $this->paidSubscription($workspace) !== null
@@ -66,6 +75,10 @@ class SeatLimit
     public function refusal(Workspace $workspace): string
     {
         $limit = $this->limit($workspace);
+
+        if (! $this->billing->enabled()) {
+            return "هر فضای کاری حداکثر {$limit} نفر عضو می‌تواند داشته باشد.";
+        }
 
         return $this->canBuyMore($workspace)
             ? "اشتراک شما برای {$limit} نفر است و ظرفیتش پر شده. از پایین همین صفحه ظرفیت را افزایش دهید."

@@ -142,6 +142,7 @@
     <aside class="space-y-4">
         @php $isFull = $seatsUsed >= $seatLimit; @endphp
 
+        @if (config('payment.enabled') || $isFull)
         {{-- How many people this workspace holds. The company pays for all of
              them; nobody here pays for themselves. --}}
         <div class="rounded-2xl border {{ $isFull ? 'border-amber-300' : 'border-slate-200' }} bg-white p-4">
@@ -162,6 +163,7 @@
                 </p>
             @endif
         </div>
+        @endif
 
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">افزودن عضو</h2>

@@ -9,7 +9,7 @@
         نام خودتان، و اینکه اینجا قرار است چه چیزی را جمع کند.
     </p>
 
-    @if ($referralBonusDays > 0)
+    @if ($referralBonusDays > 0 && config('payment.enabled'))
         <p class="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
             با معرفی دوستتان آمده‌اید؛ {{ $referralBonusDays }} روز به دوره‌ی رایگانتان اضافه می‌شود.
         </p>

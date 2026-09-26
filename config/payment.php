@@ -92,6 +92,22 @@ return [
     'trial_days' => env('SUBSCRIPTION_TRIAL_DAYS', 15),
 
     /*
+    |--------------------------------------------------------------------------
+    | Charging at all
+    |--------------------------------------------------------------------------
+    |
+    | Off: پیگیر is free for everyone and paid for by sponsors. No trial, no
+    | paywall, no renewal texts, no limit on people beyond the safety ceiling
+    | below. The billing code stays in place, switched off, so charging can
+    | return with one line in .env rather than a rewrite.
+    |
+    */
+
+    'enabled' => (bool) env('BILLING_ENABLED', false),
+
+    'free_member_ceiling' => (int) env('FREE_MEMBER_CEILING', 500),
+
+    /*
     | Days each side gets for a referral. The newcomer gets them at sign-up;
     | the referrer only once the newcomer has paid, so a spare SIM card buys
     | nobody free months.

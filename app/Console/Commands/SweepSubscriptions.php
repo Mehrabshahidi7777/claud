@@ -22,6 +22,14 @@ class SweepSubscriptions extends Command
      */
     public function handle(SmsDriver $sms): int
     {
+        // Free: nothing expires, and a "your subscription ends in three
+        // days" text would be both wrong and a paid SMS.
+        if (! config('payment.enabled')) {
+            $this->info('Billing is off; nothing to sweep.');
+
+            return self::SUCCESS;
+        }
+
         $reminded = $this->remind($sms);
         $moved = $this->moveLapsed();
 

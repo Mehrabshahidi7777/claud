@@ -60,8 +60,8 @@
             ['members.index', $workspace->type->memberWord(), 'members', $current === 'members.index',
                 $workspace->has('members') && $allowed(Permission::ManageMembers)],
             ['billing.index', 'صورتحساب و اشتراک', 'billing', $starts('billing'),
-                $workspace->has('billing') && $allowed(Permission::ManageBilling)],
-            ['referrals.index', 'معرفی به دوستان', 'gift', $current === 'referrals.index',
+                config('payment.enabled') && $workspace->has('billing') && $allowed(Permission::ManageBilling)],
+            ['referrals.index', 'دعوت از دوستان', 'gift', $current === 'referrals.index',
                 $workspace->has('billing') && $allowed(Permission::ManageBilling)],
         ],
     ];
