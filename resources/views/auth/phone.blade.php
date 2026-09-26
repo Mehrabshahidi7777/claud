@@ -55,10 +55,15 @@
     {{-- The sign-in screen is the one page a prospect sees before they have
          any reason to care, so it carries the name and the promise. The form
          stays near the top: most visits are people coming back. --}}
-    <p class="flex items-center gap-2 text-sm font-medium text-slate-900">
+    <div class="flex items-center gap-2">
         <img src="/icons/logo.svg" alt="" class="size-10" width="40" height="40">
-        {{ config('brand.name') }}
-    </p>
+        <span class="text-sm font-medium text-slate-900">{{ config('brand.name') }}</span>
+
+        <button type="button" data-welcome-open
+                class="ms-auto hidden rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+            پیگیر چیست؟
+        </button>
+    </div>
     <h1 class="mt-3 text-xl font-bold">{{ config('brand.slogan') }}</h1>
 
     <p class="mt-3 inline-flex rounded-xl bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
@@ -108,11 +113,33 @@
     @endunless
 </div>
 
+{{-- What it is, in three steps, before any prices. Short on purpose: a
+     visitor should get it from the headings alone. --}}
+<section class="mx-auto mt-12 max-w-4xl">
+    <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none md:text-center">پیگیر چطور کار می‌کند؟</h2>
+
+    <ol class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
+        @foreach ([
+            ['کار را ثبت کنید', 'چه کاری، به عهده‌ی چه کسی، تا کی. یک جمله کافی است.'],
+            ['پیگیر پیگیری می‌کند', 'سر موعد به آن آدم پیامک می‌زند؛ لازم نیست برنامه‌ای نصب کند.'],
+            ['کار بسته می‌شود', 'با فرستادن «۱» کار تمام‌شده ثبت می‌شود و شما خبردار می‌شوید.'],
+        ] as $index => [$title, $text])
+            <li class="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+                <span class="tabular grid size-8 shrink-0 place-items-center rounded-full bg-brand-50 text-sm font-bold text-brand-700">{{ $index + 1 }}</span>
+                <div>
+                    <p class="font-medium">{{ $title }}</p>
+                    <p class="mt-1 text-sm text-slate-600">{{ $text }}</p>
+                </div>
+            </li>
+        @endforeach
+    </ol>
+</section>
+
 {{-- The three plans as cards to swipe through. Wider than the form so the
      next card peeks in from the edge, which is what tells a thumb it can
      swipe. Native scroll snapping: no library, and it still works as a plain
      scrolling row with JavaScript off. --}}
-<section class="mx-auto mt-10 max-w-4xl" data-plan-cards>
+<section class="mx-auto mt-12 max-w-4xl" data-plan-cards>
     <h2 class="mx-auto max-w-sm text-base font-bold">سه پلن، برای سه جور کار</h2>
     <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600">
         بعد از ورود یکی را انتخاب می‌کنید.<span class="md:hidden"> کارت‌ها را بکشید تا بقیه را ببینید.</span>
@@ -152,4 +179,73 @@
         @endforeach
     </div>
 </section>
+{{-- The first-visit welcome, the way an installed app greets you: three
+     short slides, then the login page. Hidden in the markup and opened by
+     app.js, so without JavaScript (or for a returning visitor) the page is
+     simply the page. --}}
+<div class="fixed inset-0 z-50 hidden" data-welcome
+     role="dialog" aria-modal="true" aria-label="معرفی {{ config('brand.name') }}">
+  <div class="flex h-full items-center justify-center bg-slate-900/40 md:p-6">
+    <div class="flex h-full w-full flex-col bg-white outline-none md:h-auto md:max-w-md md:rounded-3xl md:shadow-xl" tabindex="-1" data-welcome-panel>
+        <div class="flex items-center justify-between px-5 pt-5">
+            <img src="/icons/logo.svg" alt="" class="size-8" width="32" height="32">
+            <button type="button" data-welcome-close class="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100">رد شدن</button>
+        </div>
+
+        <div class="flex flex-1 snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-welcome-track>
+
+            <section class="flex w-full shrink-0 snap-center flex-col justify-center px-8 py-6 text-center" data-welcome-slide>
+                <img src="/icons/logo.svg" alt="" class="mx-auto size-24" width="96" height="96">
+                <h2 class="mt-8 text-2xl font-bold">{{ config('brand.slogan') }}</h2>
+                <p class="mt-3 leading-7 text-slate-600">
+                    پیگیر کارهایی را که به دیگران سپرده‌اید دنبال می‌کند تا انجام شوند؛
+                    بدون زنگ زدن، بدون «چی شد؟» پرسیدن.
+                </p>
+            </section>
+
+            <section class="flex w-full shrink-0 snap-center flex-col justify-center px-8 py-6" data-welcome-slide>
+                <div class="mx-auto w-full max-w-72 space-y-2 rounded-3xl bg-slate-100 p-4 text-sm">
+                    <p class="max-w-[85%] rounded-2xl rounded-ss-sm bg-white px-3 py-2 leading-6 shadow-sm">
+                        «تمدید بیمه‌ی ماشین» فردا سررسید است. انجام شد؟ عدد ۱ را بفرستید.
+                    </p>
+                    <p class="ms-auto w-fit rounded-2xl rounded-se-sm bg-brand-600 px-4 py-2 font-medium text-white">۱</p>
+                    <p class="text-center text-xs text-emerald-700">✓ کار بسته شد و به شما خبر رسید</p>
+                </div>
+                <h2 class="mt-8 text-center text-2xl font-bold">با یک پیامک</h2>
+                <p class="mt-3 text-center leading-7 text-slate-600">
+                    طرف مقابل لازم نیست برنامه‌ای نصب کند. یادآوری را پیامک می‌گیرد و
+                    با یک عدد جواب می‌دهد.
+                </p>
+            </section>
+
+            <section class="flex w-full shrink-0 snap-center flex-col justify-center px-8 py-6 text-center" data-welcome-slide>
+                <div class="mx-auto flex flex-wrap justify-center gap-2 text-sm">
+                    @foreach (\App\Enums\WorkspaceType::cases() as $type)
+                        <span class="rounded-full border border-slate-200 px-4 py-2 font-medium">{{ $type->label() }}</span>
+                    @endforeach
+                </div>
+                <h2 class="mt-8 text-2xl font-bold">برای کار، خانه و دوستان</h2>
+                <p class="mt-3 leading-7 text-slate-600">
+                    کارهای شرکت، قبض‌ها و سرویس‌های خانه، یا خرج مشترک سفر با دوستان.
+                </p>
+                <p class="mx-auto mt-5 w-fit rounded-xl bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
+                    {{ $freeDays }} روز رایگان، بدون پرداخت
+                </p>
+            </section>
+        </div>
+
+        <div class="flex items-center gap-3 px-5 pt-2 pb-6">
+            <div class="flex gap-2" aria-hidden="true">
+                @for ($i = 0; $i < 3; $i++)
+                    <span class="h-2 w-2 rounded-full bg-slate-300 transition-all data-[active]:w-5 data-[active]:bg-brand-600" data-welcome-dot></span>
+                @endfor
+            </div>
+            <button type="button" data-welcome-next
+                    class="ms-auto rounded-xl bg-brand-700 px-6 py-2.5 font-medium text-white hover:bg-brand-800">
+                بعدی
+            </button>
+        </div>
+    </div>
+  </div>
+</div>
 @endsection

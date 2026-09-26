@@ -137,6 +137,79 @@ document.querySelectorAll('form[data-confirm]').forEach((form) => {
 });
 
 /**
+ * The first-visit welcome on the login page. Shown once per browser, then
+ * reachable again from "پیگیر چیست؟". Storage can be unavailable (private
+ * windows, blocked site data), in which case the welcome simply shows again.
+ */
+const welcome = document.querySelector('[data-welcome]');
+
+if (welcome) {
+    const SEEN_KEY = 'peygir-welcome-seen';
+    const track = welcome.querySelector('[data-welcome-track]');
+    const slides = [...welcome.querySelectorAll('[data-welcome-slide]')];
+    const dots = [...welcome.querySelectorAll('[data-welcome-dot]')];
+    const next = welcome.querySelector('[data-welcome-next]');
+    const opener = document.querySelector('[data-welcome-open]');
+    let current = 0;
+
+    const show = (index) => {
+        current = index;
+        dots.forEach((dot, i) => dot.toggleAttribute('data-active', i === index));
+        next.textContent = index === slides.length - 1 ? 'شروع کنید' : 'بعدی';
+    };
+
+    const open = () => {
+        welcome.classList.remove('hidden');
+        document.documentElement.classList.add('overflow-hidden');
+        slides[0].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
+        show(0);
+        welcome.querySelector('[data-welcome-panel]').focus();
+    };
+
+    const close = () => {
+        welcome.classList.add('hidden');
+        document.documentElement.classList.remove('overflow-hidden');
+        try {
+            localStorage.setItem(SEEN_KEY, '1');
+        } catch {}
+        document.getElementById('phone')?.focus();
+    };
+
+    const observer = new IntersectionObserver(
+        (entries) => entries.filter((e) => e.isIntersecting).forEach((e) => show(slides.indexOf(e.target))),
+        { root: track, threshold: 0.6 },
+    );
+    slides.forEach((slide) => observer.observe(slide));
+
+    next.addEventListener('click', () => {
+        if (current === slides.length - 1) {
+            close();
+        } else {
+            slides[current + 1].scrollIntoView({ inline: 'center', block: 'nearest' });
+        }
+    });
+
+    welcome.querySelector('[data-welcome-close]').addEventListener('click', close);
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !welcome.classList.contains('hidden')) {
+            close();
+        }
+    });
+
+    opener?.classList.remove('hidden');
+    opener?.addEventListener('click', open);
+
+    let seen = false;
+    try {
+        seen = localStorage.getItem(SEEN_KEY) === '1';
+    } catch {}
+
+    if (!seen) {
+        open();
+    }
+}
+
+/**
  * The plan cards on the login page. Swiping is the browser's own scroll
  * snapping; this only keeps the dots in step and lets a click on one jump to
  * its card, for anyone on a desktop without a touchpad.

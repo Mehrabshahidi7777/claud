@@ -295,13 +295,15 @@ class PhoneLoginTest extends TestCase
         $this->assertDatabaseMissing('workspaces', ['name' => 'یک شرکت دیگر']);
     }
 
-    public function test_the_login_page_explains_the_three_plans(): void
+    public function test_the_login_page_explains_the_product_and_its_three_plans(): void
     {
         $this->get(route('login'))
             ->assertOk()
             ->assertSee('شرکتی')
             ->assertSee('خانوادگی')
             ->assertSee('دوستانه')
+            ->assertSee('پیگیر چطور کار می‌کند؟')
+            ->assertSee('data-welcome', false)
             ->assertSee(route('login', ['next' => 'invite']), false);
     }
 
