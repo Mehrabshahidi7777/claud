@@ -76,6 +76,17 @@ class Sponsor extends Model
     }
 
     /**
+     * The site as people read it on a card: "example.ir", not the full
+     * "https://www.example.ir/".
+     */
+    public function displayHost(): ?string
+    {
+        $host = $this->website_url ? parse_url($this->website_url, PHP_URL_HOST) : null;
+
+        return $host ? preg_replace('/^www\./i', '', $host) : null;
+    }
+
+    /**
      * Where a click goes: through our counter, then to their site.
      */
     public function visitUrl(): ?string

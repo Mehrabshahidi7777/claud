@@ -7,7 +7,7 @@
 <div class="mx-auto max-w-4xl">
     <h1 class="text-lg font-bold">اسپانسرهای پیگیر</h1>
     <p class="mt-1 text-sm text-slate-600">
-        {{ config('brand.name') }} برای همه رایگان است، چون این مجموعه‌ها هزینه‌اش را می‌دهند.
+        پیگیر به لطف اسپانسرها زنده است.
     </p>
 
     @if ($sponsors->isEmpty())

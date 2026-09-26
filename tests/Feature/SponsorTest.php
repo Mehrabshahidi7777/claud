@@ -88,6 +88,7 @@ class SponsorTest extends TestCase
 
         $this->get(route('login'))
             ->assertSee('اسپانسرهای پیگیر')
+            ->assertSee('پیگیر به لطف اسپانسرها زنده است.')
             ->assertSee('اسپانسر فعال')
             ->assertDontSee('اسپانسر پنهان');
     }
@@ -114,14 +115,19 @@ class SponsorTest extends TestCase
         $workspace->members()->attach($member, ['role' => 'member']);
 
         $this->actingAs($member)->get(route('dashboard'))->assertSee('اسپانسر فعال');
-        $this->actingAs($member)->get(route('sponsors.index'))->assertOk()->assertSee('اسپانسر فعال');
+        // With the menu: a page without it strands the member there.
+        $this->actingAs($member)->get(route('sponsors.index'))
+            ->assertOk()
+            ->assertSee('اسپانسر فعال')
+            ->assertSee(route('tasks.index'), false);
     }
 
     public function test_a_click_is_counted_and_sent_to_the_sponsors_site(): void
     {
-        $sponsor = Sponsor::factory()->create(['website_url' => 'https://example.ir']);
+        $sponsor = Sponsor::factory()->create(['website_url' => 'https://www.example.ir/']);
 
-        $this->get(route('sponsors.visit', $sponsor))->assertRedirect('https://example.ir');
+        $this->get(route('login'))->assertSee('example.ir');
+        $this->get(route('sponsors.visit', $sponsor))->assertRedirect('https://www.example.ir/');
 
         $this->assertSame(1, $sponsor->fresh()->clicks);
     }

@@ -194,7 +194,7 @@
     <section class="mx-auto mt-12 max-w-4xl">
         <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none md:text-center">اسپانسرهای پیگیر</h2>
         <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600 md:max-w-none md:text-center">
-            پیگیر به لطف این مجموعه‌ها برای همه رایگان است.
+            پیگیر به لطف اسپانسرها زنده است.
         </p>
         <div class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
             @foreach ($sponsors as $sponsor)

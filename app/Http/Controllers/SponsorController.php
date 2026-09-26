@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Sponsor;
+use App\Services\CurrentWorkspace;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -13,9 +14,13 @@ class SponsorController extends Controller
     /**
      * «اسپانسرهای پیگیر» inside the app: everyone who keeps it free.
      */
-    public function index(): View
+    public function index(CurrentWorkspace $workspace): View
     {
-        return view('sponsors.index', ['sponsors' => Sponsor::showcase()]);
+        // The workspace goes to the layout, which draws the menu from it.
+        return view('sponsors.index', [
+            'workspace' => $workspace->get(),
+            'sponsors' => Sponsor::showcase(),
+        ]);
     }
 
     /**
