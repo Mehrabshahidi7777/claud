@@ -43,6 +43,10 @@ class TaskController extends Controller
             'filter' => $filter,
             'search' => $search,
             'workspace' => $workspace,
+
+            // The allowance is the payer's concern. A technician seeing "۳۸
+            // از ۵۰۰" next to their list only wonders what it means.
+            'showsSmsAllowance' => $this->workspace->can(Permission::ManageBilling),
             'members' => $workspace->members()->orderBy('name')->get(),
         ]);
     }

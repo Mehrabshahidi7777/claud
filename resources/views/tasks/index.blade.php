@@ -238,18 +238,32 @@
             </form>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-            <h2 class="font-medium text-slate-900">اعتبار پیامک</h2>
-            <p class="tabular mt-2">
-                {{ number_format($workspace->remainingSmsCredit()) }} از
-                {{ number_format($workspace->sms_quota) }} باقی مانده
-            </p>
-            @unless ($workspace->sms_enabled)
-                <p class="mt-2 rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
-                    ارسال پیامک برای این فضای کاری خاموش است.
+        @if ($showsSmsAllowance)
+            @php
+                $remaining = $workspace->remainingSmsCredit();
+                $isRunningLow = $workspace->sms_quota > 0 && $remaining <= $workspace->sms_quota * 0.1;
+            @endphp
+
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+                <h2 class="font-medium text-slate-900">پیامک‌های پیگیری این ماه</h2>
+                <p class="tabular mt-2">
+                    {{ number_format($remaining) }} از {{ number_format($workspace->sms_quota) }} مانده
                 </p>
-            @endunless
-        </div>
+                <p class="mt-1 text-xs text-slate-500">
+                    هر پلن سهمیه‌ی ماهانه‌ی پیامک دارد و هر ماه دوباره پر می‌شود.
+                </p>
+
+                @if (! $workspace->sms_enabled)
+                    <p class="mt-2 rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                        ارسال پیامک برای این فضای کاری خاموش است.
+                    </p>
+                @elseif ($isRunningLow)
+                    <p class="mt-2 rounded-lg bg-amber-50 px-2 py-1 text-xs text-amber-800">
+                        سهمیه‌ی این ماه رو به اتمام است. وقتی تمام شود، پیامک‌های پیگیری تا ماه بعد نمی‌روند.
+                    </p>
+                @endif
+            </div>
+        @endif
     </aside>
 </div>
 

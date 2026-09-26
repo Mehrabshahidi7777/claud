@@ -171,6 +171,14 @@ class BillingService
         // trial to corporate showed a family a five-seat company invoice.
         $planKey ??= $workspace->type->planKey();
 
+        // A trial sends what the plan it is trying would send, so the first
+        // invoice holds no surprise about how many reminders go out. Usage is
+        // left as it is: a trial starts on a brand new workspace.
+        $workspace->forceFill([
+            'sms_quota' => (int) config("payment.plans.$planKey.included_sms", $workspace->sms_quota),
+            'sms_period_started_at' => $workspace->sms_period_started_at ?? now(),
+        ])->save();
+
         return Subscription::create([
             'workspace_id' => $workspace->id,
             'plan_key' => $planKey,
@@ -243,11 +251,13 @@ class BillingService
     {
         $included = (int) config("payment.plans.$planKey.included_sms", 0);
 
-        $workspace->update([
+        // forceFill: the period start is not mass-assignable, and update()
+        // would drop it without a word.
+        $workspace->forceFill([
             'sms_quota' => $included,
             'sms_used' => 0,
             'sms_period_started_at' => now(),
-        ]);
+        ])->save();
     }
 
     /**

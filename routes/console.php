@@ -32,6 +32,17 @@ Schedule::command('reports:weekly')
     ->runInBackground();
 
 /*
+| The SMS allowance is monthly on every plan, but a yearly plan pays once, so
+| the month has to turn over on its own. Just after midnight, before the
+| morning's first reminders need the fresh allowance.
+*/
+
+Schedule::command('sms:reset-allowance')
+    ->dailyAt('00:15')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+/*
 | Subscriptions, swept daily. Iranian gateways have no recurring card payment,
 | so a renewal is always a person choosing to pay again — and a customer who
 | lapses because nobody reminded them is the most avoidable churn there is.
