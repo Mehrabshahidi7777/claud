@@ -56,6 +56,14 @@ class DemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Never on the live server: the demo people have made-up numbers
+        // (0912111000…), and the follow-up engine would text real strangers.
+        if (app()->isProduction()) {
+            $this->command?->error('داده‌ی نمونه روی سرور اصلی ساخته نمی‌شود.');
+
+            return;
+        }
+
         $workspace = Workspace::create([
             'name' => 'تأسیسات پارس',
             'timezone' => 'Asia/Tehran',
