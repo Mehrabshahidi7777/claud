@@ -18,8 +18,7 @@
     </p>
 
     <p class="mt-3 text-sm text-slate-600">
-        شماره موبایل خود را بفرستید. کد ورود پیامک می‌شود — نه رمزی هست، نه
-        ایمیلی.
+        شماره موبایل خود را وارد کنید تا کد ورود برایتان پیامک شود.
     </p>
 
     <form method="POST" action="{{ route('login.request') }}" class="mt-6 space-y-4">
