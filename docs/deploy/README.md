@@ -722,6 +722,10 @@ su - peygir -c "cd /var/www/peygir && SKIP_ASSETS=1 bash docs/deploy/deploy.sh"
 | `AI_PROVIDER` | `null` (فرم دستی) | `ollama` |
 | `LOG_LEVEL` | `debug` | `warning` |
 
+دوره‌ی رایگان هر مشتری با `SUBSCRIPTION_TRIAL_DAYS=15` تعیین می‌شود (۱۵ روز، روی
+هر سه پلن، هر شماره یک بار). از `.env.example` خودش می‌آید؛ فقط اگر خواستید عددش را
+عوض کنید سراغش بروید.
+
 در پنل‌ها هم باید این‌ها ثبت شود:
 
 | کجا | چه چیزی |
