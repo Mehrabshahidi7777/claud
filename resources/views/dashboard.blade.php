@@ -336,6 +336,32 @@
             @endif
         @endisset
     </div>
+
+    @php $sponsors = \App\Models\Sponsor::showcase(); @endphp
+
+    @if ($sponsors->isNotEmpty())
+        {{-- The people who keep پیگیر free. A quiet row at the foot of the
+             page: thanked, never in the way of the work. --}}
+        <section class="mt-6 rounded-2xl border border-slate-200 bg-white p-4">
+            <div class="flex items-baseline gap-2">
+                <h2 class="text-sm font-medium text-slate-700">اسپانسرهای پیگیر</h2>
+                <span class="text-xs text-slate-400">پیگیر به لطف این مجموعه‌ها رایگان است</span>
+                <a href="{{ route('sponsors.index') }}" class="ms-auto text-xs text-slate-500 hover:text-slate-900">همه</a>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+                @foreach ($sponsors->take(8) as $sponsor)
+                    <a href="{{ $sponsor->visitUrl() ?? route('sponsors.index') }}" @if ($sponsor->visitUrl()) target="_blank" rel="sponsored noopener" @endif
+                       title="{{ $sponsor->name }}"
+                       class="flex items-center gap-2 rounded-xl border border-slate-100 px-2 py-1.5 text-sm text-slate-700 hover:border-brand-200">
+                        @if ($sponsor->logoUrl())
+                            <img src="{{ $sponsor->logoUrl() }}" alt="" loading="lazy" class="size-8 rounded-lg object-contain">
+                        @endif
+                        {{ $sponsor->name }}
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
 </div>
 
 @endsection

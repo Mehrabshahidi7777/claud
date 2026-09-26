@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SmsController as AdminSmsController;
+use App\Http\Controllers\Admin\SponsorController as AdminSponsorController;
 use App\Http\Controllers\Admin\WorkspaceController as AdminWorkspaceController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\Auth\PhoneLoginController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\RecurringTaskController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettlementController;
+use App\Http\Controllers\SponsorController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskParseController;
 use App\Http\Controllers\WeeklyReportController;
@@ -44,6 +46,16 @@ Route::middleware('guest')->group(function () {
 Route::post('logout', [PhoneLoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+/*
+| Sponsors' logos and the click-through to their sites. Public: the login page
+| shows them to people who have no account yet.
+*/
+
+Route::get('sponsors/{sponsor}/logo', [SponsorController::class, 'logo'])->name('sponsors.logo');
+Route::get('s/{sponsor}', [SponsorController::class, 'visit'])
+    ->middleware('throttle:60,1')
+    ->name('sponsors.visit');
 
 /*
 | A shared referral link. Open to everyone: the person following it has no
@@ -135,6 +147,7 @@ Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
         Route::post('billing/seats', [BillingController::class, 'seats'])->name('billing.seats');
     });
     Route::get('referrals', [ReferralController::class, 'index'])->name('referrals.index');
+    Route::get('sponsors', [SponsorController::class, 'index'])->name('sponsors.index');
 
     Route::middleware('module:meetings')->group(function () {
         Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
@@ -206,4 +219,6 @@ Route::middleware(['auth', 'platform-admin'])->prefix('admin')->name('admin.')->
 
     Route::get('payments', AdminPaymentController::class)->name('payments.index');
     Route::get('sms', AdminSmsController::class)->name('sms.index');
+
+    Route::resource('sponsors', AdminSponsorController::class)->except('show');
 });

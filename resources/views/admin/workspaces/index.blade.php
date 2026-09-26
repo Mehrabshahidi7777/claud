@@ -27,6 +27,7 @@
         </select>
     </div>
 
+    @if (config('payment.enabled'))
     <div>
         <label for="status" class="block text-xs text-slate-500">اشتراک</label>
         <select id="status" name="status" class="mt-1 rounded-xl border border-slate-300 px-3 py-2 text-sm">
@@ -36,6 +37,7 @@
             @endforeach
         </select>
     </div>
+    @endif
 
     <button class="rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">جستجو</button>
 </form>
@@ -52,7 +54,9 @@
                     <th class="px-4 py-3 text-start font-medium">فضای کاری</th>
                     <th class="px-4 py-3 text-start font-medium">مالک</th>
                     <th class="px-4 py-3 text-start font-medium">اعضا</th>
-                    <th class="px-4 py-3 text-start font-medium">اشتراک</th>
+                    @if (config('payment.enabled'))
+                        <th class="px-4 py-3 text-start font-medium">اشتراک</th>
+                    @endif
                     <th class="px-4 py-3 text-start font-medium">پیامک</th>
                     <th class="px-4 py-3 text-start font-medium">عضویت از</th>
                 </tr>
@@ -73,6 +77,7 @@
                             <span class="tabular block text-xs text-slate-500" dir="ltr">{{ $owner?->localPhone() }}</span>
                         </td>
                         <td class="tabular px-4 py-3">{{ number_format($workspace->members_count) }}</td>
+                        @if (config('payment.enabled'))
                         <td class="px-4 py-3">
                             @if ($subscription)
                                 {{ $subscription->status->label() }}
@@ -83,6 +88,7 @@
                                 <span class="text-red-600">منقضی</span>
                             @endif
                         </td>
+                        @endif
                         <td class="tabular px-4 py-3 text-xs">
                             {{ number_format($workspace->sms_used) }} / {{ number_format($workspace->sms_quota) }}
                             @unless ($workspace->sms_enabled)

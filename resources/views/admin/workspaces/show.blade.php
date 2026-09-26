@@ -77,6 +77,7 @@
             </div>
         </section>
 
+        @if (config('payment.enabled'))
         <section class="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 class="font-medium">فاکتورها و پرداخت‌ها</h2>
 
@@ -114,6 +115,7 @@
                 </table>
             @endif
         </section>
+        @endif
 
         <section class="rounded-2xl border border-slate-200 bg-white p-5">
             <h2 class="font-medium">آخرین رویدادها</h2>
@@ -134,6 +136,7 @@
     </div>
 
     <aside class="space-y-4">
+        @if (config('payment.enabled'))
         <section class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">اشتراک</h2>
 
@@ -163,6 +166,7 @@
                 </div>
             </form>
         </section>
+        @endif
 
         <section class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">پیامک</h2>
@@ -185,7 +189,7 @@
             </form>
         </section>
 
-        @if ($workspace->subscriptions->count() > 1)
+        @if (config('payment.enabled') && $workspace->subscriptions->count() > 1)
             <section class="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
                 <h2 class="font-medium">تاریخچه‌ی اشتراک</h2>
                 <ul class="mt-2 space-y-1 text-slate-600">

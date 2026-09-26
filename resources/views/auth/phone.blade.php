@@ -41,7 +41,7 @@
                 'قبض‌ها و تمدیدها سر موعد یادآوری می‌شوند',
                 'کارهای تکراری مثل سرویس ماشین خودشان ساخته می‌شوند',
                 'هر کس فقط یادآوری کار خودش را می‌گیرد',
-                'تا '.$plans['family']['max_seats'].' نفر',
+                $isPaid ? 'تا '.$plans['family']['max_seats'].' نفر' : 'هر کس از گوشی خودش',
             ],
             'price' => $toman($plans['family']['price_per_seat']).' تومان در ماه',
         ],
@@ -51,7 +51,7 @@
                 'خرج سفر و دورهمی را ثبت کنید؛ سهم هر کس حساب می‌شود',
                 'یادآوری بدهی، بدون رودربایستی',
                 'قرارها و کارهای گروهی تقسیم می‌شوند',
-                'تا '.$plans['friends']['max_seats'].' نفر',
+                $isPaid ? 'تا '.$plans['friends']['max_seats'].' نفر' : 'هر چند نفر که باشید',
             ],
             'price' => $toman($plans['friends']['price_per_seat']).' تومان در ماه',
         ],
@@ -186,6 +186,24 @@
         @endforeach
     </div>
 </section>
+@php $sponsors = \App\Models\Sponsor::showcase(); @endphp
+
+@if ($sponsors->isNotEmpty())
+    {{-- Who pays so nobody else has to. On the page every visitor sees,
+         which is what a sponsor is buying. --}}
+    <section class="mx-auto mt-12 max-w-4xl">
+        <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none md:text-center">اسپانسرهای پیگیر</h2>
+        <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600 md:max-w-none md:text-center">
+            پیگیر به لطف این مجموعه‌ها برای همه رایگان است.
+        </p>
+        <div class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
+            @foreach ($sponsors as $sponsor)
+                @include('sponsors._card')
+            @endforeach
+        </div>
+    </section>
+@endif
+
 {{-- The first-visit welcome, the way an installed app greets you: three
      short slides, then the login page. Hidden in the markup and opened by
      app.js, so without JavaScript (or for a returning visitor) the page is

@@ -51,6 +51,49 @@
     </section>
 @endif
 
+@php
+    // Free, there is no revenue or subscription to report; sponsors are
+    // what keeps the lights on, so they take that place.
+    $isPaid = (bool) config('payment.enabled');
+    $sponsorCount = \App\Models\Sponsor::where('is_active', true)->count();
+    $sponsorClicks = (int) \App\Models\Sponsor::sum('clicks');
+@endphp
+
+@unless ($isPaid)
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <section class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h2 class="text-sm text-slate-500">فضاهای کاری</h2>
+        <p class="tabular mt-2 text-2xl font-bold">{{ number_format($customers['total']) }}</p>
+        <p class="mt-1 text-xs text-slate-500">
+            <span class="tabular">{{ number_format($customers['new']) }}</span> تازه در ۳۰ روز ·
+            <span class="tabular">{{ number_format($customers['users']) }}</span> کاربر
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+            @foreach ($customers['byType'] as $label => $count)
+                <span class="rounded-full bg-slate-100 px-2.5 py-1">{{ $label }}: <span class="tabular font-medium">{{ number_format($count) }}</span></span>
+            @endforeach
+        </div>
+    </section>
+
+    <a href="{{ route('admin.sponsors.index') }}" class="rounded-2xl border border-slate-200 bg-white p-5 hover:border-brand-300">
+        <h2 class="text-sm text-slate-500">اسپانسرهای فعال</h2>
+        <p class="tabular mt-2 text-2xl font-bold">{{ number_format($sponsorCount) }}</p>
+        <p class="mt-1 text-xs text-slate-500">
+            <span class="tabular">{{ number_format($sponsorClicks) }}</span> کلیک روی اسپانسرها تا امروز
+        </p>
+    </a>
+
+    <section class="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+        <h2 class="text-sm text-emerald-800">حالت رایگان</h2>
+        <p class="mt-2 text-sm leading-6 text-emerald-900">
+            پیگیر برای همه رایگان است و از کسی پول گرفته نمی‌شود. برای برگشت به فروش اشتراک،
+            در <code dir="ltr">.env</code> مقدار <code dir="ltr">BILLING_ENABLED=true</code> بگذارید.
+        </p>
+    </section>
+</div>
+@endunless
+
+@if ($isPaid)
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <section class="rounded-2xl border border-slate-200 bg-white p-5">
         <h2 class="text-sm text-slate-500">درآمد ۳۰ روز اخیر</h2>
@@ -86,8 +129,10 @@
         <p class="mt-1 text-xs text-slate-500">تومان، فاکتورهای پرداخت‌شده</p>
     </section>
 </div>
+@endif
 
 <div class="mt-4 grid gap-4 lg:grid-cols-2">
+    @if ($isPaid)
     <section class="rounded-2xl border border-slate-200 bg-white p-5">
         <h2 class="font-medium">وضعیت اشتراک‌ها</h2>
         <div class="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
@@ -111,6 +156,7 @@
             @endforeach
         </div>
     </section>
+    @endif
 
     <section class="rounded-2xl border border-slate-200 bg-white p-5">
         <div class="flex items-baseline gap-2">
@@ -142,6 +188,7 @@
     </section>
 </div>
 
+@if ($isPaid)
 <div class="mt-4 grid gap-4 lg:grid-cols-2">
     @foreach ([
         ['آزمایشی‌هایی که تا ۷ روز دیگر تمام می‌شوند', 'همین حالا زنگ بزنید؛ فردا دیر است.', $trialsEnding],
@@ -174,5 +221,6 @@
         </section>
     @endforeach
 </div>
+@endif
 
 @endsection

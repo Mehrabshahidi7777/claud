@@ -128,6 +128,29 @@ class FreeModeTest extends TestCase
         $this->assertSame(8, $workspace->members()->count());
     }
 
+    public function test_any_member_can_invite_friends(): void
+    {
+        $workspace = Workspace::factory()->withoutSubscription()->create();
+        $member = User::factory()->create();
+        $workspace->members()->attach($member, ['role' => 'member']);
+
+        $this->actingAs($member)->get(route('referrals.index'))
+            ->assertOk()
+            ->assertSee('رایگان')
+            ->assertDontSee('روز اضافه روی اشتراکتان');
+    }
+
+    public function test_the_platform_panel_shows_sponsors_instead_of_revenue(): void
+    {
+        config(['platform.admin_phones' => ['09134451502']]);
+        $admin = User::factory()->withPhone('989134451502')->create();
+
+        $this->actingAs($admin)->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('اسپانسرهای فعال')
+            ->assertDontSee('درآمد ماهانه‌ی تکرارشونده');
+    }
+
     public function test_the_login_page_says_free_and_shows_no_prices(): void
     {
         $this->get(route('login'))

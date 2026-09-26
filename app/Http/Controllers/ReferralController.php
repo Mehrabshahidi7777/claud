@@ -33,7 +33,7 @@ class ReferralController extends Controller
      */
     public function index(CurrentWorkspace $current): View
     {
-        abort_unless($current->can(Permission::ManageBilling), 403);
+        abort_unless(! config('payment.enabled') || $current->can(Permission::ManageBilling), 403);
 
         $workspace = $current->get();
 

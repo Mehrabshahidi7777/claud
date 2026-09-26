@@ -31,8 +31,11 @@
         <nav class="-mx-1 flex min-w-0 flex-1 items-center gap-1 overflow-x-auto px-1">
             <a href="{{ route('admin.dashboard') }}" class="{{ $tab($current === 'admin.dashboard') }}">نمای کلی</a>
             <a href="{{ route('admin.workspaces.index') }}" class="{{ $tab(str_starts_with((string) $current, 'admin.workspaces')) }}">مشتری‌ها</a>
-            <a href="{{ route('admin.payments.index') }}" class="{{ $tab($current === 'admin.payments.index') }}">پرداخت‌ها</a>
+            @if (config('payment.enabled'))
+                <a href="{{ route('admin.payments.index') }}" class="{{ $tab($current === 'admin.payments.index') }}">پرداخت‌ها</a>
+            @endif
             <a href="{{ route('admin.sms.index') }}" class="{{ $tab($current === 'admin.sms.index') }}">پیامک‌ها</a>
+            <a href="{{ route('admin.sponsors.index') }}" class="{{ $tab(str_starts_with((string) $current, 'admin.sponsors')) }}">اسپانسرها</a>
         </nav>
 
         @if (auth()->user()->workspaces()->exists())
