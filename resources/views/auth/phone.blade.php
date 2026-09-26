@@ -58,71 +58,81 @@
     ];
 @endphp
 
-<div class="mx-auto max-w-sm pt-10">
-    {{-- The sign-in screen is the one page a prospect sees before they have
-         any reason to care, so it carries the name and the promise. The form
-         stays near the top: most visits are people coming back. --}}
-    <div class="flex items-center gap-2">
-        <img src="/icons/logo.svg" alt="" class="size-10" width="40" height="40">
-        <span class="text-sm font-medium text-slate-900">{{ config('brand.name') }}</span>
+{{-- The top of the page. On a wide screen: the promise on one side, the
+     sign-in card on the other, both on the same edges as the sections
+     below. On a phone they stack, sign-in first after the name, since most
+     visits are people coming back. --}}
+<div class="mx-auto grid max-w-sm gap-8 pt-10 md:max-w-4xl md:grid-cols-2 md:items-center md:gap-12 md:pt-16">
+    <div>
+        <div class="flex items-center gap-2">
+            <img src="/icons/logo.svg" alt="" class="size-10" width="40" height="40">
+            <span class="text-sm font-medium text-slate-900">{{ config('brand.name') }}</span>
 
-        <button type="button" data-welcome-open
-                class="ms-auto hidden rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-900">
-            پیگیر چیست؟
-        </button>
-    </div>
-    <h1 class="mt-3 text-xl font-bold">{{ config('brand.slogan') }}</h1>
-
-    <p class="mt-3 inline-flex rounded-xl bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
-        {{ $offer }}
-    </p>
-
-    @if ($isHeadingToInvite)
-        <p class="mt-3 rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900">
-            وارد شوید تا لینک دعوت اختصاصی‌تان را بگیرید.
-        </p>
-    @endif
-
-    <p class="mt-3 text-sm text-slate-600">
-        شماره موبایل خود را وارد کنید تا کد ورود برایتان پیامک شود.
-    </p>
-
-    <form method="POST" action="{{ route('login.request') }}" class="mt-6 space-y-4">
-        @csrf
-
-        <div>
-            <label for="phone" class="block text-sm font-medium">شماره موبایل</label>
-            <input id="phone" name="phone" value="{{ old('phone') }}"
-                   inputmode="tel" autocomplete="tel" autofocus required
-                   placeholder="0913…"
-                   dir="ltr"
-                   class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-center focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
-
-            @error('phone')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
+            <button type="button" data-welcome-open
+                    class="ms-auto hidden rounded-lg px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                پیگیر چیست؟
+            </button>
         </div>
 
-        <button type="submit"
-                class="w-full rounded-xl bg-brand-700 px-4 py-2.5 font-medium text-white hover:bg-brand-800">
-            فرستادن کد
-        </button>
-    </form>
+        <h1 class="mt-4 text-xl font-bold md:text-3xl md:leading-snug">{{ config('brand.slogan') }}</h1>
 
-    @unless ($isHeadingToInvite)
-        <a href="{{ route('login', ['next' => 'invite']) }}"
-           class="mt-3 flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
-            <svg class="size-5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/>
-            </svg>
-            {{ $isPaid ? 'دعوت از دوستان و هدیه گرفتن' : 'دعوت از دوستان' }}
-        </a>
-    @endunless
+        <p class="mt-3 hidden text-slate-600 md:block md:leading-7">
+            کار را ثبت کنید؛ پیگیر سر موعد به طرف مقابل پیامک می‌زند و با یک «۱» کار بسته می‌شود.
+        </p>
+
+        <p class="mt-4 inline-flex rounded-xl bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
+            {{ $offer }}
+        </p>
+    </div>
+
+    <div class="md:rounded-2xl md:border md:border-slate-200 md:bg-white md:p-6 md:shadow-sm">
+        @if ($isHeadingToInvite)
+            <p class="mb-4 rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900">
+                وارد شوید تا لینک دعوت اختصاصی‌تان را بگیرید.
+            </p>
+        @endif
+
+        <p class="text-sm text-slate-600">
+            شماره موبایل خود را وارد کنید تا کد ورود برایتان پیامک شود.
+        </p>
+
+        <form method="POST" action="{{ route('login.request') }}" class="mt-4 space-y-4">
+            @csrf
+
+            <div>
+                <label for="phone" class="block text-sm font-medium">شماره موبایل</label>
+                <input id="phone" name="phone" value="{{ old('phone') }}"
+                       inputmode="tel" autocomplete="tel" autofocus required
+                       placeholder="0913…"
+                       dir="ltr"
+                       class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-center focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
+
+                @error('phone')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <button type="submit"
+                    class="w-full rounded-xl bg-brand-700 px-4 py-2.5 font-medium text-white hover:bg-brand-800">
+                فرستادن کد
+            </button>
+        </form>
+
+        @unless ($isHeadingToInvite)
+            <a href="{{ route('login', ['next' => 'invite']) }}"
+               class="mt-3 flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                <svg class="size-5 text-brand-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"/>
+                </svg>
+                {{ $isPaid ? 'دعوت از دوستان و هدیه گرفتن' : 'دعوت از دوستان' }}
+            </a>
+        @endunless
+    </div>
 </div>
 
 {{-- What it is, in three steps, before any prices. Short on purpose: a
      visitor should get it from the headings alone. --}}
-<section class="mx-auto mt-12 max-w-4xl">
+<section class="mx-auto mt-12 max-w-4xl md:mt-16">
     <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none">پیگیر چطور کار می‌کند؟</h2>
 
     <ol class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
