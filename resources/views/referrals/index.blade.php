@@ -37,7 +37,7 @@
         <label for="referral-link" class="block text-sm font-medium">لینک اختصاصی شما</label>
         <div class="mt-2 flex gap-2">
             <input id="referral-link" value="{{ $link }}" readonly dir="ltr" data-referral-link
-                   class="tabular min-w-0 flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm">
+                   class="tabular min-w-0 flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 font-latin text-sm">
             <button type="button" data-referral-copy
                     class="shrink-0 rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
                 کپی

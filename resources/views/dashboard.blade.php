@@ -22,6 +22,53 @@
         <span class="text-sm text-slate-500">{{ $workspace->type->tagline() }}</span>
     </div>
 
+    @if ($gettingStarted)
+        @php $doneCount = collect($gettingStarted)->where('done', true)->count(); @endphp
+
+        {{-- The first-days checklist. It disappears by itself once every
+             step is done, and can be hidden sooner. --}}
+        <section class="mb-4 rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <h2 class="font-bold">شروع کار با {{ config('brand.name') }}</h2>
+                <span class="tabular text-sm text-slate-600">{{ $doneCount }} از {{ count($gettingStarted) }}</span>
+
+                <form method="POST" action="{{ route('getting-started.dismiss') }}" class="ms-auto">
+                    @csrf
+                    <button class="text-sm text-slate-500 hover:text-slate-900">بستن</button>
+                </form>
+            </div>
+
+            <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-white">
+                <div class="h-full rounded-full bg-brand-600" style="width: {{ round($doneCount / count($gettingStarted) * 100) }}%"></div>
+            </div>
+
+            <ol class="mt-4 grid gap-2 {{ count($gettingStarted) === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2' }}">
+                @foreach ($gettingStarted as $step)
+                    <li>
+                        <a href="{{ $step['url'] }}"
+                           class="flex h-full gap-3 rounded-xl border bg-white p-3 transition
+                                  {{ $step['done'] ? 'border-transparent opacity-60' : 'border-slate-200 hover:border-brand-300' }}">
+                            @if ($step['done'])
+                                <span class="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+                                    <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                                    </svg>
+                                </span>
+                            @else
+                                <span class="size-6 shrink-0 rounded-full border-2 border-slate-300"></span>
+                            @endif
+
+                            <span>
+                                <span class="block text-sm font-medium {{ $step['done'] ? 'line-through' : '' }}">{{ $step['label'] }}</span>
+                                <span class="mt-0.5 block text-xs text-slate-500">{{ $step['hint'] }}</span>
+                            </span>
+                        </a>
+                    </li>
+                @endforeach
+            </ol>
+        </section>
+    @endif
+
     <div class="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
 
         {{-- The viewer's own work first. A manager sees their list and so

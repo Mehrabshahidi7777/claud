@@ -10,6 +10,7 @@ use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DismissGettingStartedController;
 use App\Http\Controllers\FinanceController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\MemberController;
@@ -77,6 +78,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
     Route::get('/', DashboardController::class)->name('dashboard');
+    Route::post('getting-started/dismiss', DismissGettingStartedController::class)->name('getting-started.dismiss');
 
     Route::post('workspaces/{workspace}/switch', WorkspaceSwitchController::class)
         ->whereNumber('workspace')
