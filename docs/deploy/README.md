@@ -253,10 +253,12 @@ APP_LOCALE=fa                                   # پیام‌های خطا فا�
 BILLING_ENABLED=false                           # پیگیر رایگان است، با اسپانسر
 AMOOT_BASE_URL=https://portal.amootsms.com/rest # فقط تا /rest، بدون اسم متد
 OTP_NEW_NUMBERS_HOURLY_LIMIT=100                # محافظت از اعتبار پیامک
+APP_NAME="peygir"                               # اسم فرستنده‌ی ایمیل گزارش
+AMOOT_LINE_NUMBER=98                            # خط اختصاصی آموت
 ```
 
 > **از `.env` کامپیوتر خودتان چه چیزی را بیاورید؟** فقط مقادیری که از بیرون گرفته‌اید:
-> `AMOOT_TOKEN`، `AMOOT_LINE_NUMBER` (مثلاً `98`)، کد پترن‌ها و `PLATFORM_ADMIN_PHONES`.
+> `AMOOT_TOKEN` و کد پترن‌ها.
 > **کل فایل را کپی نکنید:** `APP_KEY`، `APP_ENV`، `APP_DEBUG` و تنظیمات دیتابیس روی
 > سرور فرق دارند.
 
