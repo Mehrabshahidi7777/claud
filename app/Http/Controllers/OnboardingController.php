@@ -6,6 +6,7 @@ use App\Enums\WorkspaceRole;
 use App\Enums\WorkspaceType;
 use App\Models\Workspace;
 use App\Services\BillingService;
+use App\Services\ReferralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -21,7 +22,10 @@ use Illuminate\Validation\Rule;
  */
 class OnboardingController extends Controller
 {
-    public function __construct(private readonly BillingService $billing) {}
+    public function __construct(
+        private readonly BillingService $billing,
+        private readonly ReferralService $referrals,
+    ) {}
 
     public function show(Request $request)
     {
@@ -29,7 +33,12 @@ class OnboardingController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return view('auth.onboarding', ['types' => WorkspaceType::cases()]);
+        return view('auth.onboarding', [
+            'types' => WorkspaceType::cases(),
+            'referralBonusDays' => $this->referrals->findByCode($request->session()->get('referral_code')) !== null
+                ? $this->referrals->bonusDays()
+                : 0,
+        ]);
     }
 
     public function store(Request $request)
@@ -52,8 +61,9 @@ class OnboardingController extends Controller
         ]);
 
         $user = $request->user();
+        $referralCode = $request->session()->pull('referral_code');
 
-        DB::transaction(function () use ($user, $validated) {
+        DB::transaction(function () use ($user, $validated, $referralCode) {
             $user->update(['name' => $validated['name']]);
 
             $workspace = Workspace::create([
@@ -69,6 +79,9 @@ class OnboardingController extends Controller
             // it a brand new customer meets the paywall before they have seen
             // the product work once.
             $this->billing->startTrial($workspace);
+
+            // After the trial exists, so the referral days extend it.
+            $this->referrals->attach($workspace, $referralCode);
         });
 
         return redirect()->route('dashboard');

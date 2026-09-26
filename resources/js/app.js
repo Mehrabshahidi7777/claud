@@ -137,6 +137,42 @@ document.querySelectorAll('form[data-confirm]').forEach((form) => {
 });
 
 /**
+ * The referral link: copy it, or hand it to the phone's own share sheet where
+ * there is one. Most owners will paste it into a chat, so copying has to work
+ * on the first tap and say that it did.
+ */
+const referral = document.querySelector('[data-referral]');
+
+if (referral) {
+    const field = referral.querySelector('[data-referral-link]');
+    const copyButton = referral.querySelector('[data-referral-copy]');
+    const shareButton = referral.querySelector('[data-referral-share]');
+
+    field.addEventListener('focus', () => field.select());
+
+    copyButton.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(field.value);
+        } catch {
+            // Older browsers and plain http: fall back to selecting it.
+            field.select();
+            document.execCommand('copy');
+        }
+
+        const label = copyButton.textContent;
+        copyButton.textContent = 'کپی شد';
+        setTimeout(() => (copyButton.textContent = label), 2000);
+    });
+
+    if (navigator.share) {
+        shareButton.classList.remove('hidden');
+        shareButton.addEventListener('click', () => {
+            navigator.share({ text: shareButton.dataset.shareText, url: field.value }).catch(() => {});
+        });
+    }
+}
+
+/**
  * Show only the fields the chosen request type actually uses.
  *
  * Progressive enhancement: with JavaScript off every field is visible and the

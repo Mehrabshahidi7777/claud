@@ -6,6 +6,7 @@ use App\Enums\WorkspaceRole;
 use App\Enums\WorkspaceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -30,7 +31,21 @@ class Workspace extends Model
             'settings' => 'array',
             'sms_enabled' => 'boolean',
             'sms_period_started_at' => 'datetime',
+            'referral_rewarded_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The workspace whose link this one signed up through.
+     */
+    public function referrer(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'referred_by_workspace_id');
+    }
+
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(self::class, 'referred_by_workspace_id');
     }
 
     public function members(): BelongsToMany

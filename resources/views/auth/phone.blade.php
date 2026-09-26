@@ -12,9 +12,15 @@
     </p>
     <h1 class="mt-3 text-xl font-bold">{{ config('brand.slogan') }}</h1>
 
-    {{-- The offer, where a prospect decides whether to type their number. --}}
-    <p class="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800">
-        {{ (int) config('payment.trial_days') }} روز رایگان، روی هر سه پلن — بدون پرداخت
+    {{-- The offer, where a prospect decides whether to type their number.
+         Someone who arrived through a friend's link sees the longer trial
+         that link promised them. --}}
+    @php
+        $isReferred = session()->has('referral_code');
+        $freeDays = (int) config('payment.trial_days') + ($isReferred ? (int) config('payment.referral_bonus_days') : 0);
+    @endphp
+    <p class="mt-3 inline-flex rounded-xl bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
+        {{ $freeDays }} روز رایگان{{ $isReferred ? ' با معرفی دوستتان' : '' }}، روی هر سه پلن — بدون پرداخت
     </p>
 
     <p class="mt-3 text-sm text-slate-600">

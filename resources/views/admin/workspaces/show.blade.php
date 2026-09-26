@@ -20,6 +20,12 @@
     <h1 class="text-xl font-bold">{{ $workspace->name }}</h1>
     <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs">{{ $workspace->type->label() }}</span>
     <span class="tabular text-sm text-slate-500">عضو از {{ $date($workspace->created_at) }}</span>
+    @if ($workspace->referrer)
+        <span class="text-sm text-slate-500">
+            معرفی‌شده توسط
+            <a href="{{ route('admin.workspaces.show', $workspace->referrer) }}" class="text-slate-700 hover:underline">{{ $workspace->referrer->name }}</a>
+        </span>
+    @endif
     @if ($owner)
         <span class="ms-auto text-sm">
             مالک: {{ $owner->name ?: '—' }}

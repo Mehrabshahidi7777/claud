@@ -28,6 +28,7 @@ class PaymentService
     public function __construct(
         private readonly PaymentGateway $gateway,
         private readonly BillingService $billing,
+        private readonly ReferralService $referrals,
     ) {}
 
     /**
@@ -192,6 +193,9 @@ class PaymentService
 
             if ($invoice->status !== InvoiceStatus::Paid) {
                 $this->billing->applyPaidInvoice($invoice);
+
+                // A first payment is what the referrer was promised days for.
+                $this->referrals->rewardReferrerOf($invoice->workspace);
             }
         });
 

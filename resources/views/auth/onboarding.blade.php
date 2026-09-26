@@ -9,6 +9,12 @@
         نام خودتان، و اینکه اینجا قرار است چه چیزی را جمع کند.
     </p>
 
+    @if ($referralBonusDays > 0)
+        <p class="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            با معرفی دوستتان آمده‌اید؛ {{ $referralBonusDays }} روز به دوره‌ی رایگانتان اضافه می‌شود.
+        </p>
+    @endif
+
     <form method="POST" action="{{ route('onboarding.store') }}" class="mt-6 space-y-5">
         @csrf
 

@@ -167,3 +167,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
 </laravel-boost-guidelines>
+
+## Pending work for this project
+
+- **Android APK (promised to the owner).** Once the app is live on a real domain with https, build an APK (a Trusted Web Activity wrapping the existing PWA) for Cafe Bazaar and Myket. The owner will say the domain is up; if they mention the domain or the server being live and this is still open, remind them. Needs: the domain, `/.well-known/assetlinks.json` served by the app, and the signing key kept safe by the owner.

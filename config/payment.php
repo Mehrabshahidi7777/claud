@@ -92,6 +92,14 @@ return [
     'trial_days' => env('SUBSCRIPTION_TRIAL_DAYS', 15),
 
     /*
+    | Days each side gets for a referral. The newcomer gets them at sign-up;
+    | the referrer only once the newcomer has paid, so a spare SIM card buys
+    | nobody free months.
+    */
+
+    'referral_bonus_days' => env('REFERRAL_BONUS_DAYS', 15),
+
+    /*
     |--------------------------------------------------------------------------
     | Plans
     |--------------------------------------------------------------------------

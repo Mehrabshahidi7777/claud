@@ -162,8 +162,8 @@ class BillingService
     }
 
     /**
-     * The free trial, fifteen days unless configured otherwise. No card is asked for: a trial that wants one is
-     * a trial most people never start.
+     * The free trial, fifteen days unless configured otherwise. No card is
+     * asked for: a trial that wants one is a trial most people never start.
      */
     public function startTrial(Workspace $workspace, ?string $planKey = null): Subscription
     {

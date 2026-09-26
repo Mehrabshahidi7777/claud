@@ -18,6 +18,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\ReceivableImportController;
 use App\Http\Controllers\RecurringTaskController;
+use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettlementController;
 use App\Http\Controllers\TaskController;
@@ -42,6 +43,16 @@ Route::middleware('guest')->group(function () {
 Route::post('logout', [PhoneLoginController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
+
+/*
+| A shared referral link. Open to everyone: the person following it has no
+| account yet, and one who does is simply sent on to their dashboard.
+*/
+
+Route::get('r/{code}', [ReferralController::class, 'capture'])
+    ->where('code', '[A-Za-z0-9]{4,16}')
+    ->middleware('throttle:30,1')
+    ->name('referral.capture');
 
 /*
 | The bank's return, outside the authenticated group on purpose: the payer
@@ -117,6 +128,7 @@ Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
     Route::post('billing', [BillingController::class, 'store'])->name('billing.store');
     Route::get('billing/invoices/{invoice}', [BillingController::class, 'invoice'])->name('billing.invoice');
     Route::post('billing/invoices/{invoice}/pay', [BillingController::class, 'pay'])->name('billing.pay');
+    Route::get('referrals', [ReferralController::class, 'index'])->name('referrals.index');
 
     Route::middleware('module:meetings')->group(function () {
         Route::get('meetings', [MeetingController::class, 'index'])->name('meetings.index');
