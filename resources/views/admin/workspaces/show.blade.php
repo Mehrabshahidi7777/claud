@@ -88,7 +88,7 @@
                         @foreach ($workspace->invoices as $invoice)
                             <tr>
                                 <td class="tabular px-2 py-2">{{ $invoice->number }}</td>
-                                <td class="px-2 py-2 text-slate-600">{{ $invoice->planName() }} · {{ $invoice->term === 'yearly' ? 'سالانه' : 'ماهانه' }}</td>
+                                <td class="px-2 py-2 text-slate-600">{{ $invoice->description() }}</td>
                                 <td class="tabular px-2 py-2">{{ $toman($invoice->total) }} تومان</td>
                                 <td class="px-2 py-2 text-xs {{ $invoice->status->value === 'paid' ? 'text-emerald-700' : 'text-slate-500' }}">{{ $invoice->status->label() }}</td>
                                 <td class="tabular px-2 py-2 text-xs text-slate-500">{{ $date($invoice->paid_at ?? $invoice->created_at) }}</td>

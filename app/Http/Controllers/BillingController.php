@@ -7,6 +7,8 @@ use App\Models\Invoice;
 use App\Services\BillingService;
 use App\Services\CurrentWorkspace;
 use App\Services\PaymentService;
+use App\Services\SeatLimit;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -107,5 +109,29 @@ class BillingController extends Controller
         }
 
         return redirect()->away($token->redirectUrl);
+    }
+
+    /**
+     * Buy more places on the running company subscription. Raises an invoice
+     * for the days left and sends the owner to it; the places arrive when the
+     * bank confirms.
+     */
+    public function seats(Request $request, SeatLimit $seats): RedirectResponse
+    {
+        $workspace = $this->workspace->get();
+
+        abort_unless($this->workspace->can(Permission::ManageBilling), 403);
+
+        $validated = $request->validate([
+            'extra_seats' => ['required', 'integer', 'min:1', 'max:500'],
+        ]);
+
+        if (! $seats->canBuyMore($workspace)) {
+            return back()->withErrors(['extra_seats' => 'برای این اشتراک ظرفیت بیشتری قابل خرید نیست.']);
+        }
+
+        $invoice = $this->billing->seatInvoiceFor($workspace, (int) $validated['extra_seats']);
+
+        return redirect()->route('billing.invoice', $invoice);
     }
 }

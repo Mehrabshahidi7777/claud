@@ -68,13 +68,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="py-3">
-                        اشتراک {{ $invoice->planName() }}
-                        <span class="text-slate-500">
-                            ({{ $invoice->term === 'yearly' ? 'سالانه' : 'ماهانه' }})
-                        </span>
-                    </td>
-                    <td class="tabular py-3">{{ $invoice->seats }} کاربر</td>
+                    <td class="py-3">{{ $invoice->description() }}</td>
+                    <td class="tabular py-3">{{ $invoice->seats }} نفر</td>
                     <td class="tabular py-3">{{ number_format($invoice->subtotalInToman()) }} تومان</td>
                 </tr>
             </tbody>

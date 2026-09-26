@@ -8,7 +8,9 @@ use App\Enums\WorkspaceRole;
 use App\Models\Activity;
 use App\Models\Department;
 use App\Models\User;
+use App\Services\BillingService;
 use App\Services\CurrentWorkspace;
+use App\Services\SeatLimit;
 use App\Sms\PatternMessage;
 use App\Support\PhoneNumber;
 use Illuminate\Http\Request;
@@ -23,7 +25,10 @@ use Illuminate\Validation\ValidationException;
  */
 class MemberController extends Controller
 {
-    public function __construct(private readonly CurrentWorkspace $workspace) {}
+    public function __construct(
+        private readonly CurrentWorkspace $workspace,
+        private readonly SeatLimit $seats,
+    ) {}
 
     public function index()
     {
@@ -33,6 +38,10 @@ class MemberController extends Controller
 
         return view('members.index', [
             'workspace' => $workspace,
+            'seatsUsed' => $this->seats->used($workspace),
+            'seatLimit' => $this->seats->limit($workspace),
+            'canBuySeats' => $this->seats->canBuyMore($workspace) && $this->workspace->can(Permission::ManageBilling),
+            'seatPrice' => $this->seats->canBuyMore($workspace) ? app(BillingService::class)->seatQuote($workspace, 1) : null,
             'members' => $workspace->members()->orderBy('name')->get(),
             'roles' => array_values(array_filter(
                 WorkspaceRole::assignable(),
@@ -84,6 +93,12 @@ class MemberController extends Controller
             throw ValidationException::withMessages(['phone' => 'این شماره قبلاً در این فضای کاری هست.']);
         }
 
+        // The company pays per person, so a paid subscription holds as many
+        // people as it paid for; the next one waits for more places.
+        if (! $this->seats->canAdd($workspace)) {
+            throw ValidationException::withMessages(['phone' => $this->seats->refusal($workspace)]);
+        }
+
         $workspace->members()->attach($user, [
             'role' => $validated['role'],
             'department_id' => $validated['department_id'] ?? null,
@@ -97,7 +112,7 @@ class MemberController extends Controller
 
         Activity::record($user, 'member.added', $workspace->id, $request->user()->id);
 
-        return back()->with('status', $user->firstName().' اضافه شد و از همین حالا قابل اساین شدن است.');
+        return back()->with('status', $user->firstName().' اضافه شد و از همین حالا می‌توانید کار به او بسپارید.');
     }
 
     public function update(Request $request, User $member)

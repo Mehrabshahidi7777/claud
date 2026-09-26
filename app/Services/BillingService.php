@@ -112,6 +112,85 @@ class BillingService
     }
 
     /**
+     * What more places on the running company subscription cost: the plan's
+     * per-person price for the term, for the share of the term that is left.
+     * Buying the sixth place with three months to go costs three months of
+     * one place, not a whole year.
+     *
+     * @return array{seats: int, days: int, subtotal: int, vat: int, total: int, vat_percent: int}
+     */
+    public function seatQuote(Workspace $workspace, int $extraSeats): array
+    {
+        $subscription = $this->currentSubscription($workspace);
+
+        if ($subscription === null || $subscription->status === SubscriptionStatus::Trialing) {
+            throw new InvalidArgumentException('Places are bought on a paid subscription.');
+        }
+
+        $plan = config("payment.plans.$subscription->plan_key");
+
+        if (! ($plan['per_seat'] ?? false)) {
+            throw new InvalidArgumentException("Plan [$subscription->plan_key] is not priced per person.");
+        }
+
+        $extraSeats = max(0, min($extraSeats, $plan['max_seats'] - $subscription->seats));
+
+        $isYearly = $subscription->term === 'yearly';
+        $termDays = $isYearly ? 365 : 30;
+        $months = $isYearly ? (int) config('payment.yearly_months_charged', 10) : 1;
+        // Not capped at one term: a customer who renewed early can have more
+        // than a month left, and each of those days is a day the place is used.
+        $daysLeft = (int) max(1, ceil(now()->diffInDays($subscription->ends_at, absolute: true)));
+
+        // Rounded to whole Toman: an invoice that ends in a stray Rial reads
+        // as a mistake.
+        $subtotal = (int) (round($plan['price_per_seat'] * $months * $extraSeats * $daysLeft / $termDays / 10) * 10);
+
+        $vatPercent = (int) config('payment.vat_percent', 10);
+        $vat = (int) (round($subtotal * $vatPercent / 100 / 10) * 10);
+
+        return [
+            'seats' => $extraSeats,
+            'days' => $daysLeft,
+            'subtotal' => $subtotal,
+            'vat' => $vat,
+            'total' => $subtotal + $vat,
+            'vat_percent' => $vatPercent,
+        ];
+    }
+
+    /**
+     * Raise an invoice for more places. Like any invoice, nothing changes
+     * until the bank's verify agrees.
+     */
+    public function seatInvoiceFor(Workspace $workspace, int $extraSeats): Invoice
+    {
+        $quote = $this->seatQuote($workspace, $extraSeats);
+        $subscription = $this->currentSubscription($workspace);
+
+        if ($quote['seats'] < 1) {
+            throw new InvalidArgumentException('No places left to buy on this plan.');
+        }
+
+        return DB::transaction(fn () => Invoice::create([
+            'workspace_id' => $workspace->id,
+            'subscription_id' => $subscription->id,
+            'number' => $this->nextInvoiceNumber(),
+            'plan_key' => $subscription->plan_key,
+            'kind' => 'seats',
+            'seats' => $quote['seats'],
+            'term' => $subscription->term,
+            'subtotal' => $quote['subtotal'],
+            'vat' => $quote['vat'],
+            'total' => $quote['total'],
+            'vat_percent' => $quote['vat_percent'],
+            'period_start' => now()->toDateString(),
+            'period_end' => $subscription->ends_at->toDateString(),
+            'status' => InvoiceStatus::Unpaid,
+        ]));
+    }
+
+    /**
      * Apply a settled invoice: mark it paid and move the subscription out to
      * the period it covers.
      *
@@ -121,6 +200,10 @@ class BillingService
      */
     public function applyPaidInvoice(Invoice $invoice): Subscription
     {
+        if ($invoice->kind === 'seats') {
+            return $this->applyPaidSeats($invoice);
+        }
+
         return DB::transaction(function () use ($invoice) {
             $invoice->update([
                 'status' => InvoiceStatus::Paid,
@@ -156,6 +239,29 @@ class BillingService
             $invoice->update(['subscription_id' => $subscription->id]);
 
             $this->applyPlanQuotas($invoice->workspace, $invoice->plan_key);
+
+            return $subscription;
+        });
+    }
+
+    /**
+     * More places, paid for: added to the running term, whose end date does
+     * not move. If the term lapsed between invoice and payment, the places
+     * still go onto the workspace's latest subscription, so a renewal picks
+     * up the count they paid for.
+     */
+    private function applyPaidSeats(Invoice $invoice): Subscription
+    {
+        return DB::transaction(function () use ($invoice) {
+            $invoice->update(['status' => InvoiceStatus::Paid, 'paid_at' => now()]);
+
+            $subscription = $this->currentSubscription($invoice->workspace)
+                ?? Subscription::where('workspace_id', $invoice->workspace_id)->latest('ends_at')->firstOrFail();
+
+            $max = (int) config("payment.plans.$subscription->plan_key.max_seats", PHP_INT_MAX);
+            $subscription->update(['seats' => min($max, $subscription->seats + $invoice->seats)]);
+
+            $invoice->update(['subscription_id' => $subscription->id]);
 
             return $subscription;
         });

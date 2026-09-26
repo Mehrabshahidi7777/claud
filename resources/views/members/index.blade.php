@@ -139,11 +139,34 @@
         </div>
     </div>
 
-    <aside>
+    <aside class="space-y-4">
+        @php $isFull = $seatsUsed >= $seatLimit; @endphp
+
+        {{-- How many people this workspace holds. The company pays for all of
+             them; nobody here pays for themselves. --}}
+        <div class="rounded-2xl border {{ $isFull ? 'border-amber-300' : 'border-slate-200' }} bg-white p-4">
+            <div class="flex items-baseline justify-between">
+                <h2 class="font-medium">ظرفیت</h2>
+                <span class="tabular text-sm {{ $isFull ? 'font-medium text-amber-800' : 'text-slate-600' }}">
+                    {{ $seatsUsed }} از {{ $seatLimit }} نفر
+                </span>
+            </div>
+            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full {{ $isFull ? 'bg-amber-500' : 'bg-brand-600' }}"
+                     style="width: {{ min(100, round($seatsUsed / max(1, $seatLimit) * 100)) }}%"></div>
+            </div>
+
+            @if ($isFull)
+                <p class="mt-2 text-xs text-amber-800">
+                    ظرفیت پر است. {{ $canBuySeats ? 'برای افزودن نفر تازه، پایین همین صفحه ظرفیت را افزایش دهید.' : '' }}
+                </p>
+            @endif
+        </div>
+
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <h2 class="font-medium">افزودن عضو</h2>
             <p class="mt-1 text-xs text-slate-500">
-                فقط نام و شماره. از همان لحظه قابل اساین شدن است، حتی اگر هرگز وارد سامانه نشود.
+                فقط نام و شماره. از همان لحظه می‌توانید کار به او بسپارید، حتی اگر هیچ‌وقت وارد برنامه نشود.
             </p>
 
             <form method="POST" action="{{ route('members.store') }}" class="mt-3 space-y-3">
@@ -221,6 +244,29 @@
                 </button>
             </form>
         </div>
+
+        @if ($canBuySeats && $seatPrice)
+            <div class="rounded-2xl border border-slate-200 bg-white p-4" id="more-seats">
+                <h2 class="font-medium">افزایش ظرفیت</h2>
+                <p class="mt-1 text-xs leading-6 text-slate-500">
+                    فقط برای روزهای باقی‌مانده‌ی اشتراک حساب می‌شود.
+                    هر نفر اضافه برای {{ $seatPrice['days'] }} روز باقی‌مانده:
+                    <span class="tabular font-medium text-slate-700">{{ number_format(intdiv($seatPrice['subtotal'], 10)) }} تومان</span>
+                    به‌علاوه‌ی ارزش افزوده.
+                </p>
+
+                <form method="POST" action="{{ route('billing.seats') }}" class="mt-3 flex gap-2">
+                    @csrf
+                    <label for="extra-seats" class="sr-only">تعداد نفر اضافه</label>
+                    <input id="extra-seats" name="extra_seats" type="number" min="1" max="500" value="{{ old('extra_seats', 1) }}" required
+                           class="tabular w-20 rounded-xl border border-slate-300 px-3 py-2 text-sm">
+                    <button class="flex-1 rounded-xl bg-brand-700 px-3 py-2 text-sm font-medium text-white hover:bg-brand-800">
+                        صدور فاکتور
+                    </button>
+                </form>
+                @error('extra_seats')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
+            </div>
+        @endif
     </aside>
 </div>
 

@@ -64,4 +64,16 @@ class Invoice extends Model
     {
         return config("payment.plans.$this->plan_key.name", $this->plan_key);
     }
+
+    /**
+     * One line for what was bought, as a statement or an invoice row shows it.
+     */
+    public function description(): string
+    {
+        if ($this->kind === 'seats') {
+            return "افزایش ظرفیت {$this->seats} نفر تا پایان دوره";
+        }
+
+        return 'اشتراک '.$this->planName().' ('.($this->term === 'yearly' ? 'سالانه' : 'ماهانه').')';
+    }
 }

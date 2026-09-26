@@ -121,7 +121,7 @@
                         @foreach ($invoices as $invoice)
                             <tr>
                                 <td class="tabular py-2 pe-6" dir="ltr">{{ $invoice->number }}</td>
-                                <td class="py-2 pe-6">{{ $invoice->planName() }}</td>
+                                <td class="py-2 pe-6">{{ $invoice->description() }}</td>
                                 <td class="tabular py-2 pe-6">{{ number_format($invoice->totalInToman()) }} تومان</td>
                                 <td class="py-2 pe-6">
                                     <span class="rounded-full px-2 py-0.5 text-xs
