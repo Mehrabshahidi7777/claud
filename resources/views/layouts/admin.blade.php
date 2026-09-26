@@ -19,7 +19,6 @@
         <a href="{{ route('admin.dashboard') }}" class="flex shrink-0 items-center gap-2 text-lg font-bold">
             <img src="/icons/logo.svg" alt="" class="size-8" width="32" height="32">
             {{ config('brand.name') }}
-            <span class="ms-1 rounded-md bg-amber-400 px-2 py-0.5 text-xs font-medium text-slate-900">مدیریت کل</span>
         </a>
 
         @php
