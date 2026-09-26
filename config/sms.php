@@ -67,6 +67,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Sign-in codes to numbers we have never seen
+    |--------------------------------------------------------------------------
+    |
+    | The per-number and per-IP limits stop one client. This stops many: a
+    | botnet asking for codes to thousands of random numbers would otherwise
+    | spend the whole panel credit, since every code is a paid SMS. Only new
+    | numbers count, so existing customers can still sign in during an attack.
+    |
+    */
+
+    'otp_new_numbers_hourly_limit' => (int) env('OTP_NEW_NUMBERS_HOURLY_LIMIT', 100),
+
+    /*
+    |--------------------------------------------------------------------------
     | Pattern registry
     |--------------------------------------------------------------------------
     |

@@ -86,6 +86,7 @@ Route::middleware(['auth', 'has-workspace', 'subscribed'])->group(function () {
 
     Route::get('tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::post('tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('tasks/export', [TaskController::class, 'export'])->name('tasks.export');
     Route::get('tasks/{task}', [TaskController::class, 'show'])->name('tasks.show');
     Route::post('tasks/{task}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
     Route::post('tasks/{task}/cancel', [TaskController::class, 'cancel'])->name('tasks.cancel');

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Sms\PatternMessage;
 use App\Support\PersianText;
 use App\Support\PhoneNumber;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +25,8 @@ class OtpService
     private const CODE_LENGTH = 5;
 
     private const TTL_SECONDS = 120;
+
+    public const NEW_NUMBERS_CAPPED_KEY = 'otp:new-numbers-capped-at';
 
     public function __construct(private readonly SmsDriver $driver) {}
 
@@ -57,6 +60,15 @@ class OtpService
 
         if ($ip !== null && $wait = $this->throttled("otp:ip:$ip", 10, 3600)) {
             return $this->refuse('ip_limit', $wait);
+        }
+
+        if (User::where('phone', $phone)->doesntExist()
+            && $wait = $this->throttled('otp:new-numbers', (int) config('sms.otp_new_numbers_hourly_limit', 100), 3600)) {
+            // Remembered for a day so the platform panel can say it happened.
+            Cache::put(self::NEW_NUMBERS_CAPPED_KEY, now()->toIso8601String(), now()->addDay());
+            Log::warning('OTP ceiling for new numbers reached.', ['phone' => $phone, 'ip' => $ip]);
+
+            return $this->refuse('busy', $wait);
         }
 
         $code = $this->generateCode();

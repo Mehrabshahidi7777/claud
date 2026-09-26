@@ -161,7 +161,7 @@ class PlatformStats
     /**
      * Signs that something is broken for everybody at once.
      *
-     * @return array{stuckFollowUps: int, failedJobs: int, unverifiedPayments: int}
+     * @return array{stuckFollowUps: int, failedJobs: int, unverifiedPayments: int, otpCeilingHitAt: ?string}
      */
     public function health(): array
     {
@@ -176,6 +176,10 @@ class PlatformStats
             // The bank took the money but the verify never came back. Each of
             // these is a customer who paid and may not have been credited.
             'unverifiedPayments' => Payment::where('status', PaymentStatus::Paid->value)->count(),
+
+            // Sign-in codes to new numbers hit their hourly ceiling in the
+            // last day: either a very good launch or someone burning credit.
+            'otpCeilingHitAt' => Cache::get(OtpService::NEW_NUMBERS_CAPPED_KEY),
         ];
     }
 

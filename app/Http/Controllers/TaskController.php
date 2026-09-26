@@ -10,10 +10,14 @@ use App\Models\Task;
 use App\Services\CurrentWorkspace;
 use App\Services\FollowUpScheduler;
 use App\Support\JalaliDate;
+use App\Support\PersianText;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TaskController extends Controller
 {
@@ -27,24 +31,92 @@ class TaskController extends Controller
         $workspace = $this->workspace->get();
 
         $filter = $request->string('filter')->toString() ?: 'open';
+        $search = trim($request->string('q')->toString());
 
-        $tasks = Task::forWorkspace($workspace->id)
-            ->unless($this->workspace->seesAllTasks(), fn ($q) => $q->involving($request->user()->id))
+        $tasks = $this->listQuery($request, $filter, $search)
             ->with(['assignee', 'followUps'])
-            ->when($filter === 'open', fn ($q) => $q->chaseable())
-            ->when($filter === 'overdue', fn ($q) => $q->chaseable()->where('due_at', '<', now()))
-            ->when($filter === 'mine', fn ($q) => $q->chaseable()->where('assignee_id', $request->user()->id))
-            ->when($filter === 'done', fn ($q) => $q->where('status', TaskStatus::Done->value))
-            ->orderByRaw('due_at IS NULL, due_at ASC')
             ->paginate(25)
             ->withQueryString();
 
         return view('tasks.index', [
             'tasks' => $tasks,
             'filter' => $filter,
+            'search' => $search,
             'workspace' => $workspace,
             'members' => $workspace->members()->orderBy('name')->get(),
         ]);
+    }
+
+    /**
+     * The list the viewer is looking at, as a spreadsheet: same filter, same
+     * search, same visibility. A UTF-8 byte-order mark goes first because
+     * without it Excel opens Persian text as mojibake.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $filter = $request->string('filter')->toString() ?: 'open';
+        $search = trim($request->string('q')->toString());
+
+        $tasks = $this->listQuery($request, $filter, $search)->with(['assignee', 'creator']);
+        $filename = 'tasks-'.str_replace('/', '-', JalaliDate::format(CarbonImmutable::now())).'.csv';
+
+        return response()->streamDownload(function () use ($tasks) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['عنوان', 'مسئول', 'سررسید', 'وضعیت', 'اولویت', 'ثبت‌کننده', 'تعداد تأخیر']);
+
+            $tasks->chunk(500, function ($chunk) use ($out) {
+                foreach ($chunk as $task) {
+                    fputcsv($out, array_map($this->spreadsheetSafe(...), [
+                        $task->title,
+                        $task->assignee?->name ?? '',
+                        $task->due_at ? JalaliDate::format(CarbonImmutable::parse($task->due_at)) : '',
+                        $task->status->label(),
+                        $task->priority->label(),
+                        $task->creator?->name ?? '',
+                        $task->defer_count,
+                    ]));
+                }
+            });
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * A title typed as "=HYPERLINK(...)" would run as a formula when the
+     * export is opened in Excel. A leading apostrophe makes it plain text.
+     */
+    private function spreadsheetSafe(string|int $value): string|int
+    {
+        return is_string($value) && preg_match('/^[=+\-@\t\r]/', $value) ? "'".$value : $value;
+    }
+
+    /**
+     * What the list shows for a filter and a search, limited to what this
+     * person may see. Shared by the page and its export so the two can never
+     * disagree about which tasks are in view.
+     */
+    private function listQuery(Request $request, string $filter, string $search): Builder
+    {
+        $workspace = $this->workspace->get();
+        $userId = $request->user()->id;
+
+        // Folded the way incoming replies are, so a search typed with an
+        // Arabic keyboard (ي، ك) or Persian digits still finds the task.
+        $term = $search === '' ? '' : PersianText::normalize($search);
+
+        return Task::forWorkspace($workspace->id)
+            ->unless($this->workspace->seesAllTasks(), fn ($q) => $q->involving($userId))
+            ->when($filter === 'open', fn ($q) => $q->chaseable())
+            ->when($filter === 'overdue', fn ($q) => $q->chaseable()->where('due_at', '<', now()))
+            ->when($filter === 'mine', fn ($q) => $q->chaseable()->where('assignee_id', $userId))
+            ->when($filter === 'done', fn ($q) => $q->where('status', TaskStatus::Done->value))
+            ->when($term !== '', fn ($q) => $q->where(function ($q) use ($term) {
+                $q->where('title', 'like', '%'.$term.'%')
+                    ->orWhereHas('assignee', fn ($q) => $q->where('name', 'like', '%'.$term.'%'));
+            }))
+            ->orderByRaw('due_at IS NULL, due_at ASC');
     }
 
     /**

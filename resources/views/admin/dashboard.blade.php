@@ -12,7 +12,7 @@
     $trend = $revenue['previous30'] > 0
         ? (int) round(($revenue['last30'] - $revenue['previous30']) / $revenue['previous30'] * 100)
         : null;
-    $problems = $health['stuckFollowUps'] + $health['failedJobs'] + $health['unverifiedPayments'];
+    $problems = $health['stuckFollowUps'] + $health['failedJobs'] + $health['unverifiedPayments'] + ($health['otpCeilingHitAt'] ? 1 : 0);
 @endphp
 
 {{-- Anything broken for everybody at once goes first, above the numbers. --}}
@@ -31,6 +31,14 @@
                     <span class="tabular font-bold">{{ number_format($health['unverifiedPayments']) }}</span>
                     پرداخت انجام شده ولی تأیید بانک نیامده.
                     <a href="{{ route('admin.payments.index', ['status' => 'paid']) }}" class="underline">ببینید</a>
+                </li>
+            @endif
+            @if ($health['otpCeilingHitAt'])
+                <li>
+                    سقف ساعتی کد ورود برای شماره‌های تازه در ۲۴ ساعت گذشته پر شد
+                    ({{ \App\Support\JalaliDate::format(\Carbon\CarbonImmutable::parse($health['otpCeilingHitAt'])) }}).
+                    اگر ثبت‌نام واقعی نبوده، کسی دارد اعتبار پیامک را خرج می‌کند؛ اعتبار آموت و لاگ را ببینید.
+                    سقف در <code dir="ltr">OTP_NEW_NUMBERS_HOURLY_LIMIT</code> است.
                 </li>
             @endif
             @if ($health['failedJobs'] > 0)

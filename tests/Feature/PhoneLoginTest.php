@@ -6,8 +6,10 @@ use App\Contracts\SmsDriver;
 use App\Models\OtpCode;
 use App\Models\User;
 use App\Models\Workspace;
+use App\Services\OtpService;
 use App\Sms\Drivers\FakeSmsDriver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
@@ -293,6 +295,26 @@ class PhoneLoginTest extends TestCase
             ->assertRedirect(route('dashboard'));
 
         $this->assertDatabaseMissing('workspaces', ['name' => 'یک شرکت دیگر']);
+    }
+
+    public function test_codes_to_new_numbers_stop_at_the_hourly_ceiling_but_customers_still_sign_in(): void
+    {
+        // Many clients asking for codes to random numbers, each under its own
+        // limits, would otherwise spend the whole SMS credit.
+        config(['sms.otp_new_numbers_hourly_limit' => 1]);
+        RateLimiter::clear('otp:new-numbers');
+        User::factory()->withPhone('989127770000')->create(['name' => 'مشتری قدیمی']);
+
+        $this->post(route('login.request'), ['phone' => '09125550001'], ['REMOTE_ADDR' => '10.0.0.1'])
+            ->assertRedirect(route('login.code'));
+
+        $this->post(route('login.request'), ['phone' => '09125550002'], ['REMOTE_ADDR' => '10.0.0.2'])
+            ->assertSessionHasErrors('phone');
+        $this->sms->assertSentCount(1);
+        $this->assertNotNull(Cache::get(OtpService::NEW_NUMBERS_CAPPED_KEY));
+
+        $this->post(route('login.request'), ['phone' => '09127770000'], ['REMOTE_ADDR' => '10.0.0.3'])
+            ->assertRedirect(route('login.code'));
     }
 
     public function test_the_login_page_explains_the_product_and_its_three_plans(): void
