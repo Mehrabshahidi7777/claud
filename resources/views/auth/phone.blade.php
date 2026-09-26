@@ -123,7 +123,7 @@
 {{-- What it is, in three steps, before any prices. Short on purpose: a
      visitor should get it from the headings alone. --}}
 <section class="mx-auto mt-12 max-w-4xl">
-    <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none md:text-center">پیگیر چطور کار می‌کند؟</h2>
+    <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none">پیگیر چطور کار می‌کند؟</h2>
 
     <ol class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
         @foreach ([
@@ -147,10 +147,8 @@
      swipe. Native scroll snapping: no library, and it still works as a plain
      scrolling row with JavaScript off. --}}
 <section class="mx-auto mt-12 max-w-4xl" data-plan-cards>
-    <h2 class="mx-auto max-w-sm text-base font-bold">سه پلن، برای سه جور کار</h2>
-    <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600">
-        بعد از ورود یکی را انتخاب می‌کنید.<span class="md:hidden"> کارت‌ها را بکشید تا بقیه را ببینید.</span>
-    </p>
+    {{-- Headings sit on the same edge as the cards under them. --}}
+    <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none">سه پلن، برای سه جور کار</h2>
 
     {{-- On a wide screen all three fit, so they simply sit side by side. --}}
     <div class="-mx-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden"
@@ -192,8 +190,8 @@
     {{-- Who pays so nobody else has to. On the page every visitor sees,
          which is what a sponsor is buying. --}}
     <section class="mx-auto mt-12 max-w-4xl">
-        <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none md:text-center">اسپانسرهای پیگیر</h2>
-        <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600 md:max-w-none md:text-center">
+        <h2 class="mx-auto max-w-sm text-base font-bold md:max-w-none">اسپانسرهای پیگیر</h2>
+        <p class="mx-auto mt-1 max-w-sm text-sm text-slate-600 md:max-w-none">
             پیگیر به لطف اسپانسرها زنده است.
         </p>
         <div class="mx-auto mt-4 grid max-w-sm gap-3 md:max-w-none md:grid-cols-3">
