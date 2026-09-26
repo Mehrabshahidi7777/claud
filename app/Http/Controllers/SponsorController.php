@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Sponsor;
 use App\Services\CurrentWorkspace;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,12 +41,20 @@ class SponsorController extends Controller
     /**
      * Count the click, then send them on. Only active sponsors with a site
      * redirect, so the route can never be used to bounce people elsewhere.
+     *
+     * One count per browser session: the number is what a sponsor is shown
+     * when renewing, and ten taps by one curious person are not ten visits.
      */
-    public function visit(Sponsor $sponsor): RedirectResponse
+    public function visit(Request $request, Sponsor $sponsor): RedirectResponse
     {
         abort_unless($sponsor->is_active && $sponsor->website_url, 404);
 
-        $sponsor->increment('clicks');
+        $key = "sponsor-clicked.{$sponsor->id}";
+
+        if (! $request->session()->has($key)) {
+            $sponsor->increment('clicks');
+            $request->session()->put($key, true);
+        }
 
         return redirect()->away($sponsor->website_url);
     }

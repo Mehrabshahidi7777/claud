@@ -128,7 +128,9 @@ class SponsorTest extends TestCase
 
         $this->get(route('login'))->assertSee('example.ir');
         $this->get(route('sponsors.visit', $sponsor))->assertRedirect('https://www.example.ir/');
+        $this->get(route('sponsors.visit', $sponsor))->assertRedirect('https://www.example.ir/');
 
+        // Twice from the same visitor is one visit.
         $this->assertSame(1, $sponsor->fresh()->clicks);
     }
 
