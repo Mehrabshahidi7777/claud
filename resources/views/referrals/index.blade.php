@@ -68,6 +68,7 @@
         </div>
     </div>
 
+    @if ($showsReferred)
     <section class="mt-6">
         <h2 class="font-medium">کسانی که با لینک شما آمده‌اند</h2>
 
@@ -97,6 +98,7 @@
             </ul>
         @endif
     </section>
+    @endif
 </div>
 
 @endsection

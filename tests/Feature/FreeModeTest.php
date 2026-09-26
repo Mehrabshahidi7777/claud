@@ -134,10 +134,15 @@ class FreeModeTest extends TestCase
         $member = User::factory()->create();
         $workspace->members()->attach($member, ['role' => 'member']);
 
+        $other = Workspace::factory()->withoutSubscription()->create(['name' => 'شرکت دعوت‌شده']);
+        $other->forceFill(['referred_by_workspace_id' => $workspace->id])->save();
+
+        // The link is for everyone; which companies came through it is not.
         $this->actingAs($member)->get(route('referrals.index'))
             ->assertOk()
             ->assertSee('رایگان')
-            ->assertDontSee('روز اضافه روی اشتراکتان');
+            ->assertDontSee('روز اضافه روی اشتراکتان')
+            ->assertDontSee('شرکت دعوت‌شده');
     }
 
     public function test_the_platform_panel_shows_sponsors_instead_of_revenue(): void

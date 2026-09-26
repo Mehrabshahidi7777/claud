@@ -46,7 +46,10 @@ class ReferralController extends Controller
             'link' => route('referral.capture', $this->referrals->codeFor($workspace)),
             'bonusDays' => $this->referrals->bonusDays(),
             'trialDays' => (int) config('payment.trial_days'),
-            'referred' => $referred,
+            // Anyone may share the link; only those who manage the people
+            // here see which other companies came through it.
+            'referred' => $current->can(Permission::ManageMembers) ? $referred : collect(),
+            'showsReferred' => $current->can(Permission::ManageMembers),
         ]);
     }
 }

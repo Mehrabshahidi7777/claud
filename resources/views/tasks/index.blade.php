@@ -9,15 +9,15 @@
     use Carbon\CarbonImmutable;
 @endphp
 
-<div class="grid gap-6 lg:grid-cols-[1fr_22rem]">
+<div class="grid gap-6 lg:grid-cols-[1fr_22rem] [&>*]:min-w-0">
 
     <div>
         {{-- Search and export sit above the filters: a manager looking for
              "that plumbing job" should not have to guess which tab it is on. --}}
-        <form method="GET" action="{{ route('tasks.index') }}" class="mb-3 flex gap-2">
+        <form method="GET" action="{{ route('tasks.index') }}" class="mb-3 flex flex-wrap gap-2">
             <input type="hidden" name="filter" value="{{ $filter }}">
             <input type="search" name="q" value="{{ $search }}" placeholder="جست‌وجو در عنوان کار یا نام مسئول"
-                   class="min-w-0 flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
+                   class="min-w-0 flex-1 basis-48 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
             <button class="shrink-0 rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">جست‌وجو</button>
             <a href="{{ route('tasks.export', array_filter(['filter' => $filter, 'q' => $search])) }}"
                class="shrink-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
