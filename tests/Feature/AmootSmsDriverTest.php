@@ -39,6 +39,19 @@ class AmootSmsDriverTest extends TestCase
             && ! array_key_exists('LineNumber', $request->data()));
     }
 
+    public function test_a_base_address_pasted_with_the_method_name_still_works(): void
+    {
+        // The panel shows full addresses, and the method name ends up in the
+        // base: ".../rest/SendWithPatternOWN". It must not be sent twice.
+        config(['sms.patterns.otp.code' => '77']);
+        Http::fake(['*' => Http::response(['Status' => 'Success'])]);
+
+        $this->driver(['base_url' => 'https://portal.amootsms.com/rest/SendWithPatternOWN'])
+            ->send(PatternMessage::make('989121110001', 'otp', ['code' => '12345']));
+
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://portal.amootsms.com/rest/SendWithPatternOWN');
+    }
+
     public function test_a_comma_inside_a_value_does_not_shift_the_values_after_it(): void
     {
         $this->sendChase('خرید میز, صندلی');

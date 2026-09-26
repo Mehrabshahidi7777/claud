@@ -155,10 +155,23 @@ class AmootSmsDriver implements SmsDriver
         return $value === '' ? null : $value;
     }
 
+    /**
+     * The panel shows full method addresses, so the base is often pasted as
+     * ".../rest/SendWithPatternOWN". Left as it is, every call would go to
+     * ".../SendWithPatternOWN/SendWithPatternOWN" and fail; the trailing
+     * method name is dropped so the base is the base.
+     */
+    private function baseUrl(): string
+    {
+        $base = rtrim(trim((string) ($this->config['base_url'] ?? '')), '/');
+
+        return preg_replace('#/(SendWithPattern(OWN)?|SendSimple\w*|AccountStatus)$#i', '', $base).'/';
+    }
+
     private function request(): PendingRequest
     {
         return $this->http
-            ->baseUrl(rtrim((string) ($this->config['base_url'] ?? ''), '/').'/')
+            ->baseUrl($this->baseUrl())
             ->timeout((int) ($this->config['timeout_seconds'] ?? 15))
             ->withHeaders(array_filter(['Authorization' => $this->config['token'] ?? null]))
             ->acceptJson();
