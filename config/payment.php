@@ -84,10 +84,12 @@ return [
     'grace_days' => env('SUBSCRIPTION_GRACE_DAYS', 7),
 
     /*
-    | A trial that asks for a card is a trial most people never start.
+    | A trial that asks for a card is a trial most people never start. One
+    | per phone number, on whichever of the three plans they sign up for: a
+    | second trial means a second SIM card, which costs more than it saves.
     */
 
-    'trial_days' => env('SUBSCRIPTION_TRIAL_DAYS', 14),
+    'trial_days' => env('SUBSCRIPTION_TRIAL_DAYS', 15),
 
     /*
     |--------------------------------------------------------------------------

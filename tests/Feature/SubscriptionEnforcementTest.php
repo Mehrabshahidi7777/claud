@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Contracts\SmsDriver;
 use App\Enums\SubscriptionStatus;
+use App\Enums\WorkspaceType;
 use App\Models\Subscription;
 use App\Models\Task;
 use App\Models\User;
@@ -13,6 +14,7 @@ use App\Services\FollowUpScheduler;
 use App\Sms\Drivers\FakeSmsDriver;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -61,6 +63,35 @@ class SubscriptionEnforcementTest extends TestCase
 
         $this->assertNotNull($subscription);
         $this->assertSame(SubscriptionStatus::Trialing, $subscription->status);
+    }
+
+    /**
+     * @return array<string, array{WorkspaceType}>
+     */
+    public static function workspaceTypes(): array
+    {
+        return [
+            'corporate' => [WorkspaceType::Corporate],
+            'family' => [WorkspaceType::Family],
+            'friends' => [WorkspaceType::Friends],
+        ];
+    }
+
+    #[DataProvider('workspaceTypes')]
+    public function test_every_plan_gets_fifteen_free_days_on_its_own_plan(WorkspaceType $type): void
+    {
+        $user = User::factory()->create(['name' => '']);
+
+        $this->actingAs($user)->post(route('onboarding.store'), [
+            'name' => 'مهراب شهیدی',
+            'workspace' => 'فضای آزمایشی',
+            'type' => $type->value,
+        ]);
+
+        $subscription = Workspace::where('name', 'فضای آزمایشی')->first()->subscriptions()->first();
+
+        $this->assertSame($type->planKey(), $subscription->plan_key);
+        $this->assertEquals(CarbonImmutable::parse('2026-10-07 09:00:00'), $subscription->ends_at);
     }
 
     public function test_a_trialing_workspace_can_create_work(): void

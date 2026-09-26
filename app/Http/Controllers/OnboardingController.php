@@ -36,7 +36,7 @@ class OnboardingController extends Controller
     {
         // The same door the form is behind. Posting here again after
         // onboarding would mint a fresh workspace with a fresh free trial,
-        // every fourteen days, for as long as anyone cared to.
+        // every trial period, for as long as anyone cared to.
         if ($request->user()->name !== '' && $request->user()->workspaces()->exists()) {
             return redirect()->route('dashboard');
         }

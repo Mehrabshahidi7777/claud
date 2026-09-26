@@ -162,7 +162,7 @@ class BillingService
     }
 
     /**
-     * The fourteen day trial. No card is asked for: a trial that wants one is
+     * The free trial, fifteen days unless configured otherwise. No card is asked for: a trial that wants one is
      * a trial most people never start.
      */
     public function startTrial(Workspace $workspace, ?string $planKey = null): Subscription
@@ -178,7 +178,7 @@ class BillingService
             'term' => 'monthly',
             'status' => SubscriptionStatus::Trialing,
             'starts_at' => now(),
-            'ends_at' => now()->addDays((int) config('payment.trial_days', 14)),
+            'ends_at' => now()->addDays((int) config('payment.trial_days', 15)),
         ]);
     }
 

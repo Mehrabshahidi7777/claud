@@ -12,7 +12,12 @@
     </p>
     <h1 class="mt-3 text-xl font-bold">{{ config('brand.slogan') }}</h1>
 
-    <p class="mt-2 text-sm text-slate-600">
+    {{-- The offer, where a prospect decides whether to type their number. --}}
+    <p class="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800">
+        {{ (int) config('payment.trial_days') }} روز رایگان، روی هر سه پلن — بدون پرداخت
+    </p>
+
+    <p class="mt-3 text-sm text-slate-600">
         شماره موبایل خود را بفرستید. کد ورود پیامک می‌شود — نه رمزی هست، نه
         ایمیلی.
     </p>
