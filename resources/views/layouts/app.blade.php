@@ -84,9 +84,9 @@
                         <p class="tabular text-xs text-slate-500" dir="ltr">{{ $user->localPhone() }}</p>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" data-confirm="آیا می‌خواهید خارج شوید؟">
                         @csrf
-                        <button type="submit" class="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900">خروج</button>
+                        <button type="submit" class="rounded-lg px-2 py-1 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">خروج</button>
                     </form>
                 </div>
             </div>
@@ -140,17 +140,17 @@
                             @include('layouts.partials.workspace-switcher')
                             @include('layouts.partials.nav')
 
-                            <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 pt-3">
+                            <form method="POST" action="{{ route('logout') }}" class="border-t border-slate-100 pt-3" data-confirm="آیا می‌خواهید خارج شوید؟">
                                 @csrf
-                                <button type="submit" class="w-full rounded-lg px-3 py-2 text-start text-sm text-slate-600 hover:bg-slate-100">خروج</button>
+                                <button type="submit" class="w-full rounded-lg px-3 py-2 text-start text-sm text-red-600 hover:bg-red-50 hover:text-red-700">خروج</button>
                             </form>
                         </div>
                     </div>
                 </details>
             @else
-                <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+                <form method="POST" action="{{ route('logout') }}" class="shrink-0" data-confirm="آیا می‌خواهید خارج شوید؟">
                     @csrf
-                    <button type="submit" class="rounded-lg px-2 py-1 text-sm text-slate-500 hover:bg-slate-100 hover:text-slate-900">خروج</button>
+                    <button type="submit" class="rounded-lg px-2 py-1 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">خروج</button>
                 </form>
             @endif
         </div>

@@ -128,10 +128,47 @@ if (contractKind) {
  * to do on a misclick — and unlike completing a task, there is no button that
  * undoes it.
  */
+let confirmDialog = null;
+
+/**
+ * One small dialog, built on first use, with the question in Persian and
+ * «بله» / «خیر» buttons. The browser's own confirm() would show "OK" and
+ * "Cancel" in whatever language the phone is set to.
+ */
+function askToConfirm(message) {
+    if (!confirmDialog) {
+        confirmDialog = document.createElement('dialog');
+        confirmDialog.dir = 'rtl';
+        confirmDialog.className =
+            'm-auto w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-xl backdrop:bg-slate-900/40';
+        confirmDialog.innerHTML = `
+            <form method="dialog" class="p-5">
+                <p data-message class="text-base font-medium leading-7"></p>
+                <div class="mt-5 flex gap-2">
+                    <button value="yes" class="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700">بله</button>
+                    <button value="no" class="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">خیر</button>
+                </div>
+            </form>`;
+        document.body.append(confirmDialog);
+    }
+
+    confirmDialog.querySelector('[data-message]').textContent = message;
+
+    return new Promise((resolve) => {
+        confirmDialog.addEventListener('close', () => resolve(confirmDialog.returnValue === 'yes'), { once: true });
+        confirmDialog.returnValue = '';
+        confirmDialog.showModal();
+        confirmDialog.querySelector('button[value="no"]').focus();
+    });
+}
+
 document.querySelectorAll('form[data-confirm]').forEach((form) => {
-    form.addEventListener('submit', (event) => {
-        if (!window.confirm(form.dataset.confirm)) {
-            event.preventDefault();
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (await askToConfirm(form.dataset.confirm)) {
+            // submit() skips this listener, so the question is asked once.
+            form.submit();
         }
     });
 });

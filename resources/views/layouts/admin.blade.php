@@ -45,9 +45,9 @@
             <a href="{{ route('onboarding') }}" class="shrink-0 text-sm text-slate-300 hover:text-white">ساختن فضای کاری خودم</a>
         @endif
 
-        <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+        <form method="POST" action="{{ route('logout') }}" class="shrink-0" data-confirm="آیا می‌خواهید خارج شوید؟">
             @csrf
-            <button type="submit" class="text-sm text-slate-300 hover:text-white">خروج</button>
+            <button type="submit" class="text-sm text-red-300 hover:text-red-200">خروج</button>
         </form>
     </div>
 </header>
