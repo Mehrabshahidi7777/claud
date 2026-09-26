@@ -78,16 +78,20 @@
                     </a>
                 @endif
 
-                <div class="flex items-center gap-2 px-1">
-                    <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-medium text-slate-800">{{ $user->name ?: '—' }}</p>
-                        <p class="tabular text-xs text-slate-500" dir="ltr">{{ $user->localPhone() }}</p>
-                    </div>
+                {{-- The signed-in person. The name gets its own line so a long
+                     one is cut with an ellipsis rather than pushing things
+                     around; the phone and «خروج» share the line below it. --}}
+                <div class="px-1">
+                    <p class="truncate text-sm font-medium text-slate-800" title="{{ $user->name }}">{{ $user->name ?: '—' }}</p>
 
-                    <form method="POST" action="{{ route('logout') }}" data-confirm="آیا می‌خواهید خارج شوید؟">
-                        @csrf
-                        <button type="submit" class="rounded-lg px-2 py-1 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">خروج</button>
-                    </form>
+                    <div class="mt-0.5 flex items-center justify-between gap-2">
+                        <span class="tabular text-xs text-slate-500" dir="ltr">{{ $user->localPhone() }}</span>
+
+                        <form method="POST" action="{{ route('logout') }}" data-confirm="آیا می‌خواهید خارج شوید؟">
+                            @csrf
+                            <button type="submit" class="-me-2 rounded-lg px-2 py-0.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">خروج</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </aside>
