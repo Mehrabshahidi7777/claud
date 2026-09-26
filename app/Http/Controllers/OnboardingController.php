@@ -84,6 +84,8 @@ class OnboardingController extends Controller
             $this->referrals->attach($workspace, $referralCode);
         });
 
-        return redirect()->route('dashboard');
+        // Somewhere they were heading before signing up, such as the invite
+        // page from the login screen's button.
+        return redirect()->intended(route('dashboard'));
     }
 }

@@ -137,6 +137,36 @@ document.querySelectorAll('form[data-confirm]').forEach((form) => {
 });
 
 /**
+ * The plan cards on the login page. Swiping is the browser's own scroll
+ * snapping; this only keeps the dots in step and lets a click on one jump to
+ * its card, for anyone on a desktop without a touchpad.
+ */
+const planCards = document.querySelector('[data-plan-cards]');
+
+if (planCards) {
+    const track = planCards.querySelector('[data-plan-track]');
+    const cards = [...planCards.querySelectorAll('[data-plan-card]')];
+    const dots = [...planCards.querySelectorAll('[data-plan-dot]')];
+
+    const mark = (index) => dots.forEach((dot, i) => dot.toggleAttribute('data-active', i === index));
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries
+                .filter((entry) => entry.isIntersecting)
+                .forEach((entry) => mark(cards.indexOf(entry.target)));
+        },
+        { root: track, threshold: 0.6 },
+    );
+
+    cards.forEach((card) => observer.observe(card));
+    dots.forEach((dot, i) =>
+        dot.addEventListener('click', () => cards[i].scrollIntoView({ inline: 'center', block: 'nearest' })),
+    );
+    mark(0);
+}
+
+/**
  * The referral link: copy it, or hand it to the phone's own share sheet where
  * there is one. Most owners will paste it into a chat, so copying has to work
  * on the first tap and say that it did.

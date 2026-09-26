@@ -16,9 +16,17 @@ use Illuminate\Validation\ValidationException;
  */
 class PhoneLoginController extends Controller
 {
-    public function show()
+    public function show(Request $request)
     {
-        return view('auth.phone');
+        // "Invite a friend" on the login page: remember where they were
+        // heading, so signing in (or finishing sign-up) lands on their link.
+        if ($request->query('next') === 'invite') {
+            $request->session()->put('url.intended', route('referrals.index'));
+        }
+
+        return view('auth.phone', [
+            'isHeadingToInvite' => $request->session()->get('url.intended') === route('referrals.index'),
+        ]);
     }
 
     public function requestCode(Request $request, OtpService $otp)
@@ -100,7 +108,7 @@ class PhoneLoginController extends Controller
         // Signing in lands on the dashboard rather than the task list: it
         // is the one screen that answers "چه خبر؟" without a click, and it
         // adapts to whichever of the three products this workspace is.
-        return redirect()->route('dashboard');
+        return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request)

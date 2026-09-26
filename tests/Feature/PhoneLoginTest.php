@@ -295,6 +295,44 @@ class PhoneLoginTest extends TestCase
         $this->assertDatabaseMissing('workspaces', ['name' => 'یک شرکت دیگر']);
     }
 
+    public function test_the_login_page_explains_the_three_plans(): void
+    {
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertSee('شرکتی')
+            ->assertSee('خانوادگی')
+            ->assertSee('دوستانه')
+            ->assertSee(route('login', ['next' => 'invite']), false);
+    }
+
+    public function test_the_invite_button_lands_an_existing_owner_on_their_invite_page(): void
+    {
+        $owner = User::factory()->withPhone('989121234567')->create(['name' => 'مهراب شهیدی']);
+        Workspace::factory()->create()->members()->attach($owner, ['role' => 'owner']);
+
+        $this->get(route('login', ['next' => 'invite']))->assertSee('لینک دعوت');
+
+        $code = $this->requestCodeAndCapture('09121234567');
+
+        $this->post(route('login.verify'), ['code' => $code])
+            ->assertRedirect(route('referrals.index'));
+    }
+
+    public function test_the_invite_button_lands_a_newcomer_on_the_invite_page_after_sign_up(): void
+    {
+        $this->get(route('login', ['next' => 'invite']));
+
+        $code = $this->requestCodeAndCapture('09121234567');
+
+        $this->post(route('login.verify'), ['code' => $code])->assertRedirect(route('onboarding'));
+
+        $this->post(route('onboarding.store'), [
+            'name' => 'سارا احمدی',
+            'workspace' => 'دفتر فنی نوین',
+            'type' => 'corporate',
+        ])->assertRedirect(route('referrals.index'));
+    }
+
     /**
      * The fake driver records the PatternMessage, so the code that was texted
      * is readable without reaching into the hash.
