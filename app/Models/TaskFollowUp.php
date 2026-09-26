@@ -59,7 +59,7 @@ class TaskFollowUp extends Model
 
         return $this->scheduled_at->isFuture()
             ? $this->scheduled_at->diffForHumans()
-            : 'در صف اجرا';
+            : 'در نوبت';
     }
 
     /**
@@ -75,14 +75,14 @@ class TaskFollowUp extends Model
     {
         return match ($this->skip_reason) {
             null => null,
-            'task_closed' => 'تسک قبلش بسته شده بود',
-            'task_deferred' => 'تسک به تعویق افتاده بود',
+            'task_closed' => 'کار قبلش بسته شده بود',
+            'task_deferred' => 'کار به تعویق افتاده بود',
             'no_recipient' => 'گیرنده‌ای نداشت',
             'recipient_opted_out' => 'گیرنده دریافت پیامک را قطع کرده',
             'recipient_away' => 'گیرنده مرخصی تأییدشده داشت',
             'sending_disabled_globally' => 'ارسال پیامک سراسری خاموش بود',
             'sending_disabled_for_workspace' => 'ارسال پیامک این فضای کاری خاموش بود',
-            'priority_below_sms_threshold' => 'اولویت تسک پایین‌تر از حد پیامک بود',
+            'priority_below_sms_threshold' => 'اولویت کار پایین‌تر از حد پیامک بود',
             'workspace_out_of_sms_credit' => 'اعتبار پیامک تمام شده بود',
             'subscription_expired' => 'اشتراک منقضی شده بود',
             default => $this->skip_reason,

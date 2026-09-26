@@ -18,7 +18,7 @@
     <div class="min-w-0">
 
         <a href="{{ route('tasks.index') }}" class="text-sm text-slate-500 hover:text-slate-900">
-            ← همه‌ی تسک‌ها
+            ← همه‌ی کارها
         </a>
 
         <div class="mt-3 rounded-2xl border bg-white p-5 {{ $isOverdue ? 'border-red-200' : 'border-slate-200' }}">
@@ -41,7 +41,7 @@
                          they set one is the failure this product exists to
                          prevent. --}}
                     <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
-                        بدون ددلاین — پیگیری نمی‌شود
+                        بدون مهلت — پیگیری نمی‌شود
                     </span>
                 @endif
 
@@ -90,10 +90,10 @@
 
                     @if ($canCancel)
                         <form method="POST" action="{{ route('tasks.cancel', $task) }}"
-                              data-confirm="این تسک لغو شود؟ پیگیری‌های باقی‌مانده هم حذف می‌شوند.">
+                              data-confirm="این کار لغو شود؟ پیگیری‌های باقی‌مانده هم حذف می‌شوند.">
                             @csrf
                             <button class="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-                                لغو تسک
+                                لغو کار
                             </button>
                         </form>
                     @endif
@@ -105,11 +105,11 @@
              reason: knowing why a message did not go out is worth as much as
              knowing that one did. --}}
         <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-            <h2 class="font-medium">نردبان پیگیری</h2>
+            <h2 class="font-medium">برنامه‌ی پیگیری</h2>
 
             @if ($task->followUps->isEmpty())
                 <p class="mt-2 text-sm text-slate-500">
-                    پیگیری‌ای زمان‌بندی نشده. تسک بدون ددلاین پیگیری نمی‌گیرد.
+                    پیگیری‌ای برنامه‌ریزی نشده. کاری که مهلت نداشته باشد پیگیری نمی‌شود.
                 </p>
             @else
                 <ol class="mt-3 space-y-3">
@@ -184,9 +184,9 @@
     <aside class="space-y-4">
         @unless ($task->status->isClosed())
             <div class="rounded-2xl border border-slate-200 bg-white p-4">
-                <h2 class="font-medium">جابه‌جایی ددلاین</h2>
+                <h2 class="font-medium">تغییر مهلت</h2>
                 <p class="mt-1 text-xs text-slate-500">
-                    نردبان پیگیری بر اساس تاریخ جدید بازسازی می‌شود.
+                    پیگیری‌ها بر اساس تاریخ جدید دوباره تنظیم می‌شوند.
                 </p>
 
                 <form method="POST" action="{{ route('tasks.reschedule', $task) }}" class="mt-3 space-y-3">
@@ -211,7 +211,7 @@
 
                     <button type="submit"
                             class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
-                        ثبت ددلاین جدید
+                        ثبت مهلت جدید
                     </button>
                 </form>
             </div>

@@ -46,7 +46,7 @@
                         $tiles = [
                             ['تکمیل به‌موقع', $report->metric('headline.on_time_rate'), $report->metric('change.on_time_rate'), true],
                             ['پاسخ به پیامک', $report->metric('headline.chase_response_rate'), $report->metric('change.chase_response_rate'), true],
-                            ['نسبت تشدید', $report->metric('headline.escalation_ratio'), $report->metric('change.escalation_ratio'), false],
+                            ['کارهایی که به مدیر رسید', $report->metric('headline.escalation_ratio'), $report->metric('change.escalation_ratio'), false],
                         ];
                     @endphp
 

@@ -200,7 +200,7 @@ class TaskController extends Controller
 
         Activity::record($task, 'task.created', $workspace->id, $request->user()->id);
 
-        return redirect()->route('tasks.index')->with('status', 'تسک ثبت شد و پیگیری‌اش زمان‌بندی شد.');
+        return redirect()->route('tasks.index')->with('status', 'کار ثبت شد و پیگیری‌اش برنامه‌ریزی شد.');
     }
 
     public function complete(Request $request, Task $task)
@@ -217,7 +217,7 @@ class TaskController extends Controller
 
         Activity::record($task, 'task.completed', $task->workspace_id, $request->user()->id);
 
-        return back()->with('status', 'تسک بسته شد.');
+        return back()->with('status', 'کار بسته شد.');
     }
 
     public function cancel(Request $request, Task $task)
@@ -231,7 +231,7 @@ class TaskController extends Controller
 
         Activity::record($task, 'task.cancelled', $task->workspace_id, $request->user()->id);
 
-        return back()->with('status', 'تسک لغو شد.');
+        return back()->with('status', 'کار لغو شد.');
     }
 
     public function reschedule(Request $request, Task $task)
@@ -256,7 +256,7 @@ class TaskController extends Controller
 
         Activity::record($task, 'task.rescheduled', $task->workspace_id, $request->user()->id);
 
-        return back()->with('status', 'ددلاین جدید ثبت شد و پیگیری بازسازی شد.');
+        return back()->with('status', 'مهلت جدید ثبت شد و پیگیری‌ها دوباره تنظیم شد.');
     }
 
     /**

@@ -68,7 +68,7 @@ class FollowUpWordingTest extends TestCase
     {
         $followUp = $this->followUp(['scheduled_at' => now()->subMonth()]);
 
-        $this->assertSame('در صف اجرا', $followUp->whenDue());
+        $this->assertSame('در نوبت', $followUp->whenDue());
     }
 
     public function test_a_sent_rung_reports_when_it_actually_went(): void
@@ -106,7 +106,7 @@ class FollowUpWordingTest extends TestCase
         $this->actingAs($owner)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSee('در صف اجرا')
+            ->assertSee('در نوبت')
             ->assertDontSee('ماه پیش');
     }
 }

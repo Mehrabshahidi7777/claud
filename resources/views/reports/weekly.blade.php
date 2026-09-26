@@ -42,7 +42,7 @@
             $tiles = [
                 ['تکمیل به‌موقع', 'headline.on_time_rate', 'change.on_time_rate', true],
                 ['پاسخ به پیامک پیگیری', 'headline.chase_response_rate', 'change.chase_response_rate', true],
-                ['نسبت تشدید', 'headline.escalation_ratio', 'change.escalation_ratio', false],
+                ['کارهایی که به مدیر رسید', 'headline.escalation_ratio', 'change.escalation_ratio', false],
             ];
         @endphp
 
@@ -76,7 +76,7 @@
             'ثبت‌شده' => 'counts.created',
             'بسته‌شده' => 'counts.closed',
             'عقب‌افتاده' => 'counts.overdue_now',
-            'تشدیدشده' => 'counts.escalated',
+            'به مدیر رسید' => 'counts.escalated',
         ] as $label => $key)
             <div class="rounded-xl border border-slate-200 bg-white px-4 py-3">
                 <p class="text-xs text-slate-500">{{ $label }}</p>

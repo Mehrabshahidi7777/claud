@@ -55,10 +55,10 @@ enum FollowUpStep: int
     public function label(): string
     {
         return match ($this) {
-            self::Nudge => 'یادآوری آرام',
+            self::Nudge => 'یادآوری داخل برنامه',
             self::DueMorning => 'یادآوری صبح سررسید',
             self::Chase => 'پیامک پیگیری',
-            self::Escalate => 'تشدید به مدیر',
+            self::Escalate => 'خبر دادن به مدیر',
             self::WeeklyReport => 'ثبت در گزارش هفتگی',
         };
     }

@@ -35,7 +35,7 @@
     $groups = [
         'کار' => [
             ['dashboard', 'خانه', 'home', $current === 'dashboard', true],
-            ['tasks.index', 'تسک‌ها', 'tasks', $starts('tasks'), true],
+            ['tasks.index', 'کارها', 'tasks', $starts('tasks'), true],
             ['recurring.index', 'کارهای دوره‌ای', 'recurring', $starts('recurring'), $workspace->has('recurring')],
             ['meetings.index', 'جلسات', 'meetings', $starts('meetings'),
                 $workspace->has('meetings') && $allowed(Permission::ManageMeetings)],

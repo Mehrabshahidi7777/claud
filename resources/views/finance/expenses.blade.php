@@ -69,7 +69,7 @@
                 @error('text')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
 
                 <button class="mt-2 w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
-                    استخراج هزینه
+                    پر کردن فرم از روی متن
                 </button>
             </form>
         </div>

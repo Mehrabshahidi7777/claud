@@ -216,7 +216,7 @@
 
         @if ($contract->tasks->isNotEmpty())
             <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
-                <h2 class="font-medium">تسک‌های تمدید</h2>
+                <h2 class="font-medium">کارهای تمدید</h2>
                 <ul class="mt-2 space-y-1.5">
                     @foreach ($contract->tasks as $task)
                         <li class="flex flex-wrap items-center gap-2">

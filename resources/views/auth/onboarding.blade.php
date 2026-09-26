@@ -43,7 +43,7 @@
 
                             @unless ($type->hasEscalation())
                                 <span class="mt-1 block text-xs text-slate-400">
-                                    بدون تشدید به مدیر — یادآوری فقط به خودِ شخص می‌رسد.
+                                    یادآوری فقط به خودِ شخص می‌رسد و به کس دیگری خبر داده نمی‌شود.
                                 </span>
                             @endunless
                         </span>

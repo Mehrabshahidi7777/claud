@@ -15,7 +15,7 @@
         <h1 class="mb-1 text-lg font-bold">قراردادها و مجوزها</h1>
         <p class="mb-4 text-sm text-slate-500">
             هر چیزی که تاریخ انقضا دارد — قرارداد کارکنان، مجوز، بیمه‌نامه،
-            اجاره‌نامه. قبل از انقضا خودش تبدیل به تسک می‌شود.
+            اجاره‌نامه. قبل از انقضا خودش تبدیل به کار می‌شود.
         </p>
 
         {{-- Loudest first, and worded as the exposure it is rather than as a

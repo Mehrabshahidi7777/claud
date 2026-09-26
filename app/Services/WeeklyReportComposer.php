@@ -217,7 +217,7 @@ class WeeklyReportComposer
 
         if ($snapshot['counts']['escalated'] > 0) {
             $sentences[] = sprintf(
-                '%s کار به مدیر مستقیم تشدید شد.',
+                'خبر %s کار به مدیر مستقیم رسید.',
                 $this->number($snapshot['counts']['escalated']),
             );
         }

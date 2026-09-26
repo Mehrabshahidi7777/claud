@@ -39,7 +39,7 @@ class TaskParseController extends Controller
             return response()->json([
                 'ok' => false,
                 'reason' => 'unavailable',
-                'message' => 'دستیار هوشمند در دسترس نیست. تسک را دستی ثبت کنید.',
+                'message' => 'دستیار هوشمند در دسترس نیست. کار را دستی ثبت کنید.',
             ], 503);
         }
 

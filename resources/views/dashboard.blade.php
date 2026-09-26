@@ -109,7 +109,7 @@
                                     {{ JalaliDate::format(CarbonImmutable::parse($task->due_at)) }}
                                 </span>
                             @else
-                                <span class="text-xs text-slate-400">بدون ددلاین</span>
+                                <span class="text-xs text-slate-400">بدون مهلت</span>
                             @endif
                         </li>
                     @endforeach
@@ -149,7 +149,7 @@
 
             @if ($cards['nextMoves']->isEmpty())
                 <p class="mt-3 text-sm text-slate-500">
-                    پیگیری‌ای در صف نیست. تسکی که ددلاین داشته باشد، خودش نردبانش ساخته می‌شود.
+                    فعلاً پیگیری‌ای در نوبت نیست. هر کاری که مهلت داشته باشد، پیگیری‌اش خودکار برنامه‌ریزی می‌شود.
                 </p>
             @else
                 <ul class="mt-3 divide-y divide-slate-100">

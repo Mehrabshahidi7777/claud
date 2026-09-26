@@ -48,7 +48,7 @@
         <div class="mt-4 rounded-2xl border border-emerald-200 bg-white p-5">
             <h2 class="font-medium">اقدام‌های پیشنهادی ({{ count($draftActions) }})</h2>
             <p class="mt-1 text-xs text-slate-500">
-                هرکدام را تأیید کنید تا تسک شود و پیگیری‌اش زمان‌بندی شود. هرچه تأیید
+                هرکدام را تأیید کنید تا کار شود و پیگیری‌اش زمان‌بندی شود. هرچه تأیید
                 نکنید دور ریخته می‌شود.
             </p>
 
@@ -77,7 +77,7 @@
                             </select>
 
                             <span class="tabular text-xs text-slate-500">
-                                {{ $action['due_date'] ?? 'بدون ددلاین' }}
+                                {{ $action['due_date'] ?? 'بدون مهلت' }}
                             </span>
 
                             <button type="submit"
@@ -93,7 +93,7 @@
 
     @if ($meeting->tasks->isNotEmpty())
         <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
-            <h2 class="font-medium">تسک‌های این جلسه ({{ $meeting->tasks->count() }})</h2>
+            <h2 class="font-medium">کارهای این جلسه ({{ $meeting->tasks->count() }})</h2>
 
             <ul class="mt-3 divide-y divide-slate-100 text-sm">
                 @foreach ($meeting->tasks as $task)
@@ -115,7 +115,7 @@
 
             <form method="POST" action="{{ route('meetings.reparse', $meeting) }}" class="ms-auto">
                 @csrf
-                <button class="text-xs text-slate-500 hover:text-slate-900">استخراج دوباره</button>
+                <button class="text-xs text-slate-500 hover:text-slate-900">دوباره بخوان</button>
             </form>
         </div>
 
@@ -126,7 +126,7 @@
         @unless ($meeting->processed_by_ai)
             <p class="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
                 این جلسه بدون دستیار هوشمند ثبت شده است. متن کامل نگه داشته شده و
-                هر وقت مدل در دسترس باشد می‌توانید دوباره استخراج کنید.
+                هر وقت مدل در دسترس باشد می‌توانید دوباره امتحان کنید.
             </p>
         @endunless
     </div>

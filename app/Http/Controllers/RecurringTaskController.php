@@ -126,7 +126,7 @@ class RecurringTaskController extends Controller
 
         Activity::record($recurrence, 'recurrence.created', $workspace->id, $request->user()->id);
 
-        return back()->with('status', 'ثبت شد. از حالا خودش سر وقت تبدیل به تسک می‌شود.');
+        return back()->with('status', 'ثبت شد. از حالا خودش سر وقت تبدیل به کار می‌شود.');
     }
 
     /**
@@ -143,7 +143,7 @@ class RecurringTaskController extends Controller
 
         return back()->with(
             'status',
-            $recurring->is_active ? 'دوباره فعال شد.' : 'متوقف شد. تسک تازه‌ای نمی‌سازد.',
+            $recurring->is_active ? 'دوباره فعال شد.' : 'متوقف شد. کار تازه‌ای نمی‌سازد.',
         );
     }
 

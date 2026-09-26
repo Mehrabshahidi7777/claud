@@ -156,7 +156,7 @@ class MeetingController extends Controller
 
         Activity::record($task, 'task.created_from_meeting', $workspace->id, $request->user()->id);
 
-        return back()->with('status', 'تسک ثبت شد و پیگیری‌اش زمان‌بندی شد.');
+        return back()->with('status', 'کار ثبت شد و پیگیری‌اش برنامه‌ریزی شد.');
     }
 
     /**

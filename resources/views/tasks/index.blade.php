@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'تسک‌ها')
+@section('title', 'کارها')
 
 @section('content')
 
@@ -44,9 +44,9 @@
             <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
                 <p class="text-slate-600">
                     @if ($search !== '')
-                        تسکی با «{{ $search }}» در این نما پیدا نشد.
+                        کاری با «{{ $search }}» در این فهرست پیدا نشد.
                     @else
-                        تسکی در این نما نیست.
+                        کاری در این فهرست نیست.
                     @endif
                 </p>
             </div>
@@ -139,7 +139,7 @@
         <div class="rounded-2xl border border-slate-200 bg-white p-4" x-data>
             <h2 class="font-medium">ثبت سریع با متن آزاد</h2>
             <p class="mt-1 text-xs text-slate-500">
-                هرچه در ذهن دارید بنویسید. تسک‌ها استخراج می‌شوند و خودتان تأیید می‌کنید.
+                هرچه در ذهن دارید بنویسید. کارها از دل متن درمی‌آیند و خودتان تأییدشان می‌کنید.
             </p>
 
             <textarea id="ai-text" rows="4"
@@ -148,7 +148,7 @@
 
             <button id="ai-parse" type="button"
                     class="mt-2 w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
-                استخراج تسک‌ها
+                تبدیل به کار
             </button>
 
             <p id="ai-message" class="mt-2 hidden text-xs"></p>
@@ -156,7 +156,7 @@
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-4">
-            <h2 class="font-medium">تسک جدید</h2>
+            <h2 class="font-medium">کار جدید</h2>
 
             <form method="POST" action="{{ route('tasks.store') }}" class="mt-3 space-y-3">
                 @csrf
@@ -191,7 +191,7 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label for="due_date" class="block text-sm">ددلاین</label>
+                        <label for="due_date" class="block text-sm">مهلت انجام</label>
                         <input id="due_date" name="due_date" value="{{ old('due_date') }}"
                                dir="ltr" placeholder="{{ \App\Support\JalaliDate::format(now()->toImmutable()->addDays(7)) }}"
                                class="tabular mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/15">
@@ -224,16 +224,16 @@
                     <input type="checkbox" name="may_break_quiet_hours" value="1" class="mt-1"
                            @checked(old('may_break_quiet_hours'))>
                     <span class="text-slate-600">
-                        اجازه‌ی شکستن ساعت سکوت
+                        پیامک حتی در ساعت استراحت برود
                         <span class="block text-xs text-slate-400">
-                            فقط برای تسک بحرانی اثر دارد.
+                            از ۹ شب تا ۸ صبح معمولاً پیامکی نمی‌رود. این گزینه فقط برای کار بحرانی است.
                         </span>
                     </span>
                 </label>
 
                 <button type="submit"
                         class="w-full rounded-xl bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-800">
-                    ثبت تسک
+                    ثبت کار
                 </button>
             </form>
         </div>

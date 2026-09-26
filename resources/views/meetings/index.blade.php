@@ -23,7 +23,7 @@
         <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
             <p class="text-slate-600">هنوز جلسه‌ای ثبت نشده.</p>
             <p class="mt-2 text-xs text-slate-400">
-                متن جلسه را بچسبانید تا اقدام‌هایش استخراج شود — و شش ماه بعد هنوز
+                متن جلسه را بچسبانید تا کارهایش از دل متن دربیاید — و شش ماه بعد هنوز
                 بدانید چه تصمیمی گرفته شد.
             </p>
         </div>
@@ -39,7 +39,7 @@
                         </span>
 
                         <span class="tabular ms-auto text-xs text-slate-400">
-                            {{ $meeting->tasks_count }} تسک
+                            {{ $meeting->tasks_count }} کار
                         </span>
                     </div>
 

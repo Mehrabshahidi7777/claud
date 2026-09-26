@@ -15,7 +15,7 @@
         <h1 class="mb-1 text-lg font-bold">کارهای دوره‌ای</h1>
         <p class="mb-4 text-sm text-slate-500">
             هر چیزی که تکرار می‌شود — سرویس مشتری، بیمه، قبض، تعویض روغن. سر
-            وقتش خودش تبدیل به تسک می‌شود و پیگیری می‌شود.
+            وقتش خودش تبدیل به کار می‌شود و پیگیری می‌شود.
         </p>
 
         {{-- The money line. Shown only where the work is priced: on a family
@@ -95,7 +95,7 @@
                             @if ($overdue)
                                 <span class="rounded-full bg-red-100 px-2 py-0.5 text-red-700">گذشته</span>
                             @elseif ($dueNow)
-                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800">تسکش ساخته شده</span>
+                                <span class="rounded-full bg-amber-100 px-2 py-0.5 text-amber-800">کارش ساخته شده</span>
                             @endif
 
                             <span>{{ $recurrence->assignee?->name ?? 'بدون مسئول' }}</span>

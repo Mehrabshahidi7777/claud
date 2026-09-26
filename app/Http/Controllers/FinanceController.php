@@ -207,7 +207,7 @@ class FinanceController extends Controller
 
         Activity::record($receivable, 'receivable.recorded', $workspace->id, $request->user()->id);
 
-        return back()->with('status', 'مطالبه ثبت شد. اگر سررسیدش بگذرد، خودش تبدیل به تسک می‌شود.');
+        return back()->with('status', 'مطالبه ثبت شد. اگر سررسیدش بگذرد، خودش تبدیل به کار می‌شود.');
     }
 
     /**

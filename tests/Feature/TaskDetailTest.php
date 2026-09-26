@@ -109,7 +109,7 @@ class TaskDetailTest extends TestCase
         $this->actingAs($this->owner)
             ->get(route('tasks.show', $task))
             ->assertOk()
-            ->assertSee('بدون ددلاین — پیگیری نمی‌شود');
+            ->assertSee('بدون مهلت — پیگیری نمی‌شود');
     }
 
     public function test_the_history_names_the_engine_when_nobody_did_it(): void
@@ -132,7 +132,7 @@ class TaskDetailTest extends TestCase
         $this->actingAs($this->member)
             ->get(route('tasks.show', $task))
             ->assertOk()
-            ->assertDontSee('لغو تسک');
+            ->assertDontSee('لغو کار');
 
         $this->actingAs($this->member)
             ->post(route('tasks.cancel', $task))
@@ -143,7 +143,7 @@ class TaskDetailTest extends TestCase
     {
         $task = $this->task();
 
-        $this->actingAs($this->owner)->get(route('tasks.show', $task))->assertSee('لغو تسک');
+        $this->actingAs($this->owner)->get(route('tasks.show', $task))->assertSee('لغو کار');
 
         $this->actingAs($this->owner)
             ->post(route('tasks.cancel', $task))

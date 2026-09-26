@@ -25,7 +25,7 @@
             <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
                 <p class="text-slate-600">مطالبه‌ای ثبت نشده.</p>
                 <p class="mt-2 text-xs text-slate-400">
-                    هر مطالبه‌ای که سررسیدش بگذرد، خودش تبدیل به تسک می‌شود و
+                    هر مطالبه‌ای که سررسیدش بگذرد، خودش تبدیل به کار می‌شود و
                     مسئولش پیگیری می‌شود.
                 </p>
             </div>
@@ -62,7 +62,7 @@
 
                             @if ($receivable->task)
                                 <a href="{{ route('tasks.show', $receivable->task) }}"
-                                   class="text-emerald-700 hover:underline">تسک پیگیری</a>
+                                   class="text-emerald-700 hover:underline">کار پیگیری</a>
                             @endif
                         </div>
 
@@ -104,7 +104,7 @@
             <h2 class="font-medium">ثبت مطالبه</h2>
             <p class="mt-1 text-xs text-slate-500">
                 {{ config('finance.chase_after_days') }} روز بعد از سررسید، خودش
-                تبدیل به تسک می‌شود و مسئولش پیگیری می‌شود.
+                تبدیل به کار می‌شود و مسئولش پیگیری می‌شود.
             </p>
 
             <form method="POST" action="{{ route('finance.receivables.store') }}" class="mt-3 space-y-3">

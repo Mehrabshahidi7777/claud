@@ -7,7 +7,7 @@
 <div class="mx-auto max-w-2xl">
     <h1 class="mb-1 text-lg font-bold">ثبت صورتجلسه</h1>
     <p class="mb-4 text-sm text-slate-500">
-        متن جلسه را همان‌طور که هست بچسبانید. اقدام‌ها استخراج می‌شوند و خودتان
+        متن جلسه را همان‌طور که هست بچسبانید. کارهای جلسه از دل متن درمی‌آیند و خودتان
         تأییدشان می‌کنید.
     </p>
 
@@ -44,12 +44,12 @@
              which is most of the value on its own. --}}
         <p class="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-500">
             فقط چیزی «اقدام» می‌شود که کسی صریحاً قبولش کرده باشد. بحث بدون تعهد
-            اقدام نیست. هیچ تسکی بدون تأیید شما ساخته نمی‌شود.
+            اقدام نیست. هیچ کاری بدون تأیید شما ساخته نمی‌شود.
         </p>
 
         <button type="submit"
                 class="w-full rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-800">
-            ثبت و استخراج اقدام‌ها
+            ثبت و پیدا کردن کارها
         </button>
     </form>
 </div>

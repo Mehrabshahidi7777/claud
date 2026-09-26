@@ -64,7 +64,7 @@
                     @if ($clash->isNotEmpty())
                         <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
                             <p class="text-xs font-medium text-amber-900">
-                                {{ $clash->count() }} تسک باز در همین بازه سررسید دارد:
+                                {{ $clash->count() }} کار باز در همین بازه سررسید دارد:
                             </p>
                             <ul class="tabular mt-1.5 space-y-1 text-xs text-amber-900">
                                 @foreach ($clash as $task)
