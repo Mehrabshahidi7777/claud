@@ -14,7 +14,7 @@
 | `php-fpm.conf` | `/etc/php/8.4/fpm/pool.d/peygir.conf` | اجرای PHP با کاربر خود برنامه |
 | `supervisor.conf` | `/etc/supervisor/conf.d/peygir.conf` | صف (پردازش پاسخ‌های پیامکی) |
 | `deploy.sh` | همین‌جا می‌ماند | هر به‌روزرسانی با یک دستور |
-| `backup.sh` | همین‌جا می‌ماند | بکاپ شبانه‌ی دیتابیس |
+| `backup.sh` | همین‌جا می‌ماند | بکاپ شبانه‌ی دیتابیس و لوگوها |
 
 ---
 
@@ -386,15 +386,16 @@ password=همان-رمز-بخش-۳
 EOF
 chmod 600 ~/.my.cnf
 
-bash /var/www/peygir/docs/deploy/backup.sh && ls ~/backups     # یک فایل .sql.gz
+bash /var/www/peygir/docs/deploy/backup.sh && ls ~/backups     # یک .sql.gz و یک .tar.gz
 exit
 ```
 
+هر شب دو فایل ساخته می‌شود: `.sql.gz` (دیتابیس) و `.tar.gz` (لوگوی اسپانسرها).
 بکاپ‌ها ۱۴ روز در `/home/peygir/backups` می‌مانند. **هفته‌ای یک‌بار یک نسخه را روی
 کامپیوتر خودتان بیاورید.** بکاپی که روی همان دیسک است، بکاپ نیست:
 
 ```powershell
-scp peygir@SERVER_IP:backups/*.sql.gz .
+scp peygir@SERVER_IP:backups/*.gz .
 ```
 
 یک نسخه از فایل `.env` را هم جای امنی نگه دارید. بدون `APP_KEY` آن، نشست‌ها و
